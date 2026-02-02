@@ -1,0 +1,38 @@
+<div class="sidebar d-flex flex-column">
+	<div class="sidebar-title mb-4"><i class="fa-solid fa-gauge-high me-2"></i>ARTA Dashboard</div>
+	<!-- Navigation Links -->
+	<a href="dashboard.php" class="nav-link active"><i class="fa-solid fa-house"></i>Home</a>
+	<a href="users.php" class="nav-link"><i class="fa-solid fa-users"></i>Users</a>
+
+	<!-- Assignments with Sub-options -->
+	<div class="nav-item">
+		<a href="#assignmentsSubMenu" class="nav-link" data-bs-toggle="collapse" aria-expanded="false"><i
+				class="fa-solid fa-id-card"></i>Assignments</a>
+		<div class="collapse sub-menu" id="assignmentsSubMenu">
+			<a href="office.php" class="nav-link sub-item"><i class="fa-regular fa-file"></i>Office
+			</a>
+			<a href="division_for_office.php" class="nav-link sub-item"><i class="fa-regular fa-file"></i>Division
+			</a>
+			<a href="unit_for_division.php" class="nav-link sub-item"><i class="fa-regular fa-file"></i>Unit </a>
+		</div>
+	</div>
+
+	<a href="designation.php" class="nav-link"><i class="fa-solid fa-person"></i>Designation</a>
+	<a href="system.php" class="nav-link"><i class="fa-solid fa-desktop"></i>System</a>
+	<a href="activities.php" class="nav-link"><i class="fa-solid fa-list"></i>Activities</a>
+	<a href="settings.php" class="nav-link"><i class="fa-solid fa-gear"></i>Settings</a>
+	<a href="../../login form/login.php" class="nav-link"><i class="fa-solid fa-right-from-bracket"></i>Logout</a>
+</div>
+
+<style>
+/* Style for sub-menu */
+.sub-menu {
+	margin-left: 20px;
+	/* Indent the sub-menu */
+}
+
+.sub-item {
+	font-size: 14px;
+	/* Smaller font size for sub-items */
+}
+</style>
