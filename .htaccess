@@ -1,0 +1,30 @@
+# Enable Rewrite Engine
+RewriteEngine On
+RewriteBase /arta-portal/
+
+# Allow access to PHP files in /api
+<Files "*.php">
+    Require all granted
+</Files>
+
+
+# Deny access to sensitive files
+<FilesMatch "(^\.|config\.php|config_system\.php|\.env)">
+    Require all denied
+</FilesMatch>
+
+# Rewrite rule: remove .php extension
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php [NC,L]
+
+# Custom error pages
+ErrorDocument 403 "Access Denied"
+ErrorDocument 404 "Page Not Found"
+
+# Security headers
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
