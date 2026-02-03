@@ -153,7 +153,7 @@
 	#contact button {
 		border-radius: 10px;
 		font-weight: 600;
-		background: #6366f1;
+		background: #040651ff;
 		border: none;
 	}
 
@@ -163,7 +163,7 @@
 
 	/* Footer */
 	footer {
-		background: linear-gradient(to right, #1a1a2e, #161387);
+		background: linear-gradient(to right, #05051cff, #00000038);
 		color: #bbb;
 		text-align: center;
 		padding: 30px 15px;
@@ -171,7 +171,7 @@
 	}
 
 	footer a {
-		color: #7bfafa;
+		color: #055c5cff;
 		margin: 0 12px;
 		font-size: 1.3rem;
 		transition: 0.3s;
@@ -225,7 +225,7 @@
 		margin-top: 18px;
 		font-size: 1.1rem;
 		font-weight: 600;
-		background: linear-gradient(90deg, #6366f1, #2d7065, #6366f1);
+		background: linear-gradient(90deg, #06072cff, #2d7065, #03042fff);
 		background-size: 200% 100%;
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
@@ -285,7 +285,7 @@
 		<div class="container">
 			<h1>Welcome to ARTA Portal</h1>
 			<p>Streamlining processes, empowering businesses, and enabling seamless services.</p>
-			<a href="#about" class="btn btn-main">Learn More</a>
+			<a href="start.php" class="btn btn-main">Go to Login form</a>
 		</div>
 	</section>
 

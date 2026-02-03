@@ -539,7 +539,7 @@
 				</form>
 
 				<div class="flip-btn" id="flipToSSO">
-					<i class="fas fa-exchange-alt"></i> Secure SSO Authentication
+					<i class="fas fa-exchange-alt text-danger"></i> Secure SSO Authentication
 				</div>
 			</div>
 
