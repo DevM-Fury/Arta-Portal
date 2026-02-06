@@ -59,6 +59,7 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
+		padding: 20px;
 	}
 
 	.card-back {
@@ -83,16 +84,34 @@
 		color: #e0e0e0;
 	}
 
-	.system-icon {
+	.system-logo {
+		width: 70px;
+		height: 70px;
+		object-fit: contain;
+		margin-bottom: 15px;
+		border-radius: 8px;
+	}
+
+	.system-icon-placeholder {
 		font-size: 45px;
 		color: #0d6efd;
-		margin-bottom: 10px;
+		margin-bottom: 15px;
 	}
 
 	.card-title {
 		font-size: 18px;
 		font-weight: 600;
 		margin-bottom: 5px;
+		color: #333;
+	}
+	
+	.card-role {
+		font-size: 14px;
+		color: #6c757d;
+		background: #f8f9fa;
+		padding: 3px 10px;
+		border-radius: 20px;
+		margin-top: 5px;
 	}
 	</style>
 
@@ -116,20 +135,34 @@
 				const card = document.createElement('div');
 				card.className = 'col-md-3 mb-4';
 
-				let iconClass = 'fa-cogs';
-				const name = system.system_name.toLowerCase();
-				if (name.includes('subadmin')) iconClass = 'fa-shield-alt';
-				else if (name.includes('lto')) iconClass = 'fa-network-wired';
-				else if (name.includes('hr')) iconClass = 'fa-users';
-				else if (name.includes('finance')) iconClass = 'fa-dollar-sign';
+				let logoHtml = '';
+				
+				// Gumamit ng logo_path kung available
+				if (system.logo_path && system.logo_path.trim() !== '') {
+					// Direct path - nasa same directory (pages) ang dashboard.php
+					// at logo files (assuming logo_path includes uploads/systems/)
+					const logoPath = system.logo_path;
+					
+					logoHtml = `
+						<img src="${logoPath}" 
+							 alt="${system.system_name}" 
+							 class="system-logo" 
+							 onerror="this.onerror=null; 
+									  this.classList.add('system-icon-placeholder');
+									  this.outerHTML = '<i class=\"fa-solid fa-cogs system-icon-placeholder\"></i>';">`;
+				} else {
+					// Fallback sa icon kung walang logo
+					let iconClass = getSystemIcon(system.system_name);
+					logoHtml = `<i class="fa-solid ${iconClass} system-icon-placeholder"></i>`;
+				}
 
 				card.innerHTML = `
 						<div class="system-card">
 							<div class="card-inner">
 								<div class="card-front">
-									<i class="fa-solid ${iconClass} system-icon"></i>
+									${logoHtml}
 									<h5 class="card-title">${system.system_name}</h5>
-									<p class="text-muted mb-0">${system.role.toUpperCase()}</p>
+									<div class="card-role">${system.role.toUpperCase()}</div>
 								</div>
 								<div class="card-back">
 									<i class="fa-solid fa-right-to-bracket"></i>
@@ -158,12 +191,38 @@
 		}
 	}
 
+	// Function para sa fallback icons
+	function getSystemIcon(systemName) {
+		const name = systemName.toLowerCase();
+		if (name.includes('subadmin') || name.includes('admin')) return 'fa-shield-alt';
+		else if (name.includes('lto') || name.includes('license')) return 'fa-id-card';
+		else if (name.includes('hr') || name.includes('human')) return 'fa-users';
+		else if (name.includes('finance') || name.includes('payroll')) return 'fa-dollar-sign';
+		else if (name.includes('inventory') || name.includes('stock')) return 'fa-boxes';
+		else if (name.includes('sales') || name.includes('customer')) return 'fa-shopping-cart';
+		else if (name.includes('portal') || name.includes('gateway')) return 'fa-door-open';
+		else return 'fa-cogs';
+	}
+
 	function goToSystem(url) {
 		if (!url) {
 			Swal.fire('Error', 'System URL not available.', 'error');
 			return;
 		}
-		window.location.href = url;
+		// Dagdagan ng loading indicator bago mag-redirect
+		Swal.fire({
+			title: 'Redirecting...',
+			text: 'Please wait while we connect you to the system',
+			allowOutsideClick: false,
+			didOpen: () => {
+				Swal.showLoading();
+			}
+		});
+		
+		// Mag-redirect after ng konting delay
+		setTimeout(() => {
+			window.location.href = url;
+		}, 1000);
 	}
 
 	window.addEventListener('DOMContentLoaded', loadDashboardSystems);

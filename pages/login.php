@@ -45,13 +45,16 @@
 		width: 100%;
 		max-width: 1200px;
 		display: flex;
-		align-items: center;
+		align-items: stretch;
 		gap: 60px;
 	}
 
 	.hero-section {
 		flex: 1;
 		padding-right: 40px;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
 	}
 
 	.hero-title {
@@ -125,6 +128,8 @@
 		position: relative;
 		transform-style: preserve-3d;
 		transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+		display: flex;
+		align-items: stretch;
 	}
 
 	.card-container.flipped {
@@ -141,11 +146,14 @@
 			0 0 0 1px rgba(0, 102, 204, 0.1),
 			inset 0 1px 0 rgba(255, 255, 255, 0.1);
 		width: 100%;
-		height: 520px;
+		height: 100%;
+		min-height: 550px;
 		position: absolute;
 		backface-visibility: hidden;
-		padding: 40px;
+		padding: 35px 40px 30px;
 		overflow: hidden;
+		display: flex;
+		flex-direction: column;
 	}
 
 	.login-card::before {
@@ -167,11 +175,12 @@
 		align-items: center;
 		justify-content: center;
 		flex-direction: column;
+		padding: 35px 40px 30px;
 	}
 
 	.login-header {
 		text-align: center;
-		margin-bottom: 2rem;
+		margin-bottom: 1.5rem;
 	}
 
 	.logo-container {
@@ -182,7 +191,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		margin: 0 auto 20px;
+		margin: 0 auto 15px;
 		box-shadow: 0 0 30px rgba(0, 102, 204, 0.4);
 	}
 
@@ -198,18 +207,19 @@
 		color: var(--text-light);
 		letter-spacing: 0.5px;
 		font-size: 1.5rem;
-		margin-bottom: 8px;
+		margin-bottom: 6px;
 	}
 
 	.login-header p {
 		color: var(--text-muted);
 		font-size: 0.9rem;
+		margin-bottom: 0;
 	}
 
 	.form-label {
 		font-weight: 600;
 		color: var(--text-light);
-		margin-bottom: 10px;
+		margin-bottom: 8px;
 		font-size: 14px;
 		display: flex;
 		align-items: center;
@@ -225,7 +235,7 @@
 
 	.input-group {
 		position: relative;
-		margin-bottom: 1.5rem;
+		margin-bottom: 1.2rem;
 	}
 
 	.form-control {
@@ -263,7 +273,7 @@
 		background: linear-gradient(135deg, var(--cyber-blue), #0052a3);
 		border: none;
 		border-radius: 10px;
-		padding: 15px;
+		padding: 14px;
 		font-weight: 600;
 		font-size: 15px;
 		letter-spacing: 0.5px;
@@ -272,7 +282,8 @@
 		color: white;
 		position: relative;
 		overflow: hidden;
-		margin-top: 10px;
+		margin-top: 8px;
+		margin-bottom: 10px;
 	}
 
 	.btn-primary:hover {
@@ -287,8 +298,8 @@
 
 	.register-link {
 		text-align: center;
-		margin-top: 1.5rem;
-		padding-top: 1.5rem;
+		margin-top: 1rem;
+		padding-top: 1rem;
 		border-top: 1px solid rgba(255, 255, 255, 0.1);
 	}
 
@@ -296,6 +307,7 @@
 		color: var(--text-muted);
 		margin-bottom: 0;
 		font-size: 14px;
+		line-height: 1.4;
 	}
 
 	.register-link a {
@@ -303,6 +315,8 @@
 		font-weight: 600;
 		text-decoration: none;
 		transition: all 0.3s ease;
+		display: inline-block;
+		margin-top: 2px;
 	}
 
 	.register-link a:hover {
@@ -310,7 +324,7 @@
 	}
 
 	.flip-btn {
-		margin-top: 1.5rem;
+		margin-top: 1.2rem;
 		color: var(--cyber-blue);
 		font-weight: 600;
 		cursor: pointer;
@@ -336,7 +350,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		margin-bottom: 25px;
+		margin-bottom: 20px;
 		box-shadow: 0 0 30px rgba(0, 102, 204, 0.4);
 	}
 
@@ -349,21 +363,24 @@
 	.card-back h4 {
 		font-weight: 700;
 		color: var(--text-light);
-		margin-bottom: 10px;
+		margin-bottom: 8px;
 		font-size: 1.3rem;
 	}
 
 	.card-back p {
 		color: var(--text-muted);
-		margin-bottom: 30px;
+		margin-bottom: 25px;
 		font-size: 0.9rem;
 		max-width: 300px;
+		line-height: 1.5;
 	}
 
 	.card-back .btn-primary {
 		width: auto;
 		padding: 12px 40px;
 		font-size: 1rem;
+		margin-top: 0;
+		margin-bottom: 20px;
 	}
 
 	/* Password toggle */
@@ -408,11 +425,13 @@
 		.container {
 			flex-direction: column;
 			gap: 40px;
+			align-items: center;
 		}
 		
 		.hero-section {
 			padding-right: 0;
 			text-align: center;
+			justify-content: flex-start;
 		}
 		
 		.hero-title {
@@ -424,12 +443,25 @@
 			max-width: 400px;
 			margin: 30px auto 0;
 		}
+		
+		.card-container {
+			align-items: center;
+		}
+		
+		.login-card {
+			height: auto;
+			min-height: 520px;
+		}
 	}
 
 	@media (max-width: 576px) {
 		.login-card {
-			padding: 30px 25px;
-			height: 500px;
+			padding: 25px 20px;
+			min-height: 500px;
+		}
+		
+		.card-back {
+			padding: 25px 20px;
 		}
 		
 		.hero-title {
@@ -438,6 +470,22 @@
 		
 		.card-back .btn-primary {
 			padding: 12px 30px;
+			margin-bottom: 15px;
+		}
+		
+		.logo-container {
+			width: 70px;
+			height: 70px;
+			margin-bottom: 12px;
+		}
+		
+		.logo-container img {
+			width: 45px;
+			height: 45px;
+		}
+		
+		.login-header h3 {
+			font-size: 1.3rem;
 		}
 	}
 	</style>
@@ -529,10 +577,10 @@
 						</div>
 					</div>
 
-					<button class="btn btn-primary w-100 mt-2">Authenticate & Access</button>
+					<button class="btn btn-primary w-100">Authenticate & Access</button>
 
 					<div class="register-link">
-						<p class="mt-3 mb-0">New government personnel?
+						<p class="mb-0">New government personnel?<br>
 							<a href="registration.php">Request access here</a>
 						</p>
 					</div>
@@ -551,7 +599,7 @@
 				<h4>FEDERATED IDENTITY ACCESS</h4>
 				<p>Use your government single sign-on credentials for unified secure access</p>
 				<button id="ssoLogin" class="btn btn-primary px-4">Proceed to SSO Gateway</button>
-				<div class="flip-btn mt-3" id="flipBack">
+				<div class="flip-btn" id="flipBack">
 					<i class="fas fa-arrow-left"></i> Standard Authentication
 				</div>
 			</div>
@@ -562,12 +610,12 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 
 	<script>
-	// Flip card logic (EXACT SAME as your code)
+	// Flip card logic
 	const flipCard = document.getElementById('flipCard');
 	document.getElementById('flipToSSO').addEventListener('click', () => flipCard.classList.add('flipped'));
 	document.getElementById('flipBack').addEventListener('click', () => flipCard.classList.remove('flipped'));
 
-	// Password toggle (NEW feature - doesn't affect backend)
+	// Password toggle
 	const passwordInput = document.getElementById('passwordInput');
 	const passwordToggle = document.getElementById('passwordToggle');
 	if (passwordToggle && passwordInput) {
@@ -578,17 +626,17 @@
 		});
 	}
 
-	// ✅ Handle SSO Click (EXACT SAME as your code)
+	// ✅ Handle SSO Click
 	document.getElementById('ssoLogin').addEventListener('click', () => {
-		window.location.href = "/sso/login"; // <--- Change this to your SSO route
+		window.location.href = "/sso/login";
 	});
 
-	// ✅ Normal Login (EXACT SAME as your code)
+	// ✅ Normal Login (SIMPLE VERSION WITHOUT CSRF)
 	const form = document.getElementById('loginForm');
 	form.addEventListener('submit', async (e) => {
 		e.preventDefault();
 		const formData = Object.fromEntries(new FormData(form));
-
+		
 		try {
 			const res = await fetch("../api/auth/login.php", {
 				method: "POST",

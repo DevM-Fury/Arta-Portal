@@ -17,9 +17,14 @@ if (!isset($_SESSION['user']['portal_id'])) {
 $portal_id = $_SESSION['user']['portal_id'];
 
 try {
-    // Fetch systems assigned to the user
+    // Fetch systems assigned to the user WITH logo_path
     $stmt = $pdo->prepare("
-        SELECT s.id AS system_id, s.system_name, s.domain_url, ua.role
+        SELECT 
+            s.id AS system_id, 
+            s.system_name, 
+            s.domain_url, 
+            s.logo_path,
+            ua.role
         FROM user_system_access ua
         JOIN systems s ON s.id = ua.system_id
         WHERE ua.portal_id = :portal_id
@@ -30,11 +35,22 @@ try {
 
     // If user is admin, give access to all systems
     if ($_SESSION['user']['role'] === 'admin') {
-        $stmt2 = $pdo->query("SELECT id AS system_id, system_name, domain_url, 'subadmin' AS role FROM systems ORDER BY system_name");
+        $stmt2 = $pdo->query("
+            SELECT 
+                id AS system_id, 
+                system_name, 
+                domain_url, 
+                logo_path, 
+                'subadmin' AS role 
+            FROM systems 
+            ORDER BY system_name
+        ");
         $assigned_systems = $stmt2->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Return empty array if no systems found
     echo json_encode($assigned_systems ?: []);
+    
 } catch (PDOException $e) {
     echo json_encode([
         'status' => 500,

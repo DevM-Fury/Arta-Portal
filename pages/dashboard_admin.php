@@ -21,7 +21,7 @@ $totalUnits = $conn->query("SELECT COUNT(*) FROM public.units WHERE unit_status=
 <style>
     /* Dashboard Styles */
     .header-bar {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #040927ff 0%, #080220ff 100%);
         box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     }
     
@@ -159,23 +159,23 @@ $totalUnits = $conn->query("SELECT COUNT(*) FROM public.units WHERE unit_status=
     
     /* Different colors for each card icon */
     .card:nth-child(1) .card-icon {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #050b28ff 0%, #050b28ff 100%);
     }
     .card:nth-child(2) .card-icon {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        background: linear-gradient(135deg, #050b28ff 0%, #050b28ff 100%);
     }
     .card:nth-child(3) .card-icon {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        background: linear-gradient(135deg, #050b28ff 0%, #050b28ff 100%);
     }
     .card:nth-child(4) .card-icon {
-        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        background: linear-gradient(135deg, #050b28ff 0%, #050b28ff 100%);
     }
     .card:nth-child(5) .card-icon {
-        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        background: linear-gradient(135deg, #050b28ff 0%, #050b28ff 100%);
     }
     .card:nth-child(6) .card-icon {
-        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-        color: #333;
+        background: linear-gradient(135deg, #050b28ff 0%, #050b28ff 100%);
+        color: #f7f4f4ff;
     }
 </style>
 
