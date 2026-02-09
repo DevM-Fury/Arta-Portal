@@ -1,34 +1,48 @@
 <?php
+// api/divisions/get_divisions.php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: GET");
+header("Access-Control-Max-Age: 3600");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+
 require_once __DIR__ . '/../../includes/config_system.php';
 
-$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
-$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-$offset = ($page - 1) * $limit;
-
 try {
-    $totalQuery = $pdo_system->query("SELECT COUNT(*) FROM divisions");
-    $totalRows = (int)$totalQuery->fetchColumn();
-    $totalPages = $limit > 0 ? (int)ceil($totalRows / $limit) : 1;
-
-    $sql = "
-        SELECT d.id, d.division_name, d.division_description, d.division_status, d.office_id,
-               o.office_name, d.created_at, d.updated_at
-        FROM divisions d
-        LEFT JOIN offices o ON d.office_id = o.id
-        ORDER BY d.id ASC
-        LIMIT :limit OFFSET :offset
-    ";
-    $stmt = $pdo_system->prepare($sql);
-    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 1000;
+    $office_id = isset($_GET['office_id']) ? (int)$_GET['office_id'] : null;
+    
+    if ($office_id) {
+        $query = "SELECT id, division_name, division_code, office_id FROM divisions WHERE status = 'active' AND office_id = :office_id ORDER BY division_name LIMIT :limit";
+        $stmt = $pdo_system->prepare($query);
+        $stmt->bindParam(':office_id', $office_id);
+    } else {
+        $query = "SELECT id, division_name, division_code, office_id FROM divisions WHERE status = 'active' ORDER BY division_name LIMIT :limit";
+        $stmt = $pdo_system->prepare($query);
+    }
+    
+    $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
     $stmt->execute();
+    
     $divisions = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    respond_system(200, "Divisions fetched successfully", [
-        'divisions' => $divisions,
-        'totalPages' => $totalPages,
-        'currentPage' => $page
+    
+    echo json_encode([
+        "status" => 200,
+        "message" => "Divisions retrieved successfully",
+        "data" => [
+            "divisions" => $divisions,
+            "count" => count($divisions)
+        ]
     ]);
-} catch (Exception $e) {
-    respond_system(500, "Failed to fetch divisions", ['error' => $e->getMessage()]);
+    
+} catch(PDOException $e) {
+    http_response_code(500);
+    echo json_encode([
+        "status" => 500,
+        "message" => "Database error: " . $e->getMessage()
+    ]);
 }
+?>

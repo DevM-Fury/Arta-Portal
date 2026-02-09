@@ -1,34 +1,48 @@
 <?php
+// api/units/get_units.php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: GET");
+header("Access-Control-Max-Age: 3600");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+
 require_once __DIR__ . '/../../includes/config_system.php';
 
-$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
-$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-$offset = ($page - 1) * $limit;
-
 try {
-    $totalQuery = $pdo_system->query("SELECT COUNT(*) FROM units");
-    $totalRows = (int)$totalQuery->fetchColumn();
-    $totalPages = $limit > 0 ? (int)ceil($totalRows / $limit) : 1;
-
-    $sql = "
-        SELECT u.id, u.unit_name, u.unit_description, u.unit_status, u.division_id,
-               d.division_name, u.created_at, u.updated_at
-        FROM units u
-        LEFT JOIN divisions d ON u.division_id = d.id
-        ORDER BY u.id ASC
-        LIMIT :limit OFFSET :offset
-    ";
-    $stmt = $pdo_system->prepare($sql);
-    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 1000;
+    $division_id = isset($_GET['division_id']) ? (int)$_GET['division_id'] : null;
+    
+    if ($division_id) {
+        $query = "SELECT id, unit_name, unit_code, division_id FROM units WHERE status = 'active' AND division_id = :division_id ORDER BY unit_name LIMIT :limit";
+        $stmt = $pdo_system->prepare($query);
+        $stmt->bindParam(':division_id', $division_id);
+    } else {
+        $query = "SELECT id, unit_name, unit_code, division_id FROM units WHERE status = 'active' ORDER BY unit_name LIMIT :limit";
+        $stmt = $pdo_system->prepare($query);
+    }
+    
+    $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
     $stmt->execute();
+    
     $units = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    respond_system(200, "Units fetched successfully", [
-        'units' => $units,
-        'totalPages' => $totalPages,
-        'currentPage' => $page
+    
+    echo json_encode([
+        "status" => 200,
+        "message" => "Units retrieved successfully",
+        "data" => [
+            "units" => $units,
+            "count" => count($units)
+        ]
     ]);
-} catch (Exception $e) {
-    respond_system(500, "Failed to fetch units", ['error' => $e->getMessage()]);
+    
+} catch(PDOException $e) {
+    http_response_code(500);
+    echo json_encode([
+        "status" => 500,
+        "message" => "Database error: " . $e->getMessage()
+    ]);
 }
+?>

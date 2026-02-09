@@ -1,174 +1,173 @@
 <?php
-require_once __DIR__ . '/../../includes/config.php';
-session_start();
+// api/auth/register.php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-header("Content-Type: application/json; charset=utf-8");
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: POST");
+header("Access-Control-Max-Age: 3600");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-// Check request method
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['status'=>'error','message'=>'Method not allowed']);
-    exit;
-}
+// Include the existing config_system.php instead of Database class
+require_once __DIR__ . '/../../includes/config_system.php';
 
-// GET RID OF CSRF TOKEN CHECK (COMMENT IT OUT FOR NOW)
-// $headers = getallheaders();
-// $clientToken = $headers['X-REG-TOKEN'] ?? $headers['x-reg-token'] ?? null;
-// 
-// if (empty($clientToken) || empty($_SESSION['reg_token']) || !hash_equals($_SESSION['reg_token'], $clientToken)) {
-//     http_response_code(401);
-//     echo json_encode(['status'=>'error','message'=>'Invalid or missing registration token.']);
-//     exit;
-// }
-// unset($_SESSION['reg_token'], $_SESSION['reg_token_exp']);
+// Get posted data
+$raw_data = file_get_contents("php://input");
+error_log("Received data: " . $raw_data);
 
-// Get input JSON
-$input = json_decode(file_get_contents('php://input'), true);
-if (json_last_error() !== JSON_ERROR_NONE) {
+$data = json_decode($raw_data);
+
+if(empty($data)) {
     http_response_code(400);
-    echo json_encode(['status'=>'error','message'=>'Invalid JSON data']);
-    exit;
+    echo json_encode([
+        "status" => 400,
+        "message" => "No data received.",
+        "raw_data" => $raw_data
+    ]);
+    exit();
 }
 
-$required = ['national_id','firstname','lastname','contact','email','password','confirm_password'];
+// Check required fields
+$required_fields = ['national_id', 'firstname', 'lastname', 'email', 'password', 'contact'];
+$missing_fields = [];
 
-foreach ($required as $f) {
-    if (empty($input[$f])) {
-        http_response_code(400);
-        echo json_encode(['status'=>'error','message'=>"Missing $f"]);
-        exit;
+foreach($required_fields as $field) {
+    if(empty($data->$field)) {
+        $missing_fields[] = $field;
     }
 }
 
-// Sanitize & validate
-$national_id = preg_replace('/\D+/', '', $input['national_id']);
-$firstname = trim(htmlspecialchars($input['firstname']));
-$lastname = trim(htmlspecialchars($input['lastname']));
-$contact = preg_replace('/\D+/', '', $input['contact']);
-$email = filter_var($input['email'], FILTER_SANITIZE_EMAIL);
-$password = $input['password'];
-$confirm = $input['confirm_password'];
-
-// 1. Validate email domain (@arta.gov.ph only)
-if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+if(!empty($missing_fields)) {
     http_response_code(400);
-    echo json_encode(['status'=>'error','message'=>'Invalid email format']);
-    exit;
-}
-
-if (!preg_match('/@arta\.gov\.ph$/i', $email)) {
-    http_response_code(400);
-    echo json_encode(['status'=>'error','message'=>'Only @arta.gov.ph government emails are allowed']);
-    exit;
-}
-
-// 2. Validate password (min 6 alphanumeric)
-if (strlen($password) < 6) {
-    http_response_code(400);
-    echo json_encode(['status'=>'error','message'=>'Password must be at least 6 characters']);
-    exit;
-}
-
-if (!preg_match('/^[a-zA-Z0-9]+$/', $password)) {
-    http_response_code(400);
-    echo json_encode(['status'=>'error','message'=>'Password must contain only letters and numbers (alphanumeric)']);
-    exit;
-}
-
-if ($password !== $confirm) {
-    http_response_code(400);
-    echo json_encode(['status'=>'error','message'=>'Passwords do not match']);
-    exit;
-}
-
-// 3. Validate National ID (12 digits)
-if (strlen($national_id) !== 12 || !preg_match('/^\d{12}$/', $national_id)) {
-    http_response_code(400);
-    echo json_encode(['status'=>'error','message'=>'National ID must be exactly 12 digits']);
-    exit;
-}
-
-// 4. Validate contact number (Philippine format: 11 digits starting with 9)
-if (strlen($contact) !== 11 || !preg_match('/^9\d{10}$/', $contact)) {
-    http_response_code(400);
-    echo json_encode(['status'=>'error','message'=>'Contact must be a valid Philippine mobile number (11 digits starting with 9)']);
-    exit;
-}
-
-// Check for duplicate email and national_id BEFORE hashing
-try {
-    $pdo = new PDO("pgsql:host=$DB_HOST;dbname=$DB_NAME", $DB_USER, $DB_PASS, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+    echo json_encode([
+        "status" => 400,
+        "message" => "Missing required fields: " . implode(', ', $missing_fields),
+        "received_data" => $data
     ]);
+    exit();
+}
+
+try {
+    // Prepare data
+    $national_id = $data->national_id;
+    $firstname = htmlspecialchars(strip_tags($data->firstname));
+    $lastname = htmlspecialchars(strip_tags($data->lastname));
+    $email = filter_var($data->email, FILTER_SANITIZE_EMAIL);
+    $password = $data->password;
+    $contact = $data->contact;
+    $office_id = isset($data->office_id) ? $data->office_id : null;
+    $division_id = isset($data->division_id) ? $data->division_id : null;
+    $unit_id = isset($data->unit_id) ? $data->unit_id : null;
+    $designation_id = isset($data->designation_id) ? $data->designation_id : null;
+    $role = 'user';
+    
+    error_log("Processing registration for: " . $email);
     
     // Check if email exists
-    $checkEmail = $pdo->prepare("SELECT portal_id FROM user_tbl WHERE email = :email");
-    $checkEmail->execute([':email' => $email]);
-    if ($checkEmail->fetch()) {
-        http_response_code(400);
-        echo json_encode(['status'=>'error','message'=>'Email already registered']);
-        exit;
+    $check_email_query = "SELECT COUNT(*) FROM user_tbl WHERE email = :email";
+    $check_email_stmt = $pdo_system->prepare($check_email_query);
+    $check_email_stmt->bindParam(':email', $email);
+    
+    if(!$check_email_stmt->execute()) {
+        error_log("Email check failed");
+        $error_info = $check_email_stmt->errorInfo();
+        error_log("Error info: " . print_r($error_info, true));
     }
     
-    // Check if national_id exists
-    $checkNationalId = $pdo->prepare("SELECT portal_id FROM user_tbl WHERE national_id = :nid");
-    $checkNationalId->execute([':nid' => $national_id]);
-    if ($checkNationalId->fetch()) {
+    $email_exists = $check_email_stmt->fetchColumn();
+    
+    if($email_exists > 0) {
+        error_log("Email already exists: " . $email);
         http_response_code(400);
-        echo json_encode(['status'=>'error','message'=>'National ID already registered']);
-        exit;
+        echo json_encode([
+            "status" => 400,
+            "message" => "Email already registered."
+        ]);
+        exit();
     }
     
-} catch (PDOException $e) {
-    error_log($e->getMessage());
-    http_response_code(500);
-    echo json_encode(['status'=>'error','message'=>'Database connection error']);
-    exit;
-}
-
-// Hash password
-$hashed = password_hash($password, PASSWORD_BCRYPT);
-
-// Insert into database
-try {
-    // Default role is 'user' (waiting for admin approval)
-    $role = 'user';
-    $status = 'pending'; // New users need admin approval
+    // Generate UUID for portal_id
+    $portal_id = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+        mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+        mt_rand(0, 0xffff),
+        mt_rand(0, 0x0fff) | 0x4000,
+        mt_rand(0, 0x3fff) | 0x8000,
+        mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+    );
     
-    $stmt = $pdo->prepare("INSERT INTO user_tbl 
-        (national_id, firstname, lastname, contact, email, password, role, status) 
-        VALUES (:nid, :fn, :ln, :contact, :email, :pw, :role, :status) 
-        RETURNING portal_id, date_created");
-
-    $stmt->execute([
-        ':nid' => $national_id,
-        ':fn' => $firstname,
-        ':ln' => $lastname,
-        ':contact' => $contact,
-        ':email' => $email,
-        ':pw' => $hashed,
-        ':role' => $role,
-        ':status' => $status
-    ]);
-
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    echo json_encode([
-        'status' => 'success',
-        'message' => 'Registration successful. Account pending administrator approval.',
-        'portal_id' => $row['portal_id'],
-        'date_created' => $row['date_created']
-    ]);
-
-} catch (PDOException $e) {
-    error_log($e->getMessage());
-    http_response_code(400);
+    // Hash password
+    $hashed_password = password_hash($password, PASSWORD_BCRYPT);
     
-    // Check for duplicate key violation
-    if (strpos($e->getMessage(), 'duplicate key') !== false) {
-        echo json_encode(['status'=>'error','message'=>'Email or National ID already registered']);
+    // Insert query - POSTGRESQL VERSION
+    $query = "INSERT INTO user_tbl 
+              (portal_id, national_id, firstname, lastname, email, password, contact, 
+               office_id, division_id, unit_id, designation_id, role, date_created) 
+              VALUES 
+              (:portal_id, :national_id, :firstname, :lastname, :email, :password, :contact,
+               :office_id, :division_id, :unit_id, :designation_id, :role, NOW())";
+    
+    error_log("Query: " . $query);
+    
+    $stmt = $pdo_system->prepare($query);
+    
+    // Bind parameters
+    $stmt->bindParam(':portal_id', $portal_id);
+    $stmt->bindParam(':national_id', $national_id);
+    $stmt->bindParam(':firstname', $firstname);
+    $stmt->bindParam(':lastname', $lastname);
+    $stmt->bindParam(':email', $email);
+    $stmt->bindParam(':password', $hashed_password);
+    $stmt->bindParam(':contact', $contact);
+    $stmt->bindParam(':role', $role);
+    $stmt->bindParam(':office_id', $office_id);
+    $stmt->bindParam(':division_id', $division_id);
+    $stmt->bindParam(':unit_id', $unit_id);
+    $stmt->bindParam(':designation_id', $designation_id);
+    
+    // Execute
+    if($stmt->execute()){
+        $last_id = $pdo_system->lastInsertId();
+        error_log("Registration successful. ID: " . $last_id);
+        
+        http_response_code(201);
+        echo json_encode([
+            "status" => 201,
+            "message" => "Registration successful!",
+            "data" => [
+                "portal_id" => $portal_id,
+                "email" => $email,
+                "name" => $firstname . " " . $lastname
+            ]
+        ]);
     } else {
-        echo json_encode(['status'=>'error','message'=>'Registration failed. Please try again. Error: ' . $e->getMessage()]);
+        $error_info = $stmt->errorInfo();
+        error_log("Insert failed: " . print_r($error_info, true));
+        
+        http_response_code(500);
+        echo json_encode([
+            "status" => 500,
+            "message" => "Insert failed.",
+            "error_info" => $error_info
+        ]);
     }
+    
+} catch(PDOException $exception) {
+    error_log("PDO Exception: " . $exception->getMessage());
+    error_log("Trace: " . $exception->getTraceAsString());
+    
+    http_response_code(500);
+    echo json_encode([
+        "status" => 500,
+        "message" => "Database exception: " . $exception->getMessage()
+    ]);
+} catch(Exception $exception) {
+    error_log("General Exception: " . $exception->getMessage());
+    
+    http_response_code(500);
+    echo json_encode([
+        "status" => 500,
+        "message" => "General exception: " . $exception->getMessage()
+    ]);
 }
+?>
