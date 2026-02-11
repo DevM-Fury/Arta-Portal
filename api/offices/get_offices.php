@@ -14,7 +14,8 @@ require_once __DIR__ . '/../../includes/config_system.php';
 try {
     $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 1000;
     
-    $query = "SELECT id, office_name, office_code FROM offices WHERE status = 'active' ORDER BY office_name LIMIT :limit";
+    // ✅ FIXED: inalis ang 'office_code' – wala sa table
+    $query = "SELECT id, office_name FROM offices WHERE status = 'Active' ORDER BY office_name LIMIT :limit";
     $stmt = $pdo_system->prepare($query);
     $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
     $stmt->execute();

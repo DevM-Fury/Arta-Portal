@@ -14,7 +14,11 @@ require_once __DIR__ . '/../../includes/config_system.php';
 try {
     $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 1000;
     
-    $query = "SELECT id, designation_name, designation_code, level FROM designations WHERE status = 'active' ORDER BY level, designation_name LIMIT :limit";
+    // ✅ FIXED: 
+    // - inalis ang 'level' (wala sa table)
+    // - pinalitan ang 'status' ng 'designation_status'
+    // - walang 'designation_code' (wala rin)
+    $query = "SELECT id, designation_name FROM designations WHERE designation_status = 'Active' ORDER BY designation_name LIMIT :limit";
     $stmt = $pdo_system->prepare($query);
     $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
     $stmt->execute();

@@ -61,8 +61,23 @@ function respond_system($statusCode, $message, $data = null) {
     exit;
 }
 
+
+
 // ✅ Upload directory
 define('SYSTEM_UPLOAD_DIR', __DIR__ . '/../uploads/');
 if (!file_exists(SYSTEM_UPLOAD_DIR)) {
     mkdir(SYSTEM_UPLOAD_DIR, 0777, true);
 }
+
+
+
+// ============================================
+// ✅ PHPMailer / Email Configuration
+// ============================================
+define('SMTP_HOST', getenv('SMTP_HOST') ?: 'smtp.gmail.com');
+define('SMTP_PORT', getenv('SMTP_PORT') ?: 587);
+define('SMTP_USER', getenv('SMTP_USER') ?: 'abayanm1430@gmail.com');
+define('SMTP_PASS', getenv('SMTP_PASS') ?: 'fiyejycuqkyjwtag'); // walang spaces
+define('SMTP_FROM', getenv('SMTP_FROM') ?: 'abayanm1430@gmail.com'); // MATCH dapat!
+define('SMTP_FROM_NAME', getenv('SMTP_FROM_NAME') ?: 'ARTA Portal');
+define('SMTP_ENCRYPTION', getenv('SMTP_ENCRYPTION') ?: 'tls');

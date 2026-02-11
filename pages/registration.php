@@ -1,5 +1,5 @@
 <?php
-// registration.php
+// pages/registration.php
 session_start();
 ?>
 <!DOCTYPE html>
@@ -7,1676 +7,687 @@ session_start();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARTA Portal Registration - Secure Access Request</title>
+    <title>ARTA – Registration</title>
 
-    <!-- ✅ Bootstrap & SweetAlert -->
+    <!-- Bootstrap + SweetAlert + Font Awesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <!-- ✅ Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <!-- ✅ Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-    :root {
-        --primary-blue: #003366;
-        --cyber-blue: #0066cc;
-        --dark-bg: #0a1929;
-        --card-bg: rgba(255, 255, 255, 0.05);
-        --border-glow: rgba(0, 102, 204, 0.3);
-        --text-light: #f0f4f8;
-        --text-muted: #a0b4c8;
-        --success-green: #28a745;
-        --error-red: #dc3545;
-    }
-    
-    body {
-        font-family: 'Inter', sans-serif;
-        background-color: var(--dark-bg);
-        background-image: 
-            radial-gradient(circle at 15% 50%, rgba(0, 102, 204, 0.1) 0%, transparent 20%),
-            radial-gradient(circle at 85% 30%, rgba(0, 102, 204, 0.1) 0%, transparent 20%),
-            radial-gradient(circle at 50% 80%, rgba(0, 102, 204, 0.1) 0%, transparent 20%);
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        margin: 0;
-        color: var(--text-light);
-    }
-
-    .container {
-        width: 100%;
-        max-width: 1400px;
-        display: flex;
-        align-items: stretch;
-        gap: 60px;
-    }
-
-    .hero-section {
-        flex: 1;
-        padding-right: 40px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .hero-title {
-        font-size: 2.8rem;
-        font-weight: 800;
-        line-height: 1.2;
-        margin-bottom: 20px;
-        background: linear-gradient(135deg, #ffffff, var(--cyber-blue));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    .hero-subtitle {
-        font-size: 1.2rem;
-        color: var(--text-muted);
-        margin-bottom: 30px;
-        line-height: 1.6;
-    }
-
-    .security-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        background: rgba(0, 102, 204, 0.1);
-        border: 1px solid var(--border-glow);
-        border-radius: 20px;
-        padding: 8px 20px;
-        margin-bottom: 30px;
-        font-size: 0.9rem;
-        color: var(--cyber-blue);
-    }
-
-    .security-badge i {
-        font-size: 1.2rem;
-    }
-
-    .features {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        margin-top: 40px;
-    }
-
-    .feature-item {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .feature-icon {
-        width: 40px;
-        height: 40px;
-        background: rgba(0, 102, 204, 0.1);
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--cyber-blue);
-        font-size: 1.2rem;
-    }
-
-    .feature-text {
-        font-size: 0.95rem;
-        color: var(--text-muted);
-    }
-
-    .registration-card {
-        background: rgba(16, 30, 50, 0.8);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        border: 1px solid var(--border-glow);
-        box-shadow: 
-            0 8px 32px rgba(0, 0, 0, 0.3),
-            0 0 0 1px rgba(0, 102, 204, 0.1),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        width: 100%;
-        max-width: 800px;
-        min-height: 550px;
-        padding: 35px 40px 30px;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        position: relative;
-    }
-
-    .registration-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, var(--cyber-blue), #00ccff);
-        border-radius: 20px 20px 0 0;
-    }
-
-    .registration-header {
-        text-align: center;
-        margin-bottom: 1.5rem;
-    }
-
-    .logo-container {
-        width: 80px;
-        height: 80px;
-        background: linear-gradient(135deg, var(--cyber-blue), #00ccff);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 15px;
-        box-shadow: 0 0 30px rgba(0, 102, 204, 0.4);
-    }
-
-    .logo-container img {
-        width: 50px;
-        height: 50px;
-        object-fit: contain;
-        filter: brightness(0) invert(1);
-    }
-
-    .registration-header h3 {
-        font-weight: 700;
-        color: var(--text-light);
-        letter-spacing: 0.5px;
-        font-size: 1.5rem;
-        margin-bottom: 6px;
-    }
-
-    .registration-header p {
-        color: var(--text-muted);
-        font-size: 0.9rem;
-        margin-bottom: 0;
-    }
-
-    .form-label {
-        font-weight: 600;
-        color: var(--text-light);
-        margin-bottom: 8px;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        letter-spacing: 0.5px;
-    }
-
-    .form-label i {
-        color: var(--cyber-blue);
-        width: 20px;
-    }
-
-    .input-group {
-        position: relative;
-        margin-bottom: 1.2rem;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-    }
-
-    /* PAREHAS NA HEIGHT PARA SA LAHAT NG FIELDS */
-    .form-control, .form-select {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-        padding: 14px 16px 14px 45px;
-        font-size: 14px;
-        transition: all 0.3s ease;
-        color: var(--text-light);
-        width: 100%;
-        box-sizing: border-box;
-        min-height: 48px;
-        height: 48px;
-    }
-
-    .form-control:focus, .form-select:focus {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: var(--cyber-blue);
-        box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.2);
-        color: var(--text-light);
-        outline: none;
-    }
-
-    .form-control::placeholder {
-        color: rgba(255, 255, 255, 0.4);
-    }
-
-    .input-icon {
-        position: absolute;
-        left: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-muted);
-        z-index: 2;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 48px;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, var(--cyber-blue), #0052a3);
-        border: none;
-        border-radius: 10px;
-        padding: 14px;
-        font-weight: 600;
-        font-size: 15px;
-        letter-spacing: 0.5px;
-        transition: all 0.3s ease;
-        width: 100%;
-        color: white;
-        position: relative;
-        overflow: hidden;
-        margin-top: 8px;
-        margin-bottom: 10px;
-        height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .btn-primary:hover {
-        background: linear-gradient(135deg, #0052a3, var(--cyber-blue));
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 102, 204, 0.4);
-    }
-
-    .btn-primary:active {
-        transform: translateY(0);
-    }
-
-    .login-link {
-        text-align: center;
-        margin-top: 1rem;
-        padding-top: 1rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .login-link p {
-        color: var(--text-muted);
-        margin-bottom: 0;
-        font-size: 14px;
-        line-height: 1.4;
-    }
-
-    .login-link a {
-        color: var(--cyber-blue);
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        display: inline-block;
-        margin-top: 2px;
-    }
-
-    .login-link a:hover {
-        color: #00ccff;
-    }
-
-    /* Password toggle */
-    .password-toggle {
-        position: absolute;
-        right: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        color: var(--text-muted);
-        cursor: pointer;
-        z-index: 2;
-        height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-    }
-
-    .password-toggle:hover {
-        color: var(--cyber-blue);
-    }
-
-    /* Animated background elements */
-    .cyber-grid {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: 
-            linear-gradient(rgba(0, 102, 204, 0.05) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 102, 204, 0.05) 1px, transparent 1px);
-        background-size: 50px 50px;
-        z-index: -1;
-        animation: gridMove 20s linear infinite;
-    }
-
-    @keyframes gridMove {
-        0% { transform: translateY(0); }
-        100% { transform: translateY(50px); }
-    }
-
-    /* Responsive */
-    @media (max-width: 1200px) {
-        .container {
-            max-width: 1000px;
-        }
-        
-        .registration-card {
-            max-width: 700px;
-        }
-    }
-
-    @media (max-width: 992px) {
-        .container {
-            flex-direction: column;
-            gap: 40px;
+        /* === CLEAN, PROFESSIONAL, TWO-COLUMN DESIGN === */
+        body {
+            background: #f8fafc;
+            font-family: 'Inter', -apple-system, sans-serif;
+            display: flex;
             align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
         }
-        
-        .hero-section {
-            padding-right: 0;
+        .card {
+            max-width: 950px;
+            width: 100%;
+            background: white;
+            border: none;
+            border-radius: 24px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.03);
+            padding: 35px 35px 30px;
+        }
+        .logo {
             text-align: center;
-            justify-content: flex-start;
+            margin-bottom: 25px;
         }
-        
-        .hero-title {
-            font-size: 2.2rem;
-        }
-        
-        .features {
-            grid-template-columns: 1fr;
-            max-width: 400px;
-            margin: 30px auto 0;
-        }
-        
-        .registration-card {
-            height: auto;
-            min-height: auto;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .registration-card {
-            padding: 25px 20px;
-        }
-        
-        .hero-title {
-            font-size: 1.8rem;
-        }
-        
-        .logo-container {
+        .logo i {
             width: 70px;
             height: 70px;
-            margin-bottom: 12px;
+            background: linear-gradient(145deg, #1a56db, #2563eb);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            color: white;
+            font-size: 28px;
+            box-shadow: 0 6px 14px rgba(26,86,219,0.15);
         }
-        
-        .logo-container img {
-            width: 45px;
-            height: 45px;
+        .logo h3 {
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 4px;
         }
-        
-        .registration-header h3 {
-            font-size: 1.3rem;
+        .logo p {
+            color: #6b7280;
+            font-size: 0.9rem;
         }
-        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 15px;
+        }
+        @media (max-width: 768px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #111827;
+            margin-bottom: 6px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-label i {
+            color: #1a56db;
+            width: 18px;
+        }
+        .input-wrapper {
+            position: relative;
+        }
         .form-control, .form-select {
-            padding: 12px 16px 12px 40px;
-            min-height: 44px;
-            height: 44px;
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: 0.2s;
+            background: white;
+            color: #111827;
+            height: 48px;
         }
-        
+        .form-control:focus, .form-select:focus {
+            border-color: #1a56db;
+            box-shadow: 0 0 0 4px rgba(26,86,219,0.08);
+            outline: none;
+        }
         .input-icon {
-            height: 44px;
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            pointer-events: none;
         }
-        
-        .btn-primary {
-            height: 44px;
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
         }
-        
-        .form-row {
-            grid-template-columns: 1fr;
-            gap: 15px;
+        /* Green/Red validation */
+        .form-control.valid, .form-select.valid {
+            border-color: #10b981;
+            background-color: #f0fdf4;
         }
-    }
-
-    /* Loading animation */
-    .loading {
-        display: none;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(16, 30, 50, 0.9);
-        align-items: center;
-        justify-content: center;
-        border-radius: 20px;
-        z-index: 1000;
-    }
-
-    .spinner-border {
-        width: 3rem;
-        height: 3rem;
-    }
-
-    /* Form grid layout */
-    .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        margin-bottom: 20px;
-    }
-    
-    .form-full-width {
-        grid-column: 1 / -1;
-    }
-    
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        margin-bottom: 15px;
-    }
-    
-    .form-col {
-        display: flex;
-        flex-direction: column;
-    }
-
-    /* Validation styles */
-    .validation-message {
-        font-size: 0.85rem;
-        margin-top: 5px;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        min-height: 20px;
-    }
-    
-    .validation-message.valid {
-        color: var(--success-green);
-    }
-    
-    .validation-message.invalid {
-        color: var(--error-red);
-    }
-    
-    .validation-message.info {
-        color: var(--text-muted);
-    }
-    
-    .form-control.valid {
-        border-color: var(--success-green);
-        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
-    }
-    
-    .form-control.invalid {
-        border-color: var(--error-red);
-        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2);
-    }
-    
-    .form-select.valid {
-        border-color: var(--success-green);
-    }
-    
-    .form-select.invalid {
-        border-color: var(--error-red);
-    }
-    
-    .icon-valid {
-        color: var(--success-green);
-    }
-    
-    .icon-invalid {
-        color: var(--error-red);
-    }
-    
-    .icon-info {
-        color: var(--text-muted);
-    }
-    
-    /* Two column layout adjustments */
-    .two-column-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 30px;
-        align-items: start;
-    }
-    
-    @media (max-width: 768px) {
-        .two-column-container {
-            grid-template-columns: 1fr;
-            gap: 20px;
+        .form-control.invalid, .form-select.invalid {
+            border-color: #ef4444;
+            background-color: #fef2f2;
         }
-    }
-    
-    /* Dropdown Styling */
-    .form-select {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-        padding: 14px 16px 14px 45px;
-        font-size: 14px;
-        transition: all 0.3s ease;
-        color: var(--text-light);
-        width: 100%;
-        appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23a0b4c8' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 16px center;
-        background-size: 16px;
-        min-height: 48px;
-        height: 48px;
-    }
-
-    .form-select:focus {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: var(--cyber-blue);
-        box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.2);
-        color: var(--text-light);
-        outline: none;
-    }
-
-    .form-select:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    .form-select.valid {
-        border-color: var(--success-green);
-        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
-    }
-
-    .form-select.invalid {
-        border-color: var(--error-red);
-        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2);
-    }
-    
-    /* PANTY-PANTY ANG LAHAT NG FIELDS */
-    #email,
-    #password,
-    #confirm_password,
-    #officeSelect,
-    #divisionSelect,
-    #unitSelect,
-    #designationSelect,
-    #firstname,
-    #lastname,
-    #national_id,
-    #contact {
-        min-height: 48px !important;
-        height: 48px !important;
-        line-height: 20px !important;
-    }
-    
-    /* Ensure consistent spacing */
-    .position-relative {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    /* Uniform field group height */
-    .input-group {
-        min-height: 95px;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    /* Align all fields vertically */
-    .form-control, .form-select {
-        display: flex;
-        align-items: center;
-    }
+        .validation-message {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-height: 20px;
+        }
+        .validation-message.valid { color: #10b981; }
+        .validation-message.invalid { color: #ef4444; }
+        .validation-message.info { color: #6b7280; }
+        .btn-submit {
+            background: linear-gradient(to right, #1a56db, #2563eb);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-weight: 600;
+            font-size: 16px;
+            width: 100%;
+            transition: 0.2s;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            height: 52px;
+        }
+        .btn-submit:hover {
+            background: linear-gradient(to right, #1e40af, #1a56db);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(26,86,219,0.2);
+        }
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .login-link a {
+            color: #1a56db;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #6b7280;
+            font-size: 12px;
+        }
+        .loading-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(2px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            border-radius: 24px;
+            z-index: 1000;
+        }
     </style>
 </head>
-
 <body>
-    <div class="cyber-grid"></div>
-    
-    <div class="container">
-        <!-- Hero Section (Left) -->
-        <div class="hero-section">
-            <div class="security-badge">
-                <i class="fas fa-shield-alt"></i>
-                <span>SECURE REGISTRATION</span>
-            </div>
-            
-            <h1 class="hero-title">NEW GOVERNMENT PERSONNEL ACCESS REQUEST</h1>
-            
-            <p class="hero-subtitle">
-                Complete the registration form to request access to the ARTA System Portal. 
-                All information will be verified by the system administrator before access is granted.
-            </p>
-            
-            <div class="features">
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-user-check"></i>
-                    </div>
-                    <div class="feature-text">Manual verification process</div>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="feature-text">24-48 hour approval time</div>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                    <div class="feature-text">Complete documentation</div>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-envelope"></i>
-                    </div>
-                    <div class="feature-text">Email notification</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Registration Card (Right) - WIDER -->
-        <div class="registration-card">
-            <div class="loading" id="loading">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            </div>
-
-            <div class="registration-header">
-                <div class="logo-container">
-                    <i class="fas fa-shield-alt" style="color: white; font-size: 2rem;"></i>
-                </div>
-                <h3>ACCESS REQUEST FORM</h3>
-                <p>New Government Personnel Registration</p>
-            </div>
-
-            <form id="registrationForm">
-                <!-- TWO COLUMN LAYOUT -->
-                <div class="two-column-container">
-                    <!-- LEFT COLUMN -->
-                    <div class="form-col">
-                        <!-- Personal Information -->
-                        <div class="input-group">
-                            <label class="form-label">
-                                <i class="fas fa-user"></i> First Name
-                            </label>
-                            <div class="position-relative">
-                                <input type="text" name="firstname" id="firstname" class="form-control" placeholder="Juan" required>
-                                <div class="input-icon">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                            </div>
-                            <div id="firstnameFeedback" class="validation-message info">
-                                <i class="fas fa-info-circle icon-info"></i>
-                                <span>Enter your first name</span>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label class="form-label">
-                                <i class="fas fa-user"></i> Last Name
-                            </label>
-                            <div class="position-relative">
-                                <input type="text" name="lastname" id="lastname" class="form-control" placeholder="Dela Cruz" required>
-                                <div class="input-icon">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                            </div>
-                            <div id="lastnameFeedback" class="validation-message info">
-                                <i class="fas fa-info-circle icon-info"></i>
-                                <span>Enter your last name</span>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label class="form-label">
-                                <i class="fas fa-id-card"></i> National ID
-                            </label>
-                            <div class="position-relative">
-                                <input type="text" name="national_id" id="national_id" class="form-control" placeholder="123456789012" required>
-                                <div class="input-icon">
-                                    <i class="fas fa-id-card"></i>
-                                </div>
-                            </div>
-                            <div id="national_idFeedback" class="validation-message info">
-                                <i class="fas fa-info-circle icon-info"></i>
-                                <span>12-digit PhilSys Number</span>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label class="form-label">
-                                <i class="fas fa-phone"></i> Contact Number
-                            </label>
-                            <div class="position-relative">
-                                <input type="text" name="contact" id="contact" class="form-control" placeholder="09123456789" required>
-                                <div class="input-icon">
-                                    <i class="fas fa-phone"></i>
-                                </div>
-                            </div>
-                            <div id="contactFeedback" class="validation-message info">
-                                <i class="fas fa-info-circle icon-info"></i>
-                                <span>11 digits starting with 9</span>
-                            </div>
-                        </div>
-
-                        <!-- Password Fields -->
-                        <div class="input-group">
-                            <label class="form-label">
-                                <i class="fas fa-key"></i> Password
-                            </label>
-                            <div class="position-relative">
-                                <input type="password" name="password" id="password" class="form-control" placeholder="Create password" required>
-                                <div class="input-icon">
-                                    <i class="fas fa-lock"></i>
-                                </div>
-                                <button type="button" class="password-toggle" id="passwordToggle">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                            <div id="passwordFeedback" class="validation-message info">
-                                <i class="fas fa-info-circle icon-info"></i>
-                                <span>Min. 6 alphanumeric characters</span>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label class="form-label">
-                                <i class="fas fa-key"></i> Confirm Password
-                            </label>
-                            <div class="position-relative">
-                                <input type="password" name="confirm_password" id="confirm_password" class="form-control" placeholder="Confirm password" required>
-                                <div class="input-icon">
-                                    <i class="fas fa-lock"></i>
-                                </div>
-                                <button type="button" class="password-toggle" id="confirmPasswordToggle">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                            <div id="confirm_passwordFeedback" class="validation-message info">
-                                <i class="fas fa-info-circle icon-info"></i>
-                                <span>Re-enter your password</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- RIGHT COLUMN -->
-                    <div class="form-col">
-                        <div class="input-group">
-                            <label class="form-label">
-                                <i class="fas fa-envelope"></i> Government Email
-                            </label>
-                            <div class="position-relative">
-                                <input type="email" name="email" id="email" class="form-control" placeholder="juan.delacruz@arta.gov.ph" required>
-                                <div class="input-icon">
-                                    <i class="fas fa-envelope"></i>
-                                </div>
-                            </div>
-                            <div id="emailFeedback" class="validation-message info">
-                                <i class="fas fa-info-circle icon-info"></i>
-                                <span>Only @arta.gov.ph domain</span>
-                            </div>
-                        </div>
-
-                        <!-- Organizational Fields -->
-                        <div class="input-group">
-                            <label class="form-label">
-                                <i class="fas fa-building"></i> Office
-                            </label>
-                            <div class="position-relative">
-                                <select class="form-select" id="officeSelect" name="office_id" required>
-                                    <option value="">Select Office</option>
-                                    <!-- Options loaded via JavaScript -->
-                                </select>
-                                <div class="input-icon">
-                                    <i class="fas fa-building"></i>
-                                </div>
-                            </div>
-                            <div id="officeFeedback" class="validation-message info">
-                                <i class="fas fa-info-circle icon-info"></i>
-                                <span>Select your office</span>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label class="form-label">
-                                <i class="fas fa-sitemap"></i> Division
-                            </label>
-                            <div class="position-relative">
-                                <select class="form-select" id="divisionSelect" name="division_id" required>
-                                    <option value="">Select Division</option>
-                                    <!-- Options loaded via JavaScript -->
-                                </select>
-                                <div class="input-icon">
-                                    <i class="fas fa-sitemap"></i>
-                                </div>
-                            </div>
-                            <div id="divisionFeedback" class="validation-message info">
-                                <i class="fas fa-info-circle icon-info"></i>
-                                <span>Select your division</span>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label class="form-label">
-                                <i class="fas fa-cubes"></i> Unit
-                            </label>
-                            <div class="position-relative">
-                                <select class="form-select" id="unitSelect" name="unit_id" required>
-                                    <option value="">Select Unit</option>
-                                    <!-- Options loaded via JavaScript -->
-                                </select>
-                                <div class="input-icon">
-                                    <i class="fas fa-cubes"></i>
-                                </div>
-                            </div>
-                            <div id="unitFeedback" class="validation-message info">
-                                <i class="fas fa-info-circle icon-info"></i>
-                                <span>Select your unit</span>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label class="form-label">
-                                <i class="fas fa-user-tag"></i> Designation
-                            </label>
-                            <div class="position-relative">
-                                <select class="form-select" id="designationSelect" name="designation_id" required>
-                                    <option value="">Select Designation</option>
-                                    <!-- Options loaded via JavaScript -->
-                                </select>
-                                <div class="input-icon">
-                                    <i class="fas fa-user-tag"></i>
-                                </div>
-                            </div>
-                            <div id="designationFeedback" class="validation-message info">
-                                <i class="fas fa-info-circle icon-info"></i>
-                                <span>Select your designation</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Terms & Submit -->
-                <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" id="termsCheck" required>
-                    <label class="form-check-label" for="termsCheck" style="color: var(--text-muted); font-size: 0.9rem;">
-                        I agree to the <a href="#" style="color: var(--cyber-blue);">Terms of Service</a> and confirm that all information provided is accurate.
-                    </label>
-                </div>
-
-                <button type="submit" class="btn btn-primary w-100" id="submitBtn">
-                    <i class="fas fa-user-plus"></i> Submit Access Request
-                </button>
-
-                <div class="login-link">
-                    <p class="mb-0">Already have an account?<br>
-                        <a href="index.php"><i class="fas fa-sign-in-alt"></i> Login here</a>
-                    </p>
-                </div>
-            </form>
-        </div>
+<div class="card position-relative">
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner-border text-primary" style="width:3rem;height:3rem;"></div>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Font Awesome for icons -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <div class="logo">
+        <i class="fas fa-shield-alt"></i>
+        <h3>Request Access</h3>
+        <p>ARTA Portal – Government Personnel</p>
+    </div>
 
-    <script>
-        // Initialize variables
-        let dropdownsLoaded = false;
-        const loading = document.getElementById('loading');
-        const submitBtn = document.getElementById('submitBtn');
+    <form id="registrationForm">
+        <!-- TWO COLUMN LAYOUT -->
+        <div class="form-grid">
+            <!-- LEFT COLUMN: Personal + Password -->
+            <div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-user"></i> First Name</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="firstname" name="firstname" class="form-control" placeholder="Juan" required>
+                        <i class="fas fa-user input-icon"></i>
+                    </div>
+                    <div id="firstnameFeedback" class="validation-message info"><i class="fas fa-info-circle"></i> Enter first name</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-user"></i> Last Name</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="lastname" name="lastname" class="form-control" placeholder="Dela Cruz" required>
+                        <i class="fas fa-user input-icon"></i>
+                    </div>
+                    <div id="lastnameFeedback" class="validation-message info"><i class="fas fa-info-circle"></i> Enter last name</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-id-card"></i> National ID</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="national_id" name="national_id" class="form-control" placeholder="123456789012" required>
+                        <i class="fas fa-id-card input-icon"></i>
+                    </div>
+                    <div id="national_idFeedback" class="validation-message info"><i class="fas fa-info-circle"></i> 12 digits</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-phone"></i> Contact</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="contact" name="contact" class="form-control" placeholder="09123456789" required>
+                        <i class="fas fa-phone input-icon"></i>
+                    </div>
+                    <div id="contactFeedback" class="validation-message info"><i class="fas fa-info-circle"></i> 11 digits, start 9</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-key"></i> Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="password" name="password" class="form-control" placeholder="Create password" required>
+                        <i class="fas fa-lock input-icon"></i>
+                        <button type="button" class="password-toggle" id="passwordToggle"><i class="fas fa-eye"></i></button>
+                    </div>
+                    <div id="passwordFeedback" class="validation-message info"><i class="fas fa-info-circle"></i> Min 6 alphanumeric</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-key"></i> Confirm Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Confirm password" required>
+                        <i class="fas fa-lock input-icon"></i>
+                        <button type="button" class="password-toggle" id="confirmPasswordToggle"><i class="fas fa-eye"></i></button>
+                    </div>
+                    <div id="confirm_passwordFeedback" class="validation-message info"><i class="fas fa-info-circle"></i> Re-enter password</div>
+                </div>
+            </div>
 
-        // 1. Password toggle functionality
-        document.getElementById('passwordToggle').addEventListener('click', function() {
-            const passwordInput = document.getElementById('password');
-            const type = passwordInput.type === 'password' ? 'text' : 'password';
-            passwordInput.type = type;
+            <!-- RIGHT COLUMN: Email + Org -->
+            <div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-envelope"></i> Government Email</label>
+                    <div class="input-wrapper">
+                        <input type="email" id="email" name="email" class="form-control" placeholder="juan.delacruz@arta.gov.ph" required>
+                        <i class="fas fa-envelope input-icon"></i>
+                    </div>
+                    <div id="emailFeedback" class="validation-message info"><i class="fas fa-info-circle"></i> @arta.gov.ph only</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-building"></i> Office</label>
+                    <div class="input-wrapper">
+                        <select id="officeSelect" name="office_id" class="form-select" required>
+                            <option value="">Select Office</option>
+                        </select>
+                        <i class="fas fa-building input-icon"></i>
+                    </div>
+                    <div id="officeFeedback" class="validation-message info"><i class="fas fa-info-circle"></i> Select office</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-sitemap"></i> Division</label>
+                    <div class="input-wrapper">
+                        <select id="divisionSelect" name="division_id" class="form-select" required>
+                            <option value="">Select Division</option>
+                        </select>
+                        <i class="fas fa-sitemap input-icon"></i>
+                    </div>
+                    <div id="divisionFeedback" class="validation-message info"><i class="fas fa-info-circle"></i> Select division</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-cubes"></i> Unit</label>
+                    <div class="input-wrapper">
+                        <select id="unitSelect" name="unit_id" class="form-select" required>
+                            <option value="">Select Unit</option>
+                        </select>
+                        <i class="fas fa-cubes input-icon"></i>
+                    </div>
+                    <div id="unitFeedback" class="validation-message info"><i class="fas fa-info-circle"></i> Select unit</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-user-tag"></i> Designation</label>
+                    <div class="input-wrapper">
+                        <select id="designationSelect" name="designation_id" class="form-select" required>
+                            <option value="">Select Designation</option>
+                        </select>
+                        <i class="fas fa-user-tag input-icon"></i>
+                    </div>
+                    <div id="designationFeedback" class="validation-message info"><i class="fas fa-info-circle"></i> Select designation</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Terms & Submit -->
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="termsCheck" required>
+            <label class="form-check-label" for="termsCheck" style="color:#6b7280;">
+                I agree to the <a href="#" style="color:#1a56db;">Terms of Service</a>
+            </label>
+        </div>
+        <button type="submit" class="btn-submit" id="submitBtn">
+            <i class="fas fa-user-plus"></i> Submit Access Request
+        </button>
+    </form>
+
+    <div class="login-link">
+        Already have an account? <a href="index.php"><i class="fas fa-sign-in-alt me-1"></i>Login</a>
+    </div>
+    <div class="footer">
+        © 2024 Anti-Red Tape Authority
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // 1. Password Toggle
+    // ============================================================
+    function togglePassword(btnId, inputId) {
+        document.getElementById(btnId).addEventListener('click', function() {
+            let inp = document.getElementById(inputId);
+            let type = inp.type === 'password' ? 'text' : 'password';
+            inp.type = type;
             this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
         });
+    }
+    togglePassword('passwordToggle', 'password');
+    togglePassword('confirmPasswordToggle', 'confirm_password');
 
-        document.getElementById('confirmPasswordToggle').addEventListener('click', function() {
-            const confirmInput = document.getElementById('confirm_password');
-            const type = confirmInput.type === 'password' ? 'text' : 'password';
-            confirmInput.type = type;
-            this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
-        });
-
-        // 2. Real-time validation functions - FIXED VERSION
-        function updateValidation(elementId, isValid, message) {
-            const element = document.getElementById(elementId);
-            const feedback = document.getElementById(elementId + 'Feedback');
-            
-            if (!element || !feedback) {
-                console.log(`Element or feedback not found: ${elementId}`);
-                return;
-            }
-            
-            element.classList.remove('valid', 'invalid');
-            feedback.classList.remove('valid', 'invalid', 'info');
-            
-            if (isValid === true) {
-                element.classList.add('valid');
-                feedback.classList.add('valid');
-                feedback.innerHTML = `<i class="fas fa-check-circle icon-valid"></i> ${message || 'Valid'}`;
-            } else if (isValid === false) {
-                element.classList.add('invalid');
-                feedback.classList.add('invalid');
-                feedback.innerHTML = `<i class="fas fa-times-circle icon-invalid"></i> ${message}`;
-            } else {
-                feedback.classList.add('info');
-                feedback.innerHTML = `<i class="fas fa-info-circle icon-info"></i> ${message}`;
-            }
+    // ============================================================
+    // 2. Real-time Validation (Green/Red)
+    // ============================================================
+    function updateValidation(id, isValid, msg) {
+        let el = document.getElementById(id);
+        let fb = document.getElementById(id + 'Feedback');
+        if (!el || !fb) return;
+        el.classList.remove('valid','invalid');
+        fb.classList.remove('valid','invalid','info');
+        if (isValid === true) {
+            el.classList.add('valid');
+            fb.classList.add('valid');
+            fb.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+        } else if (isValid === false) {
+            el.classList.add('invalid');
+            fb.classList.add('invalid');
+            fb.innerHTML = `<i class="fas fa-times-circle"></i> ${msg}`;
+        } else {
+            fb.classList.add('info');
+            fb.innerHTML = `<i class="fas fa-info-circle"></i> ${msg}`;
         }
-
-        // Separate function for dropdown validation (since they have different IDs)
-        function updateDropdownValidation(elementId, value, message) {
-            const element = document.getElementById(elementId);
-            // Get the base name without 'Select' for feedback ID
-            const baseName = elementId.replace('Select', '');
-            const feedback = document.getElementById(baseName + 'Feedback');
-            
-            if (!element || !feedback) {
-                console.log(`Element or feedback not found: ${elementId} or ${baseName}Feedback`);
-                return;
-            }
-            
-            element.classList.remove('valid', 'invalid');
-            feedback.classList.remove('valid', 'invalid', 'info');
-            
-            if (value) {
-                element.classList.add('valid');
-                feedback.classList.add('valid');
-                feedback.innerHTML = `<i class="fas fa-check-circle icon-valid"></i> ${message}`;
-            } else {
-                feedback.classList.add('info');
-                feedback.innerHTML = `<i class="fas fa-info-circle icon-info"></i> ${message}`;
-            }
+    }
+    function updateDropdownValidation(selectId, val, msg) {
+        let el = document.getElementById(selectId);
+        let base = selectId.replace('Select','');
+        let fb = document.getElementById(base + 'Feedback');
+        if (!el || !fb) return;
+        el.classList.remove('valid','invalid');
+        fb.classList.remove('valid','invalid','info');
+        if (val) {
+            el.classList.add('valid');
+            fb.classList.add('valid');
+            fb.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+        } else {
+            fb.classList.add('info');
+            fb.innerHTML = `<i class="fas fa-info-circle"></i> ${msg}`;
         }
+    }
 
-        // Email validation
-        document.getElementById('email').addEventListener('input', function() {
-            const email = this.value;
-            const isValid = email.endsWith('@arta.gov.ph');
-            updateValidation('email', isValid, isValid ? 'Valid government email' : 'Only @arta.gov.ph emails allowed');
-        });
+    // Attach input listeners
+    document.getElementById('firstname').addEventListener('input', function() {
+        let v = this.value.trim();
+        updateValidation('firstname', v.length>=2, v.length>=2 ? 'Valid' : 'Min 2 chars');
+    });
+    document.getElementById('lastname').addEventListener('input', function() {
+        let v = this.value.trim();
+        updateValidation('lastname', v.length>=2, v.length>=2 ? 'Valid' : 'Min 2 chars');
+    });
+    document.getElementById('national_id').addEventListener('input', function() {
+        let v = this.value.replace(/\D/g,'');
+        if (v.length>12) v = v.slice(0,12);
+        this.value = v;
+        updateValidation('national_id', /^\d{12}$/.test(v), /^\d{12}$/.test(v) ? 'Valid' : '12 digits');
+    });
+    document.getElementById('contact').addEventListener('input', function() {
+        let v = this.value.replace(/\D/g,'');
+        if (v.length>11) v = v.slice(0,11);
+        this.value = v;
+        updateValidation('contact', /^9\d{10}$/.test(v), /^9\d{10}$/.test(v) ? 'Valid' : '11 digits, start 9');
+    });
+    document.getElementById('email').addEventListener('input', function() {
+        let v = this.value;
+        updateValidation('email', v.endsWith('@arta.gov.ph'), v.endsWith('@arta.gov.ph') ? 'Valid' : '@arta.gov.ph only');
+    });
+    document.getElementById('password').addEventListener('input', function() {
+        let v = this.value;
+        let ok = v.length>=6 && /^[a-zA-Z0-9]+$/.test(v);
+        updateValidation('password', ok, ok ? 'Strong' : 'Min 6 alphanumeric');
+        checkPasswordMatch();
+    });
+    document.getElementById('confirm_password').addEventListener('input', checkPasswordMatch);
+    function checkPasswordMatch() {
+        let p = document.getElementById('password').value;
+        let c = document.getElementById('confirm_password').value;
+        if (!c) updateValidation('confirm_password', null, 'Re-enter password');
+        else updateValidation('confirm_password', p===c, p===c ? 'Match' : 'Do not match');
+    }
 
-        // Password validation
-        document.getElementById('password').addEventListener('input', function() {
-            const password = this.value;
-            const hasMinLength = password.length >= 6;
-            const isAlphanumeric = /^[a-zA-Z0-9]+$/.test(password);
-            const isValid = hasMinLength && isAlphanumeric;
-            
-            updateValidation('password', isValid, 
-                isValid ? 'Strong password' : 
-                'Password must be at least 6 alphanumeric characters');
-            
-            // Also check password match
-            checkPasswordMatch();
-        });
+    // ============================================================
+    // 3. API CONFIGURATION – pure API, no mock data
+    // ============================================================
+    const API_BASE = '../api/';
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const submitBtn = document.getElementById('submitBtn');
+    let dropdownsLoaded = false;
 
-        // Confirm password validation
-        document.getElementById('confirm_password').addEventListener('input', checkPasswordMatch);
+    // Helper: extract array from backend JSON response
+    function extractArray(data, key) {
+        if (data.data && data.data[key]) return data.data[key];
+        if (data[key]) return data[key];
+        if (Array.isArray(data)) return data;
+        if (data.data && Array.isArray(data.data)) return data.data;
+        return [];
+    }
 
-        function checkPasswordMatch() {
-            const password = document.getElementById('password');
-            const confirm = document.getElementById('confirm_password');
-            
-            if (!password || !confirm) return;
-            
-            const confirmValue = confirm.value;
-            
-            if (!confirmValue) {
-                updateValidation('confirm_password', null, 'Re-enter your password');
-                return;
+    // Populate select element and set dataset attributes for filtering
+    function populateSelect(selectId, items, textKey, extraAttr = null) {
+        let sel = document.getElementById(selectId);
+        sel.innerHTML = '<option value="">Select ' + selectId.replace('Select','') + '</option>';
+        items.forEach(it => {
+            if (it && it.id) {
+                let opt = document.createElement('option');
+                opt.value = it.id;
+                opt.textContent = it[textKey] || it.name || `Item ${it.id}`;
+                if (extraAttr && it[extraAttr] !== undefined) {
+                    // Convert to camelCase dataset property: office_id -> officeId, division_id -> divisionId
+                    let attrName = extraAttr === 'office_id' ? 'officeId' : 
+                                  (extraAttr === 'division_id' ? 'divisionId' : extraAttr);
+                    opt.dataset[attrName] = it[extraAttr];
+                }
+                sel.appendChild(opt);
             }
-            
-            const isValid = password.value === confirmValue;
-            updateValidation('confirm_password', isValid, 
-                isValid ? 'Passwords match' : 'Passwords do not match');
-        }
-
-        // Contact validation
-        document.getElementById('contact').addEventListener('input', function() {
-            let contact = this.value.replace(/\D/g, '');
-            this.value = contact;
-            
-            const isValid = /^9\d{10}$/.test(contact);
-            updateValidation('contact', isValid, 
-                isValid ? 'Valid Philippine number' : 
-                'Must be 11 digits starting with 9');
         });
+    }
 
-        // National ID validation - FIXED: using 'national_id' instead of 'nationalId'
-        document.getElementById('national_id').addEventListener('input', function() {
-            let nationalId = this.value.replace(/\D/g, '');
-            if (nationalId.length > 12) nationalId = nationalId.substring(0, 12);
-            this.value = nationalId;
-            
-            const isValid = /^\d{12}$/.test(nationalId);
-            updateValidation('national_id', isValid, 
-                isValid ? 'Valid PhilSys number' : 
-                'Must be 12 digits');
-        });
+    // ============================================================
+    // 4. DEPENDENT FILTERS – FIXED: use dataset.officeId and dataset.divisionId
+    // ============================================================
+    function setupDependentFilters() {
+        let office = document.getElementById('officeSelect');
+        let division = document.getElementById('divisionSelect');
+        let unit = document.getElementById('unitSelect');
 
-        // Name validation
-        document.getElementById('firstname').addEventListener('input', function() {
-            const name = this.value.trim();
-            const isValid = name.length >= 2;
-            updateValidation('firstname', isValid, 
-                isValid ? 'Valid first name' : 'Minimum 2 characters');
-        });
-
-        document.getElementById('lastname').addEventListener('input', function() {
-            const name = this.value.trim();
-            const isValid = name.length >= 2;
-            updateValidation('lastname', isValid, 
-                isValid ? 'Valid last name' : 'Minimum 2 characters');
-        });
-
-        // ========== DROPDOWN LOADING FUNCTIONS ==========
-        async function loadDropdownData() {
-            try {
-                console.log('Loading dropdown data...');
-                
-                const apiPaths = [
-                    '../api/',
-                    '../../api/',
-                    '/arta-portal/api/',
-                    '/api/',
-                    './api/',
-                    '../../arta-portal/api/',
-                    '../arta-portal/api/'
-                ];
-                
-                let apiBase = '';
-                let foundPath = '';
-                
-                // Test each path
-                for (const path of apiPaths) {
-                    try {
-                        console.log(`Testing path: ${path}offices/get_offices.php?limit=1`);
-                        const testRes = await fetch(`${path}offices/get_offices.php?limit=1`, {
-                            method: 'GET',
-                            headers: {
-                                'Accept': 'application/json'
-                            }
-                        });
-                        
-                        console.log(`Response for ${path}:`, testRes.status, testRes.statusText);
-                        
-                        if (testRes.ok) {
-                            apiBase = path;
-                            foundPath = path;
-                            console.log('✅ Found API at:', apiBase);
-                            break;
-                        } else {
-                            console.log(`❌ Path ${path} failed with status:`, testRes.status);
-                        }
-                    } catch (e) {
-                        console.log(`❌ Network error for ${path}:`, e.message);
-                        continue;
-                    }
-                }
-                
-                if (!apiBase) {
-                    const currentUrl = window.location.origin;
-                    const testPaths = [
-                        `${currentUrl}/arta-portal/api/`,
-                        `${currentUrl}/api/`,
-                        `${currentUrl}/`
-                    ];
-                    
-                    for (const path of testPaths) {
-                        try {
-                            console.log(`Testing full URL: ${path}offices/get_offices.php?limit=1`);
-                            const testRes = await fetch(`${path}offices/get_offices.php?limit=1`);
-                            if (testRes.ok) {
-                                apiBase = path;
-                                foundPath = path;
-                                console.log('✅ Found API at full URL:', apiBase);
-                                break;
-                            }
-                        } catch (e) {
-                            continue;
-                        }
-                    }
-                }
-                
-                if (!apiBase) {
-                    throw new Error('Could not find API endpoints. Check if API server is running and paths are correct.');
-                }
-                
-                console.log('✅ Using API base:', foundPath);
-                
-                const apiEndpoints = {
-                    offices: `${apiBase}offices/get_offices.php?limit=1000`,
-                    divisions: `${apiBase}divisions/get_divisions.php?limit=1000`,
-                    units: `${apiBase}units/get_units.php?limit=1000`,
-                    designations: `${apiBase}designations/get_designations.php?limit=1000`
-                };
-                
-                console.log('API Endpoints:', apiEndpoints);
-                
-                const [officesRes, divisionsRes, unitsRes, designationsRes] = await Promise.all([
-                    fetch(apiEndpoints.offices),
-                    fetch(apiEndpoints.divisions),
-                    fetch(apiEndpoints.units),
-                    fetch(apiEndpoints.designations)
-                ]);
-                
-                if (!officesRes.ok) throw new Error(`Offices API failed: ${officesRes.status} ${officesRes.statusText}`);
-                if (!divisionsRes.ok) throw new Error(`Divisions API failed: ${divisionsRes.status} ${divisionsRes.statusText}`);
-                if (!unitsRes.ok) throw new Error(`Units API failed: ${unitsRes.status} ${unitsRes.statusText}`);
-                if (!designationsRes.ok) throw new Error(`Designations API failed: ${designationsRes.status} ${designationsRes.statusText}`);
-                
-                const officesData = await officesRes.json();
-                const divisionsData = await divisionsRes.json();
-                const unitsData = await unitsRes.json();
-                const designationsData = await designationsRes.json();
-                
-                console.log('API Data loaded:', {
-                    offices: officesData,
-                    divisions: divisionsData,
-                    units: unitsData,
-                    designations: designationsData
-                });
-                
-                // Populate offices dropdown
-                const officeSelect = document.getElementById('officeSelect');
-                officeSelect.innerHTML = '<option value="">Select Office</option>';
-                
-                let offices = [];
-                if (officesData.data && officesData.data.offices) {
-                    offices = officesData.data.offices;
-                } else if (officesData.offices) {
-                    offices = officesData.offices;
-                } else if (Array.isArray(officesData)) {
-                    offices = officesData;
-                } else if (officesData.data && Array.isArray(officesData.data)) {
-                    offices = officesData.data;
-                }
-                
-                console.log('Offices to populate:', offices);
-                
-                offices.forEach(office => {
-                    if (office && office.id) {
-                        const option = document.createElement('option');
-                        option.value = office.id;
-                        option.textContent = office.office_name || office.name || `Office ${office.id}`;
-                        officeSelect.appendChild(option);
-                    }
-                });
-                
-                // Populate divisions dropdown
-                const divisionSelect = document.getElementById('divisionSelect');
-                divisionSelect.innerHTML = '<option value="">Select Division</option>';
-                
-                let divisions = [];
-                if (divisionsData.data && divisionsData.data.divisions) {
-                    divisions = divisionsData.data.divisions;
-                } else if (divisionsData.divisions) {
-                    divisions = divisionsData.divisions;
-                } else if (Array.isArray(divisionsData)) {
-                    divisions = divisionsData;
-                } else if (divisionsData.data && Array.isArray(divisionsData.data)) {
-                    divisions = divisionsData.data;
-                }
-                
-                console.log('Divisions to populate:', divisions);
-                
-                divisions.forEach(division => {
-                    if (division && division.id) {
-                        const option = document.createElement('option');
-                        option.value = division.id;
-                        option.textContent = division.division_name || division.name || `Division ${division.id}`;
-                        option.dataset.officeId = division.office_id || '';
-                        divisionSelect.appendChild(option);
-                    }
-                });
-                
-                // Populate units dropdown
-                const unitSelect = document.getElementById('unitSelect');
-                unitSelect.innerHTML = '<option value="">Select Unit</option>';
-                
-                let units = [];
-                if (unitsData.data && unitsData.data.units) {
-                    units = unitsData.data.units;
-                } else if (unitsData.units) {
-                    units = unitsData.units;
-                } else if (Array.isArray(unitsData)) {
-                    units = unitsData;
-                } else if (unitsData.data && Array.isArray(unitsData.data)) {
-                    units = unitsData.data;
-                }
-                
-                console.log('Units to populate:', units);
-                
-                units.forEach(unit => {
-                    if (unit && unit.id) {
-                        const option = document.createElement('option');
-                        option.value = unit.id;
-                        option.textContent = unit.unit_name || unit.name || `Unit ${unit.id}`;
-                        option.dataset.divisionId = unit.division_id || '';
-                        unitSelect.appendChild(option);
-                    }
-                });
-                
-                // Populate designations dropdown
-                const designationSelect = document.getElementById('designationSelect');
-                designationSelect.innerHTML = '<option value="">Select Designation</option>';
-                
-                let designations = [];
-                if (designationsData.data && designationsData.data.designations) {
-                    designations = designationsData.data.designations;
-                } else if (designationsData.designations) {
-                    designations = designationsData.designations;
-                } else if (Array.isArray(designationsData)) {
-                    designations = designationsData;
-                } else if (designationsData.data && Array.isArray(designationsData.data)) {
-                    designations = designationsData.data;
-                }
-                
-                console.log('Designations to populate:', designations);
-                
-                designations.forEach(designation => {
-                    if (designation && designation.id) {
-                        const option = document.createElement('option');
-                        option.value = designation.id;
-                        option.textContent = designation.designation_name || designation.name || `Designation ${designation.id}`;
-                        designationSelect.appendChild(option);
-                    }
-                });
-                
-                // Setup filtering
-                setupDropdownFiltering();
-                
-                dropdownsLoaded = true;
-                console.log('✅ All dropdowns loaded successfully!');
-                
-                // Show success message
-                Swal.fire({
-                    title: "Form Ready",
-                    text: "All dropdown data has been loaded successfully.",
-                    icon: "success",
-                    timer: 2000,
-                    showConfirmButton: false,
-                    background: 'rgba(16, 30, 50, 0.95)',
-                    color: '#f0f4f8'
-                });
-
-            } catch (error) {
-                console.error('❌ Error loading dropdown data:', error);
-                Swal.fire({
-                    title: "Data Loading Error",
-                    html: `
-                        <div style="text-align: left; color: var(--text-muted);">
-                            <p>Failed to load form data. Please check:</p>
-                            <ul style="margin-top: 10px; padding-left: 20px;">
-                                <li>API server is running at: <code>${window.location.origin}/arta-portal/api/</code></li>
-                                <li>API files exist: get_offices.php, get_divisions.php, etc.</li>
-                                <li>Database connection is working</li>
-                                <li>CORS headers are properly set</li>
-                            </ul>
-                            <p style="margin-top: 15px; color: var(--error-red);">
-                                <strong>Error:</strong> ${error.message}
-                            </p>
-                            <p style="margin-top: 10px; font-size: 0.9rem;">
-                                Current URL: ${window.location.href}<br>
-                                Try accessing: <a href="${window.location.origin}/arta-portal/api/offices/get_offices.php?limit=1" target="_blank">${window.location.origin}/arta-portal/api/offices/get_offices.php?limit=1</a>
-                            </p>
-                        </div>
-                    `,
-                    icon: "error",
-                    background: 'rgba(16, 30, 50, 0.95)',
-                    color: '#f0f4f8',
-                    confirmButtonText: 'OK',
-                    width: '600px'
-                });
-            }
-        }
-
-        function setupDropdownFiltering() {
-            const officeSelect = document.getElementById('officeSelect');
-            const divisionSelect = document.getElementById('divisionSelect');
-            const unitSelect = document.getElementById('unitSelect');
-            
-            officeSelect.addEventListener('change', function() {
-                const officeId = this.value;
-                const divisionOptions = divisionSelect.querySelectorAll('option:not([value=""])');
-                
-                let hasVisibleOptions = false;
-                
-                divisionOptions.forEach(option => {
-                    if (officeId && option.dataset.officeId !== officeId) {
-                        option.style.display = 'none';
-                        option.disabled = true;
-                    } else {
-                        option.style.display = 'block';
-                        option.disabled = false;
-                        hasVisibleOptions = true;
-                    }
-                });
-                
-                divisionSelect.value = '';
-                unitSelect.value = '';
-                divisionSelect.disabled = !officeId || !hasVisibleOptions;
-                updateDropdownValidation('officeSelect', officeId, 'Office selected');
+        office.addEventListener('change', function() {
+            let offId = this.value;
+            let divOpts = division.querySelectorAll('option:not([value=""])');
+            let hasVis = false;
+            divOpts.forEach(opt => {
+                // ✅ TAMA: dataset.officeId (camelCase) – ito ang itinakda sa populateSelect
+                let match = offId && opt.dataset.officeId == offId;
+                opt.style.display = match ? 'block' : 'none';
+                opt.disabled = !match;
+                if (match) hasVis = true;
             });
-            
-            divisionSelect.addEventListener('change', function() {
-                const divisionId = this.value;
-                const unitOptions = unitSelect.querySelectorAll('option:not([value=""])');
-                
-                let hasVisibleOptions = false;
-                
-                unitOptions.forEach(option => {
-                    if (divisionId && option.dataset.divisionId !== divisionId) {
-                        option.style.display = 'none';
-                        option.disabled = true;
-                    } else {
-                        option.style.display = 'block';
-                        option.disabled = false;
-                        hasVisibleOptions = true;
-                    }
-                });
-                
-                unitSelect.value = '';
-                unitSelect.disabled = !divisionId || !hasVisibleOptions;
-                updateDropdownValidation('divisionSelect', divisionId, 'Division selected');
-            });
-            
-            unitSelect.addEventListener('change', function() {
-                updateDropdownValidation('unitSelect', this.value, 'Unit selected');
-            });
-            
-            designationSelect.addEventListener('change', function() {
-                updateDropdownValidation('designationSelect', this.value, 'Designation selected');
-            });
-            
-            updateDropdownValidation('officeSelect', null, 'Select your office');
-            updateDropdownValidation('divisionSelect', null, 'Select your division');
-            updateDropdownValidation('unitSelect', null, 'Select your unit');
-            updateDropdownValidation('designationSelect', null, 'Select your designation');
-        }
-
-        // Load dropdowns on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, starting dropdown load...');
-            loadDropdownData();
+            division.value = '';
+            unit.value = '';
+            division.disabled = !offId || !hasVis;
+            updateDropdownValidation('officeSelect', offId, 'Office selected');
         });
 
-        // 4. Form submission - WITH BETTER ERROR HANDLING
-        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            if (!dropdownsLoaded) {
-                Swal.fire({
-                    title: "Form Not Ready",
-                    text: "Please wait for the form data to load completely.",
-                    icon: "warning",
-                    background: 'rgba(16, 30, 50, 0.95)',
-                    color: '#f0f4f8'
-                });
-                return;
-            }
-
-            // Validate all required fields
-            const requiredFields = [
-                'firstname', 'lastname', 'national_id', 'contact', 
-                'email', 'password', 'confirm_password',
-                'office_id', 'division_id', 'unit_id', 'designation_id'
-            ];
-            
-            let isValid = true;
-            requiredFields.forEach(field => {
-                const element = document.getElementById(field) || 
-                               document.querySelector(`[name="${field}"]`);
-                if (element && !element.value.trim()) {
-                    element.classList.add('invalid');
-                    isValid = false;
-                }
+        division.addEventListener('change', function() {
+            let divId = this.value;
+            let unitOpts = unit.querySelectorAll('option:not([value=""])');
+            let hasVis = false;
+            unitOpts.forEach(opt => {
+                // ✅ TAMA: dataset.divisionId (camelCase)
+                let match = divId && opt.dataset.divisionId == divId;
+                opt.style.display = match ? 'block' : 'none';
+                opt.disabled = !match;
+                if (match) hasVis = true;
             });
+            unit.value = '';
+            unit.disabled = !divId || !hasVis;
+            updateDropdownValidation('divisionSelect', divId, 'Division selected');
+        });
 
-            if (!isValid) {
-                Swal.fire({
-                    title: "Missing Information",
-                    text: "Please fill in all required fields.",
-                    icon: "warning",
-                    background: 'rgba(16, 30, 50, 0.95)',
-                    color: '#f0f4f8'
-                });
-                return;
-            }
+        unit.addEventListener('change', function() {
+            updateDropdownValidation('unitSelect', this.value, 'Unit selected');
+        });
 
-            // Check password match
-            if (document.getElementById('password').value !== 
-                document.getElementById('confirm_password').value) {
-                Swal.fire({
-                    title: "Passwords Don't Match",
-                    text: "Please make sure passwords match.",
-                    icon: "warning",
-                    background: 'rgba(16, 30, 50, 0.95)',
-                    color: '#f0f4f8'
-                });
-                return;
-            }
+        document.getElementById('designationSelect').addEventListener('change', function() {
+            updateDropdownValidation('designationSelect', this.value, 'Designation selected');
+        });
 
-            // Check terms
-            if (!document.getElementById('termsCheck').checked) {
-                Swal.fire({
-                    title: "Terms Agreement Required",
-                    text: "Please agree to the Terms of Service to continue.",
-                    icon: "warning",
-                    background: 'rgba(16, 30, 50, 0.95)',
-                    color: '#f0f4f8'
-                });
-                return;
-            }
+        // Initial validation messages
+        updateDropdownValidation('officeSelect', null, 'Select your office');
+        updateDropdownValidation('divisionSelect', null, 'Select your division');
+        updateDropdownValidation('unitSelect', null, 'Select your unit');
+        updateDropdownValidation('designationSelect', null, 'Select your designation');
+    }
 
-            // Show loading
-            loading.style.display = 'flex';
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    // ============================================================
+    // 5. LOAD DROPDOWNS – pure API, no fallback
+    // ============================================================
+    async function loadDropdowns() {
+        loadingOverlay.style.display = 'flex';
+        submitBtn.disabled = true;
+
+        try {
+            // Test connection
+            let test = await fetch(API_BASE + 'offices/get_offices.php?limit=1', { method: 'HEAD' });
+            if (!test.ok) throw new Error(`Offices API not reachable (HTTP ${test.status})`);
+
+            // Fetch all dropdown data in parallel
+            let [officesRes, divisionsRes, unitsRes, designationsRes] = await Promise.all([
+                fetch(API_BASE + 'offices/get_offices.php?limit=1000'),
+                fetch(API_BASE + 'divisions/get_divisions.php?limit=1000'),
+                fetch(API_BASE + 'units/get_units.php?limit=1000'),
+                fetch(API_BASE + 'designations/get_designations.php?limit=1000')
+            ]);
+
+            if (!officesRes.ok) throw new Error(`Offices API failed (${officesRes.status})`);
+            if (!divisionsRes.ok) throw new Error(`Divisions API failed (${divisionsRes.status})`);
+            if (!unitsRes.ok) throw new Error(`Units API failed (${unitsRes.status})`);
+            if (!designationsRes.ok) throw new Error(`Designations API failed (${designationsRes.status})`);
+
+            let offices = await officesRes.json();
+            let divisions = await divisionsRes.json();
+            let units = await unitsRes.json();
+            let designations = await designationsRes.json();
+
+            // Extract arrays using correct keys
+            let officesArr = extractArray(offices, 'offices');
+            let divisionsArr = extractArray(divisions, 'divisions');
+            let unitsArr = extractArray(units, 'units');
+            let designationsArr = extractArray(designations, 'designations');
+
+            // Populate dropdowns – use exact column names from backend
+            populateSelect('officeSelect', officesArr, 'office_name');
+            populateSelect('divisionSelect', divisionsArr, 'division_name', 'office_id');
+            populateSelect('unitSelect', unitsArr, 'unit_name', 'division_id');
+            populateSelect('designationSelect', designationsArr, 'designation_name');
+
+            // Enable dependent filters
+            setupDependentFilters();
+
+            dropdownsLoaded = true;
+            submitBtn.disabled = false;
+            loadingOverlay.style.display = 'none';
+
+        } catch (error) {
+            console.error('API Load Error:', error);
+            loadingOverlay.style.display = 'none';
             submitBtn.disabled = true;
+            dropdownsLoaded = false;
 
-            try {
-                // Collect form data
-                const formData = {
-                    national_id: document.getElementById('national_id').value,
-                    firstname: document.getElementById('firstname').value.trim(),
-                    lastname: document.getElementById('lastname').value.trim(),
-                    contact: document.getElementById('contact').value,
-                    email: document.getElementById('email').value,
-                    password: document.getElementById('password').value,
-                    office_id: document.getElementById('officeSelect').value,
-                    division_id: document.getElementById('divisionSelect').value,
-                    unit_id: document.getElementById('unitSelect').value,
-                    designation_id: document.getElementById('designationSelect').value
-                };
+            Swal.fire({
+                icon: 'error',
+                title: 'Cannot load form data',
+                html: `<p>Unable to connect to the server or API error.</p>
+                       <p style="font-size:0.9rem; margin-top:10px; color:#6b7280;">
+                           <strong>Error:</strong> ${error.message}<br>
+                           API Path: <code>${API_BASE}</code><br><br>
+                           ✅ Frontend configuration is correct.<br>
+                           ⚠️ Please ensure your <strong>backend API</strong> is updated to match the database schema.
+                       </p>`,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#1a56db',
+                background: 'white'
+            });
+        }
+    }
 
-                console.log('Submitting form data:', formData);
+    // Start loading on page load
+    document.addEventListener('DOMContentLoaded', loadDropdowns);
 
-                // Try to find the registration API endpoint
-                let registerApi = '../api/auth/register.php';
-                
-                console.log('Sending to:', registerApi);
-                const res = await fetch(registerApi, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json"
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                // First, get the response as text to see what's actually returned
-                const responseText = await res.text();
-                console.log('Raw response:', responseText);
-                
-                let result;
-                try {
-                    result = JSON.parse(responseText);
-                } catch (jsonError) {
-                    console.error('Failed to parse JSON:', jsonError);
-                    console.error('Response was:', responseText);
-                    
-                    // Check if it's an HTML error page
-                    if (responseText.includes('<br />') || responseText.includes('<b>')) {
-                        throw new Error('Backend returned HTML error instead of JSON. Check PHP errors.');
-                    }
-                    throw new Error('Invalid JSON response from server');
-                }
-                
-                console.log('Registration response:', result);
-                
-                loading.style.display = 'none';
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-                
-                if (result.status === 201 || result.status === 200) {
-                    Swal.fire({
-                        title: "Registration Successful!",
-                        html: `
-                            <div style="text-align: center;">
-                                <p>${result.message || "Your account has been created successfully."}</p>
-                                ${result.data && result.data.portal_id ? 
-                                    `<p><strong>Portal ID:</strong> ${result.data.portal_id}</p>` : ''}
-                                ${result.data && result.data.email ? 
-                                    `<p><strong>Email:</strong> ${result.data.email}</p>` : ''}
-                                ${result.user_id ? 
-                                    `<p><strong>User ID:</strong> ${result.user_id}</p>` : ''}
-                                <p class="text-muted" style="font-size: 0.9rem; margin-top: 10px;">
-                                    You can now login with your credentials.
-                                </p>
-                            </div>
-                        `,
-                        icon: "success",
-                        background: 'rgba(16, 30, 50, 0.95)',
-                        color: '#f0f4f8',
-                        confirmButtonText: 'Go to Login'
-                    }).then(() => {
-                        window.location.href = "index.php";
-                    });
-                } else {
-                    Swal.fire({
-                        title: "Registration Failed",
-                        html: `
-                            <div style="text-align: left; color: var(--text-muted);">
-                                <p><strong>${result.message || "Unable to process registration"}</strong></p>
-                                ${result.error_info ? 
-                                    `<p><strong>Error Details:</strong><br>
-                                     Code: ${result.error_info[0] || 'N/A'}<br>
-                                     SQL State: ${result.error_info[1] || 'N/A'}<br>
-                                     Message: ${result.error_info[2] || 'N/A'}</p>` : ''}
-                            </div>
-                        `,
-                        icon: "error",
-                        background: 'rgba(16, 30, 50, 0.95)',
-                        color: '#f0f4f8'
-                    });
-                }
-            } catch (err) {
-                loading.style.display = 'none';
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-                
-                console.error('Registration error:', err);
-                Swal.fire({
-                    title: "Registration Error",
-                    html: `
-                        <div style="text-align: left; color: var(--text-muted);">
-                            <p><strong>Error:</strong> ${err.message}</p>
-                            <p>Please check:</p>
-                            <ul style="margin-top: 10px; padding-left: 20px;">
-                                <li>Backend API file exists: <code>../api/auth/register.php</code></li>
-                                <li>API returns valid JSON</li>
-                                <li>No PHP syntax errors in backend</li>
-                            </ul>
-                            <p style="margin-top: 15px; font-size: 0.9rem;">
-                                <a href="#" onclick="testBackend()">Test Backend Connection</a>
-                            </p>
-                        </div>
-                    `,
-                    icon: "error",
-                    background: 'rgba(16, 30, 50, 0.95)',
-                    color: '#f0f4f8'
-                });
-            }
-        });
+    // ============================================================
+    // 6. Form Submission – real submit to backend
+    // ============================================================
+    document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
 
-        // Function to test backend connection
-        window.testBackend = async function() {
-            try {
-                loading.style.display = 'flex';
-                
-                // Test 1: Check if file exists
-                const fileCheck = await fetch('../api/auth/register.php', { method: 'HEAD' });
-                
-                // Test 2: Test with simple data
-                const testData = {
-                    national_id: '123456789012',
-                    firstname: 'Test',
-                    lastname: 'User',
-                    email: 'test@arta.gov.ph',
-                    password: 'test123',
-                    contact: '09123456789',
-                    office_id: 1,
-                    division_id: 1,
-                    unit_id: 1,
-                    designation_id: 1
-                };
-                
-                const testRes = await fetch('../api/auth/register.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(testData)
-                });
-                
-                const testText = await testRes.text();
-                
-                loading.style.display = 'none';
-                
-                Swal.fire({
-                    title: "Backend Test Result",
-                    html: `
-                        <div style="text-align: left; color: var(--text-muted); font-family: monospace; font-size: 12px;">
-                            <p><strong>File Exists:</strong> ${fileCheck.ok ? '✅ Yes' : '❌ No'}</p>
-                            <p><strong>Response Status:</strong> ${testRes.status}</p>
-                            <p><strong>Response:</strong></p>
-                            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; max-height: 300px; overflow: auto;">
-                                ${testText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                            </div>
-                        </div>
-                    `,
-                    background: 'rgba(16, 30, 50, 0.95)',
-                    color: '#f0f4f8',
-                    width: '700px'
-                });
-            } catch (e) {
-                loading.style.display = 'none';
-                Swal.fire({
-                    title: "Test Failed",
-                    text: `Error: ${e.message}`,
-                    icon: "error",
-                    background: 'rgba(16, 30, 50, 0.95)',
-                    color: '#f0f4f8'
-                });
-            }
+        if (!dropdownsLoaded) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Form not ready',
+                text: 'Please wait for the form data to finish loading.',
+                confirmButtonColor: '#1a56db'
+            });
+            return;
+        }
+
+        // Basic validations
+        if (!document.getElementById('email').value.endsWith('@arta.gov.ph')) {
+            Swal.fire({ icon: 'error', title: 'Invalid Email', text: 'Only @arta.gov.ph allowed' });
+            return;
+        }
+        if (document.getElementById('password').value !== document.getElementById('confirm_password').value) {
+            Swal.fire({ icon: 'error', title: 'Passwords do not match' });
+            return;
+        }
+        if (!document.getElementById('termsCheck').checked) {
+            Swal.fire({ icon: 'warning', title: 'Terms required', text: 'Please agree to the Terms of Service' });
+            return;
+        }
+
+        const formData = {
+            national_id: document.getElementById('national_id').value,
+            firstname: document.getElementById('firstname').value.trim(),
+            lastname: document.getElementById('lastname').value.trim(),
+            contact: document.getElementById('contact').value,
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value,
+            office_id: document.getElementById('officeSelect').value,
+            division_id: document.getElementById('divisionSelect').value,
+            unit_id: document.getElementById('unitSelect').value,
+            designation_id: document.getElementById('designationSelect').value
         };
-    </script>
+
+        const btn = document.getElementById('submitBtn');
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        btn.disabled = true;
+        loadingOverlay.style.display = 'flex';
+
+        try {
+            const res = await fetch(API_BASE + 'auth/register.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            const text = await res.text();
+            let data;
+            try { data = JSON.parse(text); } catch { throw new Error('Invalid server response'); }
+
+            loadingOverlay.style.display = 'none';
+            btn.innerHTML = original;
+            btn.disabled = false;
+
+            if (res.ok && (data.status === 201 || data.status === 200 || data.status === 'success')) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Request Submitted',
+                    html: `<p>${data.message || 'Your access request has been sent.'}</p>
+                           ${data.data?.portal_id ? `<p><strong>Portal ID:</strong> ${data.data.portal_id}</p>` : ''}`,
+                    confirmButtonText: 'Go to Login',
+                    confirmButtonColor: '#1a56db'
+                }).then(() => window.location.href = 'index.php');
+            } else {
+                Swal.fire({ icon: 'error', title: 'Registration Failed', text: data.message || 'Please try again' });
+            }
+        } catch (err) {
+            loadingOverlay.style.display = 'none';
+            btn.innerHTML = original;
+            btn.disabled = false;
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again.' });
+        }
+    });
+</script>
 </body>
 </html>

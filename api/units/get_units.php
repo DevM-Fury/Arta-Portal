@@ -15,12 +15,14 @@ try {
     $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 1000;
     $division_id = isset($_GET['division_id']) ? (int)$_GET['division_id'] : null;
     
+    // ✅ Schema: id, unit_name, unit_status, division_id
+    //    Walang unit_code, at status column ay unit_status
     if ($division_id) {
-        $query = "SELECT id, unit_name, unit_code, division_id FROM units WHERE status = 'active' AND division_id = :division_id ORDER BY unit_name LIMIT :limit";
+        $query = "SELECT id, unit_name, division_id FROM units WHERE unit_status = 'Active' AND division_id = :division_id ORDER BY unit_name LIMIT :limit";
         $stmt = $pdo_system->prepare($query);
         $stmt->bindParam(':division_id', $division_id);
     } else {
-        $query = "SELECT id, unit_name, unit_code, division_id FROM units WHERE status = 'active' ORDER BY unit_name LIMIT :limit";
+        $query = "SELECT id, unit_name, division_id FROM units WHERE unit_status = 'Active' ORDER BY unit_name LIMIT :limit";
         $stmt = $pdo_system->prepare($query);
     }
     

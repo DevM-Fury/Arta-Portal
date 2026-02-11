@@ -15,12 +15,16 @@ try {
     $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 1000;
     $office_id = isset($_GET['office_id']) ? (int)$_GET['office_id'] : null;
     
+    // ✅ FIXED: 
+    // - inalis ang 'division_code' (wala sa table)
+    // - pinalitan ang 'status' ng 'division_status'
+    // - idinagdag ang 'office_id' para sa filtering
     if ($office_id) {
-        $query = "SELECT id, division_name, division_code, office_id FROM divisions WHERE status = 'active' AND office_id = :office_id ORDER BY division_name LIMIT :limit";
+        $query = "SELECT id, division_name, office_id FROM divisions WHERE division_status = 'Active' AND office_id = :office_id ORDER BY division_name LIMIT :limit";
         $stmt = $pdo_system->prepare($query);
         $stmt->bindParam(':office_id', $office_id);
     } else {
-        $query = "SELECT id, division_name, division_code, office_id FROM divisions WHERE status = 'active' ORDER BY division_name LIMIT :limit";
+        $query = "SELECT id, division_name, office_id FROM divisions WHERE division_status = 'Active' ORDER BY division_name LIMIT :limit";
         $stmt = $pdo_system->prepare($query);
     }
     
