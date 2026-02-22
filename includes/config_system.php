@@ -77,7 +77,15 @@ if (!file_exists(SYSTEM_UPLOAD_DIR)) {
 define('SMTP_HOST', getenv('SMTP_HOST') ?: 'smtp.gmail.com');
 define('SMTP_PORT', getenv('SMTP_PORT') ?: 587);
 define('SMTP_USER', getenv('SMTP_USER') ?: 'abayanm1430@gmail.com');
-define('SMTP_PASS', getenv('SMTP_PASS') ?: 'fiyejycuqkyjwtag'); // walang spaces
-define('SMTP_FROM', getenv('SMTP_FROM') ?: 'abayanm1430@gmail.com'); // MATCH dapat!
+define('SMTP_PASS', getenv('SMTP_PASS') ?: 'fiyejycuqkyjwtag');
+define('SMTP_FROM', getenv('SMTP_FROM') ?: 'abayanm1430@gmail.com');
 define('SMTP_FROM_NAME', getenv('SMTP_FROM_NAME') ?: 'ARTA Portal');
 define('SMTP_ENCRYPTION', getenv('SMTP_ENCRYPTION') ?: 'tls');
+
+// define('SMTP_HOST', 'smtp.office365.com');
+// define('SMTP_PORT', 587);
+// define('SMTP_USER', 'markabayan@arta.gov.ph');
+// define('SMTP_PASS', 'YOUR_PASSWORD_HERE'); // from IT Admin
+// define('SMTP_FROM', 'markabayan@arta.gov.ph');
+// define('SMTP_FROM_NAME', 'ARTA Portal');
+// define('SMTP_ENCRYPTION', 'tls');

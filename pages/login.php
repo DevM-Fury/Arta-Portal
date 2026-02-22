@@ -12,7 +12,6 @@ session_start();
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Paste your existing styles here – same as before */
         :root { --primary-blue: #1a56db; --light-blue: #e8f4ff; --text-dark: #1f2937; --text-light: #6b7280; }
         body { background: #f8fafc; font-family: system-ui; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; margin: 0; }
         .login-container { max-width: 420px; width: 100%; }
@@ -78,7 +77,7 @@ session_start();
         </form>
 
         <div class="register-link">
-            <p>Don't have an account? <a href="registration.php">Request access</a></p>
+            <p>Don't have an account? <a href="registration.php">Register Here!</a></p>
             <p><a href="#" id="forgotPasswordLink" style="font-size:13px;" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Forgot password?</a></p>
         </div>
         <div class="footer-text"><p>© 2024 Anti-Red Tape Authority</p></div>
@@ -141,11 +140,11 @@ session_start();
             });
             const data = await res.json();
             if (data.status === "success") {
-                let redirect = "dashboard_user.php";
+                let redirect = "dashboard_user_list.php";
                 if (data.user?.role) {
                     const role = data.user.role.toLowerCase();
                     if (role === 'admin') redirect = "dashboard_admin.php";
-                    else if (role === 'subadmin') redirect = "dashboard_subadmin.php";
+                    else if (role === 'subadmin') redirect = "dashboard_subadmin_list.php";
                 }
                 Swal.fire({ title: "Welcome!", text: `Logged in as ${data.user.firstname || data.user.email}`, icon: "success", timer: 1500, showConfirmButton: false })
                     .then(() => window.location.href = redirect);
@@ -160,18 +159,13 @@ session_start();
         }
     });
 
-    // ===== Forgot Password – with DEBUGGING =====
+    // ===== Forgot Password =====
     const sendResetBtn = document.getElementById('sendResetLinkBtn');
     const resetEmail = document.getElementById('resetEmail');
     const forgotPasswordModal = document.getElementById('forgotPasswordModal');
 
-    // Remove any stray aria-hidden
-    document.querySelectorAll('.login-container, .login-card').forEach(el => el.removeAttribute('aria-hidden'));
-
     sendResetBtn.addEventListener('click', async function() {
         const email = resetEmail.value.trim();
-        console.log('📧 Email entered:', email); // <-- CHECK CONSOLE
-
         if (!email) {
             Swal.fire('Email Required', 'Please enter your email address.', 'warning');
             return;
@@ -186,17 +180,12 @@ session_start();
         this.disabled = true;
 
         try {
-            console.log('🚀 Sending fetch to ../api/auth/forgot_password.php');
-            const response = await fetch("../api/auth/forgot_password.php", {
+            const response = await fetch("../api/auth/forgot_password.php", { // ✅ PATH FIXED
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email: email })
             });
-            console.log('📡 Response status:', response.status);
-
             const data = await response.json();
-            console.log('📦 Response data:', data);
-
             const modalInstance = bootstrap.Modal.getInstance(forgotPasswordModal);
             if (modalInstance) modalInstance.hide();
 

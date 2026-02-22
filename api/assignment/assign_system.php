@@ -1,62 +1,37 @@
 <?php
 header('Content-Type: application/json');
-include_once __DIR__ . '/../../includes/config_access.php';
+require_once __DIR__ . '/../../includes/db_connect.php';
+session_start();
 
-// Check admin session
-$assigned_by = $_SESSION['user']['portal_id'] ?? null;
-if (!$assigned_by) {
-    echo json_encode(['status' => 401, 'title' => 'Unauthorized', 'message' => 'Please log in as admin.']);
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['status' => 405, 'message' => 'Method not allowed']);
     exit;
 }
 
-// Get JSON data
-$data = json_decode(file_get_contents('php://input'), true);
-$portal_id = $data['portal_id'] ?? '';
-$system_id = $data['system_id'] ?? '';
-$role = $data['role'] ?? 'subadmin';
+$input = json_decode(file_get_contents('php://input'), true);
+$portal_id = $input['portal_id'] ?? '';
+$system_id = $input['system_id'] ?? '';
+$assigned_by = $_SESSION['portal_id'] ?? null; // adjust based on your auth
 
 if (!$portal_id || !$system_id) {
-    echo json_encode(['status' => 400, 'title' => 'Invalid Data', 'message' => 'Portal ID and System ID are required.']);
+    echo json_encode(['status' => 400, 'message' => 'Missing parameters']);
     exit;
 }
 
 try {
-    $pdo->beginTransaction();
-
-    // Check if already assigned
-    $stmt = $pdo->prepare("SELECT 1 FROM user_system_access WHERE portal_id = :portal AND system_id = :system");
-    $stmt->execute([':portal' => $portal_id, ':system' => $system_id]);
-
-    if ($stmt->fetch()) {
-        echo json_encode(['status' => 409, 'title' => 'Already Assigned', 'message' => 'This system is already assigned to the user.']);
-        $pdo->rollBack();
+    // Optional: check if already assigned
+    $check = $pdo->prepare("SELECT id FROM assigned_systems WHERE portal_id = ? AND system_id = ?");
+    $check->execute([$portal_id, $system_id]);
+    if ($check->fetch()) {
+        echo json_encode(['status' => 409, 'message' => 'System already assigned to this user']);
         exit;
     }
 
-    // Assign system
-    $stmt = $pdo->prepare("
-        INSERT INTO user_system_access (portal_id, system_id, role, assigned_by, date_assigned) 
-        VALUES (:portal, :system, :role, :assigned_by, NOW())
-    ");
-    $stmt->execute([
-        ':portal' => $portal_id,
-        ':system' => $system_id,
-        ':role' => $role,
-        ':assigned_by' => $assigned_by
-    ]);
-
-    // ✅ Update user role in user_tbl
-    $update = $pdo->prepare("UPDATE user_tbl SET role = :role, modified_date = NOW() WHERE portal_id = :portal");
-    $update->execute([
-        ':role' => $role,
-        ':portal' => $portal_id
-    ]);
-
-    $pdo->commit();
-
-    echo json_encode(['status' => 200, 'title' => 'Success', 'message' => 'System assigned and user role updated successfully.']);
-
-} catch (PDOException $e) {
-    $pdo->rollBack();
-    echo json_encode(['status' => 500, 'title' => 'Error', 'message' => $e->getMessage()]);
+    $stmt = $pdo->prepare("INSERT INTO assigned_systems (portal_id, system_id, assigned_by, date_assigned) VALUES (?, ?, ?, NOW())");
+    $stmt->execute([$portal_id, $system_id, $assigned_by]);
+    echo json_encode(['status' => 200, 'message' => 'System assigned successfully']);
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['status' => 500, 'message' => $e->getMessage()]);
 }

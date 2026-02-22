@@ -236,7 +236,6 @@
 		</div>
 	</div>
 
-
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script>
 	let currentPage = 1;
@@ -296,24 +295,46 @@
           <td class="text-start" style="max-width:200px;overflow:hidden;text-overflow:ellipsis">${u.email}</td>
           <td>${u.role}</td>
           <td>${created}</td>
-         <td>
-			<div class="d-flex justify-content-center gap-1 flex-wrap">
-				<button class="btn btn-sm btn-outline-info" onclick="viewTransactions('${u.portal_id}')">
-				<i class="fa-solid fa-eye me-1"></i>View
-				</button>
-				<button class="btn btn-sm btn-outline-primary" onclick="openAssignModal('${u.portal_id}')">
-				<i class="fa-solid fa-building-user me-1"></i>Assign To
-				</button>
-				<button class="btn btn-sm btn-outline-warning" onclick="openEditModal('${u.portal_id}')">Edit</button>
-				<button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${u.portal_id}')">Delete</button>
-			</div>
-			</td>
-
+          <td>
+            <div class="d-flex justify-content-center gap-2">
+              <button class="btn btn-sm btn-outline-info" 
+                onclick="viewTransactions('${u.portal_id}')" 
+                title="View Transactions" 
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-primary" 
+                onclick="openAssignModal('${u.portal_id}')" 
+                title="Assign to Office/Division" 
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top">
+                <i class="fa-solid fa-building-user"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-warning" 
+                onclick="openEditModal('${u.portal_id}')" 
+                title="Edit User" 
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" 
+                onclick="deleteUser('${u.portal_id}')" 
+                title="Delete User" 
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </td>
         </tr>`;
 			});
 
 			tableInfo.textContent = `Showing ${users.length} of ${totalRecords} (page ${current})`;
 			renderPagination(current, totalPages, query);
+
+			// Initialize Bootstrap tooltips for newly added buttons
+			document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
 		} catch (err) {
 			console.error(err);
 			tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Error loading users</td></tr>`;
@@ -754,7 +775,6 @@
 		overflow: hidden;
 	}
 
-
 	.table thead {
 		background: var(--arta-blue3);
 		color: #fff;
@@ -769,7 +789,7 @@
 	}
 
 	.table tbody td {
-		padding: 12px;
+		padding: 10px 6px;  /* reduced padding for a tighter look */
 		font-size: 14px;
 		vertical-align: middle;
 	}
@@ -829,7 +849,6 @@
 		}
 	}
 
-
 	#searchInput:focus {
 		border-color: var(--arta-blue1);
 		box-shadow: 0 0 0 0.2rem rgba(35, 57, 93, 0.25);
@@ -850,7 +869,6 @@
 		letter-spacing: 0.5px;
 		font-size: 14px;
 	}
-
 
 	.btn-primary:hover {
 		background-color: var(--arta-blue3);
@@ -873,9 +891,6 @@
 	}
 	</style>
 
-
 	<?php include_once __DIR__ . '/../includes/footer.php'; ?>
-	<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> -->
 </body>
-
 </html>

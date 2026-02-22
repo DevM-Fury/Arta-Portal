@@ -211,7 +211,7 @@ session_start();
 
     <div class="logo">
         <i class="fas fa-shield-alt"></i>
-        <h3>Request Access</h3>
+        <h3>Create Account</h3>
         <p>ARTA Portal – Government Personnel</p>
     </div>
 
@@ -338,7 +338,7 @@ session_start();
     </form>
 
     <div class="login-link">
-        Already have an account? <a href="index.php"><i class="fas fa-sign-in-alt me-1"></i>Login</a>
+        Already have an account? <a href="login.php"><i class="fas fa-sign-in-alt me-1"></i>Login</a>
     </div>
     <div class="footer">
         © 2024 Anti-Red Tape Authority
@@ -677,7 +677,7 @@ session_start();
                            ${data.data?.portal_id ? `<p><strong>Portal ID:</strong> ${data.data.portal_id}</p>` : ''}`,
                     confirmButtonText: 'Go to Login',
                     confirmButtonColor: '#1a56db'
-                }).then(() => window.location.href = 'index.php');
+                }).then(() => window.location.href = 'login.php');
             } else {
                 Swal.fire({ icon: 'error', title: 'Registration Failed', text: data.message || 'Please try again' });
             }

@@ -272,45 +272,7 @@ $totalUnits = $conn->query("SELECT COUNT(*) FROM public.units WHERE unit_status=
                     <small class="text-muted click-hint"><i class="fa-solid fa-hand-pointer me-1"></i>Click to view</small>
                 </div>
             </div>
-            
-            <!-- Quick Stats Section -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="card p-3">
-                        <h5><i class="fa-solid fa-chart-line text-primary me-2"></i>Quick Stats</h5>
-                        <div class="row text-center">
-                            <div class="col-md-3 col-6 mb-3">
-                                <div class="p-2">
-                                    <i class="fa-solid fa-user-plus fa-lg text-success mb-2"></i>
-                                    <h6>New Today</h6>
-                                    <p class="mb-0 fw-bold">+5</p>
-                                </div>
-                            </div>
-                            <div class="col-md-3 col-6 mb-3">
-                                <div class="p-2">
-                                    <i class="fa-solid fa-clock fa-lg text-warning mb-2"></i>
-                                    <h6>Pending</h6>
-                                    <p class="mb-0 fw-bold">12</p>
-                                </div>
-                            </div>
-                            <div class="col-md-3 col-6 mb-3">
-                                <div class="p-2">
-                                    <i class="fa-solid fa-check-circle fa-lg text-success mb-2"></i>
-                                    <h6>Completed</h6>
-                                    <p class="mb-0 fw-bold">48</p>
-                                </div>
-                            </div>
-                            <div class="col-md-3 col-6 mb-3">
-                                <div class="p-2">
-                                    <i class="fa-solid fa-chart-bar fa-lg text-info mb-2"></i>
-                                    <h6>Growth</h6>
-                                    <p class="mb-0 fw-bold">+15%</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+       
         </div>
     </div>
 

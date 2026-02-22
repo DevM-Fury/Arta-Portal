@@ -274,7 +274,7 @@
 					<li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
 					<li class="nav-item"><a class="nav-link" href="#about">About</a></li>
 					<li class="nav-item"><a class="nav-link" href="#process">Process</a></li>
-					<li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+					<!-- <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li> -->
 				</ul>
 			</div>
 		</div>
@@ -285,7 +285,7 @@
 		<div class="container">
 			<h1>Welcome to ARTA Portal</h1>
 			<p>Streamlining processes, empowering businesses, and enabling seamless services.</p>
-			<a href="start.php" class="btn btn-main">Go to Login form</a>
+			<a href="start.php" class="btn btn-main">Login</a>
 		</div>
 	</section>
 
@@ -341,7 +341,7 @@
 	</section>
 
 	<!-- CONTACT -->
-	<section id="contact">
+	<!-- <section id="contact">
 		<div class="container">
 			<h2 class="section-title">Contact Us</h2>
 			<div class="row">
@@ -371,7 +371,7 @@
 				</div>
 			</div>
 		</div>
-	</section>
+	</section> -->
 
 	<!-- FOOTER -->
 	<footer>

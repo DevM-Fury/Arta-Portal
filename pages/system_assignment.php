@@ -1,7 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<?php include_once __DIR__ . '/../includes/head.php'; ?>
-
+<?php
+// Include necessary components
+include_once __DIR__ . '/../includes/head.php';
+?>
 <body>
 	<?php include_once __DIR__ . '/../includes/sidebar.php'; ?>
 
@@ -70,17 +70,17 @@
 										<th>Role</th>
 										<th>Assigned By</th>
 										<th>Date Assigned</th>
+										<th>Action</th> <!-- BAGONG COLUMN -->
 									</tr>
 								</thead>
 								<tbody id="assignedTableBody">
 									<tr>
-										<td colspan="6" class="text-center text-muted">No assigned systems yet.</td>
+										<td colspan="7" class="text-center text-muted">No assigned systems yet.</td>
 									</tr>
 								</tbody>
 							</table>
 						</div>
 					</div>
-
 
 				</div>
 			</div>
@@ -106,8 +106,40 @@
 				</div>
 				<div class="modal-footer">
 					<button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-					<button class="btn btn-primary" onclick="assignSystem()"><i
-							class="fa-solid fa-check me-2"></i>Assign</button>
+					<button class="btn btn-primary" onclick="assignSystem()"><i class="fa-solid fa-check me-2"></i>Assign</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- BAGONG MODAL: Edit Assignment Modal -->
+	<div class="modal fade" id="editAssignmentModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header bg-warning text-dark">
+					<h5 class="modal-title"><i class="fa-solid fa-pen-to-square me-2"></i> Update Assignment</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<input type="hidden" id="editAccessId">
+					<div class="mb-3">
+						<label class="form-label">User</label>
+						<input type="text" id="editUserName" class="form-control" readonly>
+					</div>
+					<div class="mb-3">
+						<label class="form-label">System</label>
+						<select id="editSystemSelect" class="form-select">
+							<option value="">Select System</option>
+						</select>
+					</div>
+					<div class="mb-3">
+						<label class="form-label">Role</label>
+						<input type="text" id="editRole" class="form-control" placeholder="Enter role">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button class="btn btn-warning" onclick="updateAssignment()"><i class="fa-solid fa-save me-2"></i>Update</button>
 				</div>
 			</div>
 		</div>
@@ -118,43 +150,60 @@
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 	<script>
+	// ===== Enhanced fetch with error handling =====
+	async function fetchJSON(url, options = {}) {
+		const response = await fetch(url, options);
+		const contentType = response.headers.get('content-type');
+		if (!response.ok) {
+			const text = await response.text();
+			console.error(`HTTP ${response.status} from ${url}:`, text);
+			throw new Error(`HTTP error ${response.status}`);
+		}
+		if (contentType && contentType.includes('application/json')) {
+			return response.json();
+		} else {
+			const text = await response.text();
+			console.error('Non-JSON response from', url, ':', text);
+			throw new Error('Invalid JSON response (received HTML/plain text instead)');
+		}
+	}
+
+	// ===== Load Assigned Systems (may access_id at Edit button) =====
 	async function loadAssignedSystems() {
 		const tbody = document.getElementById('assignedTableBody');
-		tbody.innerHTML = `<tr><td colspan="6" class="text-center">Loading...</td></tr>`;
+		tbody.innerHTML = `<tr><td colspan="7" class="text-center">Loading...</td></tr>`;
 
 		try {
-			const res = await fetch('../api/assignment/get_assigned_systems.php');
-			const assigned = await res.json();
+			const assigned = await fetchJSON('../api/assignment/get_assigned_systems.php');
 
 			if (!assigned.length) {
-				tbody.innerHTML =
-					`<tr><td colspan="6" class="text-center text-muted">No assigned systems yet.</td></tr>`;
+				tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No assigned systems yet.</td></tr>`;
 				return;
 			}
 
 			tbody.innerHTML = '';
 			assigned.forEach((a, i) => {
 				tbody.innerHTML += `
-                <tr>
-                    <td>${i+1}</td>
-                    <td>${a.firstname} ${a.lastname}</td>
-                    <td>${a.system_name}</td>
-                    <td>${a.role}</td>
-                    <td>${a.assigned_by_name ?? '-'}</td>
-                    <td>${a.date_assigned}</td>
-                </tr>`;
+				<tr>
+					<td>${i+1}</td>
+					<td>${a.firstname} ${a.lastname}</td>
+					<td>${a.system_name}</td>
+					<td>${a.role}</td>
+					<td>${a.assigned_by_name ?? '-'}</td>
+					<td>${a.date_assigned}</td>
+					<td>
+						<button class="btn btn-sm btn-outline-warning" onclick="openEditModal(${a.access_id})">
+							<i class="fa-solid fa-pen-to-square me-1"></i>Edit
+						</button>
+					</td>
+				</tr>`;
 			});
 
 		} catch (err) {
 			console.error(err);
-			tbody.innerHTML =
-				`<tr><td colspan="6" class="text-center text-danger">Error loading assigned systems.</td></tr>`;
+			tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error loading assigned systems. Check console (F12).</td></tr>`;
 		}
 	}
-
-	// Tawagin sa page load at pagkatapos mag-assign
-	loadAssignedSystems();
-
 
 	// ===== Populate Filter Values =====
 	document.getElementById('filterType').addEventListener('change', async (e) => {
@@ -168,8 +217,7 @@
 		}
 
 		try {
-			const res = await fetch(`../api/assignment/get_filter_values.php?type=${type}`);
-			const data = await res.json();
+			const data = await fetchJSON(`../api/assignment/get_filter_values.php?type=${type}`);
 			select.innerHTML = '<option value="">Select...</option>';
 			data.forEach(d => select.innerHTML += `<option value="${d.id}">${d.name}</option>`);
 		} catch (err) {
@@ -186,8 +234,7 @@
 		tbody.innerHTML = `<tr><td colspan="7" class="text-center">Loading...</td></tr>`;
 
 		try {
-			const res = await fetch(`../api/assignment/get_users.php?type=${type}&id=${id}`);
-			const users = await res.json();
+			const users = await fetchJSON(`../api/assignment/get_users.php?type=${type}&id=${id}`);
 
 			if (!users.length) {
 				tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No users found.</td></tr>`;
@@ -213,7 +260,7 @@
 			});
 		} catch (err) {
 			console.error(err);
-			tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error loading users.</td></tr>`;
+			tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error loading users. Check console.</td></tr>`;
 		}
 	}
 
@@ -225,13 +272,13 @@
 		modal.show();
 
 		try {
-			const res = await fetch(`../api/assignment/get_systems.php`);
-			const systems = await res.json();
+			const systems = await fetchJSON(`../api/assignment/get_systems.php`);
 			const select = document.getElementById('systemSelect');
 			select.innerHTML = '<option value="">Select System</option>';
 			systems.forEach(s => select.innerHTML += `<option value="${s.id}">${s.system_name}</option>`);
 		} catch (err) {
 			console.error('Error loading systems:', err);
+			Swal.fire('Error', 'Failed to load systems. Check console.', 'error');
 		}
 	}
 
@@ -246,52 +293,104 @@
 		}
 
 		try {
-			const res = await fetch('../api/assignment/assign_system.php', {
+			const result = await fetchJSON('../api/assignment/assign_system.php', {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					portal_id: portalId,
-					system_id: systemId
-				})
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ portal_id: portalId, system_id: systemId })
 			});
-			const result = await res.json();
+
 			if (result.status === 200) {
 				Swal.fire('Success', result.message, 'success');
 				bootstrap.Modal.getInstance(document.getElementById('assignSystemModal')).hide();
-				loadUsers(); // Refresh table
+				loadUsers(); // Refresh users table
+				loadAssignedSystems(); // Also refresh assigned systems table
 			} else {
 				Swal.fire('Error', result.message, 'error');
 			}
 		} catch (err) {
 			console.error(err);
-			Swal.fire('Error', 'Failed to assign system.', 'error');
+			Swal.fire('Error', 'Failed to assign system. Check console.', 'error');
 		}
 	}
 
-	// ===== Init =====
+	// ===== Open Edit Modal =====
+	async function openEditModal(accessId) {
+		try {
+			// Fetch assignment details
+			const details = await fetchJSON(`../api/assignment/get_assignment_details.php?access_id=${accessId}`);
+			
+			// Populate modal
+			document.getElementById('editAccessId').value = details.access_id;
+			document.getElementById('editUserName').value = details.firstname + ' ' + details.lastname;
+			document.getElementById('editRole').value = details.role;
+			
+			// Load systems dropdown
+			const systems = await fetchJSON('../api/assignment/get_systems.php');
+			const select = document.getElementById('editSystemSelect');
+			select.innerHTML = '<option value="">Select System</option>';
+			systems.forEach(s => {
+				const selected = (s.id == details.system_id) ? 'selected' : '';
+				select.innerHTML += `<option value="${s.id}" ${selected}>${s.system_name}</option>`;
+			});
+			
+			// Show modal
+			const modal = new bootstrap.Modal(document.getElementById('editAssignmentModal'));
+			modal.show();
+		} catch (err) {
+			console.error(err);
+			Swal.fire('Error', 'Failed to load assignment details.', 'error');
+		}
+	}
+
+	// ===== Update Assignment =====
+	async function updateAssignment() {
+		const accessId = document.getElementById('editAccessId').value;
+		const systemId = document.getElementById('editSystemSelect').value;
+		const role = document.getElementById('editRole').value.trim();
+
+		if (!systemId || !role) {
+			Swal.fire('Error', 'Please fill all fields.', 'error');
+			return;
+		}
+
+		try {
+			const result = await fetchJSON('../api/assignment/update_assignment.php', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ access_id: accessId, system_id: systemId, role: role })
+			});
+
+			if (result.status === 200) {
+				Swal.fire('Success', result.message, 'success');
+				bootstrap.Modal.getInstance(document.getElementById('editAssignmentModal')).hide();
+				loadAssignedSystems(); // Refresh table
+			} else {
+				Swal.fire('Error', result.message, 'error');
+			}
+		} catch (err) {
+			console.error(err);
+			Swal.fire('Error', 'Update failed. Check console.', 'error');
+		}
+	}
+
+	// ===== Initialize on page load =====
 	document.addEventListener('DOMContentLoaded', () => {
-		// optional: preload users
+		loadAssignedSystems(); // Load existing assignments
 	});
 	</script>
 
+	<!-- Styles (unchanged) -->
 	<style>
 	/* Paliitin ang height ng select fields */
 	#filterType,
 	#filterValue {
 		height: 38px;
-		/* default ~40px, pwede palitan ng 35px kung gusto mas maliit */
 		font-size: 14px;
 	}
-
-	/* Palakihin ang width ng Apply Filter button */
 	.d-flex.gap-2.w-100.w-md-4 .btn-dark {
 		min-width: 150px;
-		/* pwede baguhin depende sa gusto mo */
 		font-size: 14px;
 		height: 38px;
-		/* para same height sa select */
 	}
 	</style>
 
@@ -304,98 +403,57 @@
 		--arta-blue2: #1e2a3a;
 		--arta-blue3: #0f2027;
 	}
-
 	body {
 		background-color: var(--arta-gray);
 		font-family: 'Poppins', sans-serif;
 		color: #333;
 	}
-
 	.card {
 		background: #fff;
 		border-radius: 16px;
 		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 		overflow: hidden;
 	}
-
 	.table-responsive {
 		width: 100%;
 		overflow-x: auto;
 		-webkit-overflow-scrolling: touch;
 	}
-
 	.table {
 		min-width: 1200px;
 		width: 100%;
 		table-layout: auto;
 	}
-
-	.table img {
-		max-width: 50px;
-		height: auto;
-	}
-
 	.table thead {
 		background: var(--arta-blue3);
 		color: #fff;
 	}
-
 	.table thead th {
 		font-size: 14px;
 		letter-spacing: 0.5px;
 		padding: 14px;
 		border: none !important;
 	}
-
 	.table tbody td {
 		padding: 12px;
 		font-size: 14px;
 		vertical-align: middle;
 	}
-
 	.table tbody tr:nth-child(even) {
 		background-color: var(--arta-light);
 	}
-
 	.table tbody tr:hover {
 		background-color: rgba(15, 32, 39, 0.08);
 		transition: 0.2s;
 	}
-
-	.expandable-row {
-		cursor: pointer;
-	}
-
-	.expandable-row.active {
-		background-color: rgba(15, 32, 39, 0.1);
-	}
-
-	.expandable-content {
-		display: none;
-		background-color: #f9f9f9;
-	}
-
-	.expand-body {
-		text-align: left;
-		padding: 18px 24px;
-		background: #ffffff;
-		border-left: 4px solid var(--arta-blue1);
-		border-radius: 8px;
-		font-size: 14px;
-		line-height: 1.6;
-	}
-
-	/* 📱 Mobile-friendly card layout */
 	@media (max-width: 768px) {
 		.table {
 			border: 0;
 			min-width: unset;
 		}
-
 		.table thead {
 			display: none;
 		}
-
 		.table tbody tr {
 			display: block;
 			margin-bottom: 15px;
@@ -405,7 +463,6 @@
 			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 			overflow: hidden;
 		}
-
 		.table tbody td {
 			display: flex;
 			justify-content: space-between;
@@ -415,11 +472,9 @@
 			font-size: 13px;
 			border-bottom: 1px solid #f0f0f0;
 		}
-
 		.table tbody td:last-child {
 			border-bottom: none;
 		}
-
 		.table tbody td::before {
 			content: attr(data-label);
 			font-weight: 600;
@@ -427,36 +482,9 @@
 			flex-basis: 50%;
 			text-align: left;
 		}
-
-		.table tbody td img {
-			max-width: 40px;
-		}
-
-		.action-buttons {
-			display: flex;
-			flex-direction: column;
-			width: 100%;
-		}
-
-		.action-buttons .btn {
-			font-size: 12px;
-			padding: 10px;
-			margin-bottom: 5px;
-		}
-
-		.expand-body {
-			padding: 12px 16px;
-			font-size: 13px;
-		}
-
-		#searchInput {
-			width: 100%;
-			margin-bottom: 5px;
-		}
 	}
 	</style>
 
 	<?php include_once __DIR__ . '/../includes/footer.php'; ?>
 </body>
-
 </html>
