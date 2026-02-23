@@ -3,894 +3,1303 @@
 <?php include_once __DIR__ . '/../includes/head.php'; ?>
 
 <body>
-	<?php include_once __DIR__ . '/../includes/sidebar.php'; ?>
+    <!-- Sidebar -->
+    <?php include_once __DIR__ . '/../includes/sidebar.php'; ?>
 
-	<div class="header-bar">
-		<div class="header-title">
-			<i class="fa-solid fa-users me-2"></i> Users Management
-		</div>
-		<div class="header-user dropdown">
-			<i class="fa-solid fa-user dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown"
-				aria-expanded="false"></i>
-			<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-				<li><a class="dropdown-item" href="#">Profile Settings</a></li>
-				<li>
-					<hr class="dropdown-divider">
-				</li>
-				<li><a class="dropdown-item" href="#">Logout</a></li>
-			</ul>
-		</div>
-	</div>
+    <!-- HEADER -->
+    <div class="header-bar">
+        <div class="header-title">
+            <i class="fa-solid fa-users me-2"></i> Users Management
+        </div>
 
-	<div class="main-content">
-		<div class="container-fluid">
-			<div class="card shadow-lg border-0 rounded-3 mx-auto" style="width:100%;max-width:1800px;min-height:80vh;">
-				<div class="card-body p-4">
-					<div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
-						<div class="d-flex gap-2 w-100 w-md-auto align-items-center">
-							<input id="searchInput" class="form-control shadow-sm border-primary flex-grow-1"
-								placeholder="🔍 Search user...">
-							<select id="rowsPerPage" class="form-select form-select-sm ms-2" style="width:110px;">
-								<option value="5" selected>5</option>
-								<option value="10">10</option>
-								<option value="20">20</option>
-								<option value="50">50</option>
-							</select>
-							<button class="btn btn-dark shadow-sm ms-2" data-bs-toggle="modal"
-								data-bs-target="#addUserModal">
-								<i class="fa-solid fa-plus me-2"></i>Add New User
-							</button>
-						</div>
-					</div>
+        <div class="header-user dropdown">
+            <i class="fa-solid fa-user dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown"
+                aria-expanded="false"></i>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                <li><a class="dropdown-item" href="#">Profile Settings</a></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" href="#">Logout</a></li>
+            </ul>
+        </div>
+    </div>
 
-					<div class="table-responsive table-responsive-sm">
-						<table class="table custom-table align-middle text-center mb-0 table-striped">
-							<thead class="table-dark">
-								<tr>
-									<th>ID</th>
-									<th>National ID</th>
-									<th>Firstname</th>
-									<th>Lastname</th>
-									<th>Contact</th>
-									<th>Email</th>
-									<th>Role</th>
-									<th>Created</th>
-									<th>Action</th>
-								</tr>
-							</thead>
-							<tbody id="tableBody"></tbody>
-						</table>
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="content-container">
 
-						<div
-							class="d-flex justify-content-between align-items-center mt-3 flex-column flex-md-row gap-2">
-							<div class="text-muted" id="tableInfo"></div>
-							<div id="pagination" class="d-flex align-items-center"></div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<!-- ADD USER MODAL -->
-	<div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
-		<div class="modal-dialog modal-lg">
-			<div class="modal-content">
-				<form id="addUserForm">
-					<div class="modal-header">
-						<h5 class="modal-title">Add New User</h5>
-						<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-					</div>
-					<div class="modal-body">
-						<div class="row g-3">
-							<div class="col-md-6">
-								<label class="form-label">National ID</label>
-								<input type="text" name="national_id" class="form-control" required>
-							</div>
-							<div class="col-md-6">
-								<label class="form-label">Firstname</label>
-								<input type="text" name="firstname" class="form-control" required>
-							</div>
-							<div class="col-md-6">
-								<label class="form-label">Lastname</label>
-								<input type="text" name="lastname" class="form-control" required>
-							</div>
-							<div class="col-md-6">
-								<label class="form-label">Contact</label>
-								<input type="text" name="contact" class="form-control" required>
-							</div>
-							<div class="col-md-6">
-								<label class="form-label">Email</label>
-								<input type="email" name="email" class="form-control" required>
-							</div>
-							<div class="col-md-6">
-								<label class="form-label">Password</label>
-								<input type="password" name="password" class="form-control" required>
-							</div>
-							<div class="col-md-6">
-								<label class="form-label">Role</label>
-								<select name="role" class="form-select">
-									<option value="user" selected>User</option>
-									<option value="admin">Admin</option>
-								</select>
-							</div>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-						<button type="submit" class="btn btn-primary">Save</button>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
-
-	<!-- EDIT USER MODAL -->
-	<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
-		<div class="modal-dialog modal-lg modal-dialog-centered">
-			<div class="modal-content">
-				<div class="modal-header bg-primary text-white">
-					<h5 class="modal-title"><i class="fa-solid fa-user-pen me-2"></i>Edit User</h5>
-					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-				</div>
-				<div class="modal-body">
-					<form id="editForm">
-						<input type="hidden" id="editPortalId">
-						<div class="row mb-3">
-							<div class="col-md-6">
-								<label class="form-label">First Name</label>
-								<input type="text" id="editFirstname" class="form-control" required>
-							</div>
-							<div class="col-md-6">
-								<label class="form-label">Last Name</label>
-								<input type="text" id="editLastname" class="form-control" required>
-							</div>
-						</div>
-						<div class="row mb-3">
-							<div class="col-md-6">
-								<label class="form-label">Contact</label>
-								<input type="text" id="editContact" class="form-control" required>
-							</div>
-							<div class="col-md-6">
-								<label class="form-label">Email</label>
-								<input type="email" id="editEmail" class="form-control" required>
-							</div>
-						</div>
-						<div class="row mb-3">
-							<div class="col-md-6">
-								<label class="form-label">Role</label>
-								<select id="editRole" class="form-select" required>
-									<option value="">Select role</option>
-									<option value="admin">Admin</option>
-									<option value="subadmin">Subadmin</option>
-									<option value="user">User</option>
-								</select>
-							</div>
-							<div class="col-md-6">
-								<label class="form-label">New Password (optional)</label>
-								<input type="password" id="editPassword" class="form-control"
-									placeholder="Leave blank to keep current password">
-							</div>
-						</div>
-					</form>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-						<i class="fa-solid fa-xmark me-1"></i> Cancel
-					</button>
-					<button type="button" class="btn btn-success" onclick="updateUser()">
-						<i class="fa-solid fa-floppy-disk me-1"></i> Save Changes
-					</button>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<!-- ASSIGN TO MODAL -->
-	<div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
-		<div class="modal-dialog modal-lg modal-dialog-centered">
-			<div class="modal-content">
-				<div class="modal-header bg-dark text-white">
-					<h5 class="modal-title"><i class="fa-solid fa-building-user me-2"></i>Assign User To</h5>
-					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-				</div>
-				<div class="modal-body">
-					<form id="assignForm">
-						<input type="hidden" id="assignPortalId">
-
-						<div class="row g-3">
-							<div class="col-md-6">
-								<label class="form-label">Office</label>
-								<select id="officeSelect" class="form-select" required>
-									<option value="">Select Office</option>
-								</select>
-							</div>
-							<div class="col-md-6">
-								<label class="form-label">Division</label>
-								<select id="divisionSelect" class="form-select" required disabled>
-									<option value="">Select Division</option>
-								</select>
-							</div>
-							<div class="col-md-6">
-								<label class="form-label">Unit</label>
-								<select id="unitSelect" class="form-select" required disabled>
-									<option value="">Select Unit</option>
-								</select>
-							</div>
-							<div class="col-md-6">
-								<label class="form-label">Designation</label>
-								<select id="designationSelect" class="form-select" required disabled>
-									<option value="">Select Designation</option>
-								</select>
-							</div>
-						</div>
-					</form>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-					<button type="button" class="btn btn-success" onclick="saveAssignment()">
-						<i class="fa-solid fa-floppy-disk me-1"></i>Save Assignment
-					</button>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-	<script>
-	let currentPage = 1;
-	let limit = parseInt(document.getElementById('rowsPerPage').value || 5);
-	const searchInput = document.getElementById('searchInput');
-	const tableBody = document.getElementById('tableBody');
-	const tableInfo = document.getElementById('tableInfo');
-	const paginationEl = document.getElementById('pagination');
-
-	// helper to avoid double event binding
-	function once(el, event, fn) {
-		el.removeEventListener(event, fn);
-		el.addEventListener(event, fn, {
-			once: false
-		});
-	}
-
-	// ============ LOAD USERS ============
-	async function loadUsers(page = 1, query = '') {
-		currentPage = page;
-		limit = parseInt(document.getElementById('rowsPerPage').value || 5);
-
-		try {
-			const res = await fetch(
-				`../api/users/get_users.php?page=${page}&limit=${limit}&q=${encodeURIComponent(query)}`);
-			const result = await res.json();
-
-			tableBody.innerHTML = '';
-			if (result.status !== 200) {
-				const msg = result.message || 'Failed to fetch users';
-				tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">${msg}</td></tr>`;
-				tableInfo.textContent = `No records`;
-				return;
-			}
-
-			const {
-				users,
-				totalPages,
-				totalRecords,
-				currentPage: current
-			} = result.data;
-			if (!users || users.length === 0) {
-				tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">No users found</td></tr>`;
-				tableInfo.textContent = `No records`;
-				return;
-			}
-
-			users.forEach(u => {
-				const created = u.date_created ? new Date(u.date_created).toLocaleString() : '';
-				tableBody.innerHTML += `
-        <tr>
-          <td class="text-start" style="max-width:220px;overflow:hidden;text-overflow:ellipsis">${u.portal_id}</td>
-          <td>${u.national_id}</td>
-          <td>${u.firstname}</td>
-          <td>${u.lastname}</td>
-          <td>${u.contact}</td>
-          <td class="text-start" style="max-width:200px;overflow:hidden;text-overflow:ellipsis">${u.email}</td>
-          <td>${u.role}</td>
-          <td>${created}</td>
-          <td>
-            <div class="d-flex justify-content-center gap-2">
-              <button class="btn btn-sm btn-outline-info" 
-                onclick="viewTransactions('${u.portal_id}')" 
-                title="View Transactions" 
-                data-bs-toggle="tooltip" 
-                data-bs-placement="top">
-                <i class="fa-solid fa-eye"></i>
-              </button>
-              <button class="btn btn-sm btn-outline-primary" 
-                onclick="openAssignModal('${u.portal_id}')" 
-                title="Assign to Office/Division" 
-                data-bs-toggle="tooltip" 
-                data-bs-placement="top">
-                <i class="fa-solid fa-building-user"></i>
-              </button>
-              <button class="btn btn-sm btn-outline-warning" 
-                onclick="openEditModal('${u.portal_id}')" 
-                title="Edit User" 
-                data-bs-toggle="tooltip" 
-                data-bs-placement="top">
-                <i class="fa-solid fa-pen-to-square"></i>
-              </button>
-              <button class="btn btn-sm btn-outline-danger" 
-                onclick="deleteUser('${u.portal_id}')" 
-                title="Delete User" 
-                data-bs-toggle="tooltip" 
-                data-bs-placement="top">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
+            <!-- SEARCH SECTION -->
+            <div class="search-section">
+                <div class="search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="searchInput" class="form-control search-input" placeholder="Search users...">
+                    <span class="search-count" id="recordCount">0</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <select id="rowsPerPage" class="form-select" style="width: auto; min-width: 70px;">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                    </select>
+                    <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                        <i class="fa-solid fa-plus me-2"></i>Add
+                    </button>
+                </div>
             </div>
-          </td>
-        </tr>`;
-			});
 
-			tableInfo.textContent = `Showing ${users.length} of ${totalRecords} (page ${current})`;
-			renderPagination(current, totalPages, query);
+            <!-- DESKTOP TABLE VIEW -->
+            <div class="table-view">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="text-white bg-dark">ID</th>
+                                <th class="text-white bg-dark">NATIONAL ID</th>
+                                <th class="text-white bg-dark">FIRSTNAME</th>
+                                <th class="text-white bg-dark">LASTNAME</th>
+                                <th class="text-white bg-dark">CONTACT</th>
+                                <th class="text-white bg-dark">EMAIL</th>
+                                <th class="text-white bg-dark">ROLE</th>
+                                <th class="text-white bg-dark">CREATED</th>
+                                <th class="text-white bg-dark">ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </div>
 
-			// Initialize Bootstrap tooltips for newly added buttons
-			document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
-		} catch (err) {
-			console.error(err);
-			tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Error loading users</td></tr>`;
-		}
-	}
+            <!-- MOBILE CARD VIEW -->
+            <div class="mobile-view" id="mobileView"></div>
 
-	// ============ RENDER PAGINATION ============
-	function renderPagination(page, totalPages, query = '') {
-		paginationEl.innerHTML = '';
-		if (totalPages <= 1) return;
-		const btn = (p, label = p) =>
-			`<button class="btn btn-sm ${p === page ? 'btn-primary' : 'btn-outline-primary'} mx-1" onclick="loadUsers(${p}, '${query}')">${label}</button>`;
-		paginationEl.innerHTML += btn(Math.max(1, page - 1), 'Prev');
-		for (let i = 1; i <= totalPages; i++) paginationEl.innerHTML += btn(i);
-		paginationEl.innerHTML += btn(Math.min(totalPages, page + 1), 'Next');
-	}
+            <!-- FOOTER -->
+            <div class="table-footer">
+                <div class="records-info" id="recordsInfo">Showing 0 of 0 records</div>
+                <div id="pagination" class="pagination-wrapper"></div>
+                <?php include_once __DIR__ . '/../includes/footer.php'; ?>
+            </div>
 
-	// ============ ADD USER ============
-	document.getElementById('addUserForm').addEventListener('submit', async e => {
-		e.preventDefault();
-		const formData = Object.fromEntries(new FormData(e.target).entries());
-		try {
-			const res = await fetch('../api/users/create_user.php', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(formData)
-			});
-			const result = await res.json();
-			if (result.status === 200) {
-				Swal.fire({
-					icon: 'success',
-					title: 'User Added',
-					text: result.message,
-					timer: 1500,
-					showConfirmButton: false
-				});
-				e.target.reset();
-				bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
-				loadUsers(1, searchInput.value.trim());
-			} else {
-				Swal.fire('Error', result.message || 'Failed to add user', 'error');
-			}
-		} catch (err) {
-			Swal.fire('Error', 'Server error', 'error');
-		}
-	});
+        </div>
+    </div>
 
-	// ============ OPEN EDIT MODAL ============
-	async function openEditModal(id) {
-		try {
-			const res = await fetch(`../api/users/get_users.php?id=${id}`);
-			const result = await res.json();
-			if (result.status !== 200) return Swal.fire('Error', 'User not found', 'error');
-			const d = result.data;
-			document.getElementById('editPortalId').value = d.portal_id;
-			document.getElementById('editFirstname').value = d.firstname;
-			document.getElementById('editLastname').value = d.lastname;
-			document.getElementById('editContact').value = d.contact;
-			document.getElementById('editEmail').value = d.email;
-			document.getElementById('editRole').value = d.role;
-			document.getElementById('editPassword').value = '';
-			new bootstrap.Modal(document.getElementById('editModal')).show();
-		} catch (err) {
-			Swal.fire('Error', 'Server error', 'error');
-		}
-	}
+    <!-- ADD USER MODAL -->
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form id="addUserForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add New User</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">National ID</label>
+                                <input type="text" name="national_id" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Firstname</label>
+                                <input type="text" name="firstname" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Lastname</label>
+                                <input type="text" name="lastname" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Contact</label>
+                                <input type="text" name="contact" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Password</label>
+                                <input type="password" name="password" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Role</label>
+                                <select name="role" class="form-select">
+                                    <option value="user" selected>User</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
-	// ============ ASSIGN: open modal & load offices ============
-	async function openAssignModal(portal_id) {
-		// reset selects
-		document.getElementById('assignPortalId').value = portal_id;
-		resetAssignModal();
+    <!-- EDIT USER MODAL -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <input type="hidden" id="editPortalId">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">First Name</label>
+                                <input type="text" id="editFirstname" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" id="editLastname" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Contact</label>
+                                <input type="text" id="editContact" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" id="editEmail" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Role</label>
+                                <select id="editRole" class="form-select" required>
+                                    <option value="">Select role</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="subadmin">Subadmin</option>
+                                    <option value="user">User</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">New Password</label>
+                                <input type="password" id="editPassword" class="form-control"
+                                    placeholder="Leave blank to keep current">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="updateUser()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-		const modalEl = document.getElementById('assignModal');
-		const modal = new bootstrap.Modal(modalEl);
-		modal.show();
+    <!-- ASSIGN TO MODAL -->
+    <div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Assign User To</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="assignForm">
+                        <input type="hidden" id="assignPortalId">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Office</label>
+                                <select id="officeSelect" class="form-select" required>
+                                    <option value="">Select Office</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Division</label>
+                                <select id="divisionSelect" class="form-select" required disabled>
+                                    <option value="">Select Division</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Unit</label>
+                                <select id="unitSelect" class="form-select" required disabled>
+                                    <option value="">Select Unit</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Designation</label>
+                                <select id="designationSelect" class="form-select" required disabled>
+                                    <option value="">Select Designation</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveAssignment()">Save Assignment</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-		// load offices
-		await loadOffices();
+    <style>
+    :root {
+        --arta-blue1: #23395d;
+        --arta-blue2: #1e2a3a;
+        --arta-blue3: #0f2027;
+        --arta-gray: #f5f6fa;
+        --border-color: #e9ecef;
+        --arta-header-bg: #1a2a3a;
+        --arta-header-text: #ffffff;
+        --arta-table-header: #0f2027;
+    }
 
-		// prebind change listeners once
-		bindAssignEvents();
-	}
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-	function resetAssignModal() {
-		const office = document.getElementById('officeSelect');
-		const division = document.getElementById('divisionSelect');
-		const unit = document.getElementById('unitSelect');
-		const designation = document.getElementById('designationSelect');
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: var(--arta-gray);
+        color: #2c3e50;
+    }
 
-		office.innerHTML = `<option value="">Select Office</option>`;
-		division.innerHTML = `<option value="">Select Division</option>`;
-		unit.innerHTML = `<option value="">Select Unit</option>`;
-		designation.innerHTML = `<option value="">Select Designation</option>`;
+    /* HEADER */
+    .header-bar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 250px;
+        height: 70px;
+        background: var(--arta-header-bg);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 25px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        z-index: 1000;
+    }
 
-		division.disabled = true;
-		unit.disabled = true;
-		designation.disabled = true;
-	}
+    @media (max-width: 768px) {
+        .header-bar {
+            left: 0;
+            padding: 0 15px;
+        }
+    }
 
-	function bindAssignEvents() {
-		// remove previous listeners by cloning nodes (clean way)
-		['officeSelect', 'divisionSelect', 'unitSelect'].forEach(id => {
-			const old = document.getElementById(id);
-			const parent = old.parentNode;
-			const clone = old.cloneNode(true);
-			parent.replaceChild(clone, old);
-		});
+    .header-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--arta-header-text);
+    }
 
-		document.getElementById('officeSelect').addEventListener('change', async (e) => {
-			const officeId = e.target.value;
-			if (!officeId) {
-				// reset downstream
-				document.getElementById('divisionSelect').innerHTML =
-					`<option value="">Select Division</option>`;
-				document.getElementById('divisionSelect').disabled = true;
-				document.getElementById('unitSelect').innerHTML = `<option value="">Select Unit</option>`;
-				document.getElementById('unitSelect').disabled = true;
-				document.getElementById('designationSelect').innerHTML =
-					`<option value="">Select Designation</option>`;
-				document.getElementById('designationSelect').disabled = true;
-				return;
-			}
-			await loadDivisions(officeId);
-		});
+    .header-title i {
+        color: var(--arta-header-text);
+    }
 
-		document.getElementById('divisionSelect').addEventListener('change', async (e) => {
-			const divisionId = e.target.value;
-			if (!divisionId) {
-				document.getElementById('unitSelect').innerHTML = `<option value="">Select Unit</option>`;
-				document.getElementById('unitSelect').disabled = true;
-				document.getElementById('designationSelect').innerHTML =
-					`<option value="">Select Designation</option>`;
-				document.getElementById('designationSelect').disabled = true;
-				return;
-			}
-			await loadUnits(divisionId);
-		});
+    .header-user i {
+        color: var(--arta-header-text);
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
 
-		document.getElementById('unitSelect').addEventListener('change', async (e) => {
-			const unitId = e.target.value;
-			if (!unitId) {
-				document.getElementById('designationSelect').innerHTML =
-					`<option value="">Select Designation</option>`;
-				document.getElementById('designationSelect').disabled = true;
-				return;
-			}
-			await loadDesignations(unitId);
-		});
-	}
+    /* Sidebar colors */
+    .sidebar {
+        background: var(--arta-blue2);
+    }
 
-	// ============ loadOffices uses your existing api/offices/get_offices.php ============
-	async function loadOffices() {
-		const select = document.getElementById('officeSelect');
-		select.innerHTML = `<option value="">Loading...</option>`;
-		try {
-			const res = await fetch('../api/offices/get_offices.php?limit=1000&page=1');
-			const result = await res.json();
-			if (result.status === 200 && result.data && result.data.offices) {
-				select.innerHTML = `<option value="">Select Office</option>`;
-				result.data.offices.forEach(o => {
-					// adjust fields if your office row uses different keys (id vs office_id)
-					const id = o.id ?? o.office_id ?? o.officeId;
-					const name = o.office_name ?? o.name ?? o.officeName;
-					select.innerHTML += `<option value="${id}">${escapeHtml(name)}</option>`;
-				});
-			} else {
-				select.innerHTML = `<option value="">No offices found</option>`;
-			}
-		} catch (err) {
-			console.error('Error loading offices:', err);
-			select.innerHTML = `<option value="">Error loading</option>`;
-		}
-	}
+    /* MAIN CONTENT */
+    .main-content {
+        margin-left: 250px;
+        margin-top: 70px;
+        min-height: calc(100vh - 70px);
+        padding: 25px;
+    }
 
-	// ============ loadDivisions (placeholder endpoint path matches earlier suggestion) ============
-	async function loadDivisions(officeId) {
-		const select = document.getElementById('divisionSelect');
-		select.disabled = true;
-		select.innerHTML = `<option>Loading...</option>`;
-		try {
-			// endpoint returns { data: { divisions: [...] } }
-			const res = await fetch(`../api/divisions/get_divisions.php?office_id=${officeId}&limit=1000&page=1`);
-			const result = await res.json();
-			select.innerHTML = `<option value="">Select Division</option>`;
-			if (result.status === 200 && result.data && result.data.divisions && result.data.divisions.length) {
-				result.data.divisions.forEach(d => {
-					const id = d.id ?? d.division_id;
-					const name = d.division_name ?? d.name ?? d.divisionName;
-					select.innerHTML += `<option value="${id}">${escapeHtml(name)}</option>`;
-				});
-				select.disabled = false;
-			} else {
-				select.innerHTML = `<option value="">No divisions found</option>`;
-				select.disabled = true;
-			}
-		} catch (err) {
-			console.error('Error loading divisions:', err);
-			select.innerHTML = `<option value="">Error loading</option>`;
-			select.disabled = true;
-		}
-	}
+    @media (max-width: 768px) {
+        .main-content {
+            margin-left: 0;
+            padding: 15px;
+        }
+    }
 
-	// ============ loadUnits ============
-	async function loadUnits(divisionId) {
-		const select = document.getElementById('unitSelect');
-		select.disabled = true;
-		select.innerHTML = `<option>Loading...</option>`;
-		try {
-			const res = await fetch(`../api/units/get_units.php?division_id=${divisionId}&limit=1000&page=1`);
-			const result = await res.json();
-			select.innerHTML = `<option value="">Select Unit</option>`;
-			if (result.status === 200 && result.data && result.data.units && result.data.units.length) {
-				result.data.units.forEach(u => {
-					const id = u.id ?? u.unit_id;
-					const name = u.unit_name ?? u.name ?? u.unitName;
-					select.innerHTML += `<option value="${id}">${escapeHtml(name)}</option>`;
-				});
-				select.disabled = false;
-			} else {
-				select.innerHTML = `<option value="">No units found</option>`;
-				select.disabled = true;
-			}
-		} catch (err) {
-			console.error('Error loading units:', err);
-			select.innerHTML = `<option value="">Error loading</option>`;
-			select.disabled = true;
-		}
-	}
+    .content-container {
+        max-width: 1800px;
+        margin: 0 auto;
+    }
 
-	// ============ loadDesignations ============
-	async function loadDesignations(unitId) {
-		const select = document.getElementById('designationSelect');
-		select.disabled = true;
-		select.innerHTML = `<option>Loading...</option>`;
-		try {
-			const res = await fetch(`../api/designations/get_designations.php?unit_id=${unitId}&limit=1000&page=1`);
-			const result = await res.json();
-			select.innerHTML = `<option value="">Select Designation</option>`;
-			if (result.status === 200 && result.data && result.data.designations && result.data.designations.length) {
-				result.data.designations.forEach(d => {
-					const id = d.id ?? d.designation_id;
-					const name = d.designation_name ?? d.name ?? d.designationName;
-					select.innerHTML += `<option value="${id}">${escapeHtml(name)}</option>`;
-				});
-				select.disabled = false;
-			} else {
-				select.innerHTML = `<option value="">No designations found</option>`;
-				select.disabled = true;
-			}
-		} catch (err) {
-			console.error('Error loading designations:', err);
-			select.innerHTML = `<option value="">Error loading</option>`;
-			select.disabled = true;
-		}
-	}
+    /* SEARCH SECTION */
+    .search-section {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+        align-items: center;
+    }
 
-	// ============ SAVE ASSIGNMENT ============
-	async function saveAssignment() {
-		const portal_id = document.getElementById('assignPortalId').value;
-		const office_id = document.getElementById('officeSelect').value;
-		const division_id = document.getElementById('divisionSelect').value;
-		const unit_id = document.getElementById('unitSelect').value;
-		const designation_id = document.getElementById('designationSelect').value;
+    .search-wrapper {
+        position: relative;
+        flex: 1;
+    }
 
-		if (!office_id || !division_id || !unit_id || !designation_id) {
-			Swal.fire('Warning', 'Please complete all fields', 'warning');
-			return;
-		}
+    .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #95a5a6;
+        font-size: 14px;
+    }
 
-		try {
-			const res = await fetch('../api/users/assign_user.php', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					portal_id,
-					office_id,
-					division_id,
-					unit_id,
-					designation_id
-				})
-			});
-			const result = await res.json();
-			if (result.status === 200) {
-				Swal.fire('Assigned!', result.message || 'Assignment saved', 'success');
-				bootstrap.Modal.getInstance(document.getElementById('assignModal')).hide();
-				loadUsers(currentPage, searchInput.value.trim());
-			} else {
-				Swal.fire('Error', result.message || 'Failed to assign', 'error');
-			}
-		} catch (err) {
-			console.error('Error saving assignment:', err);
-			Swal.fire('Error', 'Server error', 'error');
-		}
-	}
+    .search-input {
+        width: 100%;
+        padding: 10px 15px 10px 35px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        font-size: 14px;
+        background: white;
+    }
 
-	// ============ UPDATE USER ============
-	async function updateUser() {
-		const data = {
-			portal_id: document.getElementById('editPortalId').value,
-			firstname: document.getElementById('editFirstname').value,
-			lastname: document.getElementById('editLastname').value,
-			contact: document.getElementById('editContact').value,
-			email: document.getElementById('editEmail').value,
-			role: document.getElementById('editRole').value,
-			password: document.getElementById('editPassword').value
-		};
-		try {
-			const res = await fetch('../api/users/update_user.php', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(data)
-			});
-			const result = await res.json();
-			if (result.status === 200) {
-				Swal.fire({
-					icon: 'success',
-					title: 'Updated',
-					text: result.message,
-					timer: 1200,
-					showConfirmButton: false
-				});
-				bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
-				loadUsers(currentPage, searchInput.value.trim());
-			} else {
-				Swal.fire('Error', result.message || 'Failed to update', 'error');
-			}
-		} catch {
-			Swal.fire('Error', 'Server error', 'error');
-		}
-	}
+    .search-input:focus {
+        outline: none;
+        border-color: var(--arta-blue1);
+    }
 
-	// ============ VIEW TRANSACTIONS (placeholder) ============
-	async function viewTransactions(portal_id) {
-		// simple modal UI (you can replace with a full modal as earlier suggested)
-		Swal.fire('Info', 'Open transactions modal or page for: ' + portal_id, 'info');
-		// Implement the modal and API call as needed
-	}
+    .search-count {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        font-size: 13px;
+        background: #f8f9fa;
+        padding: 2px 8px;
+        border-radius: 20px;
+    }
 
-	// ============ DELETE USER ============
-	async function deleteUser(id) {
-		const confirm = await Swal.fire({
-			title: 'Are you sure?',
-			text: 'This action cannot be undone!',
-			icon: 'warning',
-			showCancelButton: true,
-			confirmButtonText: 'Yes, delete it!',
-			cancelButtonText: 'Cancel'
-		});
-		if (!confirm.isConfirmed) return;
-		try {
-			const res = await fetch('../api/users/delete_user.php', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					portal_id: id
-				})
-			});
-			const result = await res.json();
-			if (result.status === 200) {
-				Swal.fire('Deleted!', result.message, 'success');
-				loadUsers(currentPage, searchInput.value.trim());
-			} else {
-				Swal.fire('Error', result.message || 'Failed to delete', 'error');
-			}
-		} catch {
-			Swal.fire('Error', 'Server error', 'error');
-		}
-	}
+    .btn-add {
+        background: var(--arta-blue1);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        white-space: nowrap;
+    }
 
-	// ============ EVENTS ============
-	document.getElementById('rowsPerPage').addEventListener('change', () => loadUsers(1, searchInput.value.trim()));
-	searchInput.addEventListener('input', () => {
-		clearTimeout(window.searchTimer);
-		window.searchTimer = setTimeout(() => loadUsers(1, searchInput.value.trim()), 350);
-	});
-	document.addEventListener('DOMContentLoaded', () => loadUsers(1));
+    .btn-add:hover {
+        background: var(--arta-blue2);
+    }
 
-	// ============ small helpers ============
-	function escapeHtml(s) {
-		if (!s) return '';
-		return String(s).replace(/[&<>"'`=\/]/g, function(c) {
-			return {
-				'&': '&amp;',
-				'<': '&lt;',
-				'>': '&gt;',
-				'"': '&quot;',
-				"'": '&#39;',
-				'/': '&#x2F;',
-				'`': '&#x60;',
-				'=': '&#x3D;'
-			} [c];
-		});
-	}
-	</script>
+    #rowsPerPage {
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        font-size: 14px;
+        background: white;
+    }
 
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-	<style>
-	:root {
-		--arta-red: #8B0000;
-		--arta-light: #fff8e1;
-		--arta-gray: #f7f7f7;
-		--arta-blue1: #23395d;
-		--arta-blue2: #1e2a3a;
-		--arta-blue3: #0f2027;
-	}
+    /* TABLE VIEW */
+    .table-view {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
 
-	body {
-		background-color: var(--arta-gray);
-		font-family: 'Poppins', sans-serif;
-		color: #333;
-	}
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 
-	.card {
-		background: #fff;
-		border-radius: 16px;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-		overflow: hidden;
-	}
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
 
-	/* Table Styles */
-	.table {
-		width: 100%;
-		min-width: 100%;
-		table-layout: fixed;
-		border-collapse: collapse;
-		border-spacing: 0;
-		background-color: #fff;
-		border-radius: 8px;
-		overflow: hidden;
-	}
+    .table thead {
+        background: var(--arta-table-header);
+    }
 
-	.table thead {
-		background: var(--arta-blue3);
-		color: #fff;
-		text-transform: uppercase;
-	}
+    .table thead th {
+        padding: 15px 10px;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+        color: white;
+        border-bottom: 2px solid var(--arta-blue2);
+        text-align: left;
+    }
 
-	.table thead th {
-		font-size: 14px;
-		letter-spacing: 0.5px;
-		padding: 14px;
-		border: none !important;
-	}
+    .table tbody td {
+        padding: 12px 10px;
+        font-size: 13px;
+        border-bottom: 1px solid var(--border-color);
+        vertical-align: middle;
+        text-align: left;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 
-	.table tbody td {
-		padding: 10px 6px;  /* reduced padding for a tighter look */
-		font-size: 14px;
-		vertical-align: middle;
-	}
+    .table tbody tr:hover {
+        background: #f8f9fa;
+    }
 
-	.table tbody tr:nth-child(even) {
-		background-color: var(--arta-light);
-	}
+    /* Column widths */
+    .table th:nth-child(1),
+    .table td:nth-child(1) {
+        width: 8%;
+    }
 
-	.table tbody tr:hover {
-		background-color: rgba(15, 32, 39, 0.08);
-		transition: 0.2s;
-	}
+    .table th:nth-child(2),
+    .table td:nth-child(2) {
+        width: 10%;
+    }
 
-	.expandable-row {
-		cursor: pointer;
-	}
+    .table th:nth-child(3),
+    .table td:nth-child(3) {
+        width: 10%;
+    }
 
-	.expandable-row.active {
-		background-color: rgba(15, 32, 39, 0.1);
-	}
+    .table th:nth-child(4),
+    .table td:nth-child(4) {
+        width: 10%;
+    }
 
-	.expandable-content {
-		display: none;
-		background-color: #f9f9f9;
-	}
+    .table th:nth-child(5),
+    .table td:nth-child(5) {
+        width: 8%;
+    }
 
-	.expand-body {
-		text-align: left;
-		padding: 18px 24px;
-		background: #ffffff;
-		border-left: 4px solid var(--arta-blue1);
-		border-radius: 8px;
-		box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.05);
-		font-size: 14px;
-		line-height: 1.6;
-		max-height: 0;
-		overflow: hidden;
-		transition: max-height 0.3s ease-in-out;
-	}
+    .table th:nth-child(6),
+    .table td:nth-child(6) {
+        width: 15%;
+    }
 
-	.expandable-row.active+.expandable-content .expand-body {
-		max-height: 300px;
-	}
+    .table th:nth-child(7),
+    .table td:nth-child(7) {
+        width: 8%;
+    }
 
-	#searchInput {
-		border-radius: 6px;
-		padding: 6px 10px;
-		font-size: 14px;
-		width: 250px;
-		transition: all 0.3s ease;
-	}
+    .table th:nth-child(8),
+    .table td:nth-child(8) {
+        width: 11%;
+    }
 
-	@media (max-width: 768px) {
-		#searchInput {
-			width: 100%;
-			padding: 8px 12px;
-		}
-	}
+    .table th:nth-child(9),
+    .table td:nth-child(9) {
+        width: 20%;
+    }
 
-	#searchInput:focus {
-		border-color: var(--arta-blue1);
-		box-shadow: 0 0 0 0.2rem rgba(35, 57, 93, 0.25);
-	}
+    /* Status badge */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 500;
+    }
 
-	.btn-primary {
-		background-color: var(--arta-blue1);
-		border: none;
-	}
+    .status-badge.active {
+        background: #d4edda;
+        color: #155724;
+    }
 
-	.table thead th {
-		background-color: var(--arta-blue3);
-		color: #ffffff;
-		border: none !important;
-		padding: 14px;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.5px;
-		font-size: 14px;
-	}
+    .status-badge.inactive {
+        background: #f8d7da;
+        color: #721c24;
+    }
 
-	.btn-primary:hover {
-		background-color: var(--arta-blue3);
-	}
+    /* Action buttons */
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+        flex-wrap: nowrap;
+    }
 
-	h4.fw-bold {
-		color: var(--arta-blue1);
-	}
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 4px 8px;
+        border: none;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
 
-	#pagination button {
-		margin: 2px;
-		border-radius: 6px;
-		font-size: 13px;
-	}
+    .btn-action i {
+        font-size: 11px;
+    }
 
-	#pagination {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-	</style>
+    .btn-action.view {
+        background: #e7f1ff;
+        color: #0d6efd;
+    }
 
-	<?php include_once __DIR__ . '/../includes/footer.php'; ?>
+    .btn-action.view:hover {
+        background: #cfe2ff;
+    }
+
+    .btn-action.assign {
+        background: #e7f1ff;
+        color: #0d6efd;
+    }
+
+    .btn-action.assign:hover {
+        background: #cfe2ff;
+    }
+
+    .btn-action.edit {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .btn-action.edit:hover {
+        background: #ffe69c;
+    }
+
+    .btn-action.delete {
+        background: #f8d7da;
+        color: #dc3545;
+    }
+
+    .btn-action.delete:hover {
+        background: #f1c1c5;
+    }
+
+    /* MOBILE VIEW */
+    .mobile-view {
+        display: none;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .user-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    .card-header {
+        background: var(--arta-blue3);
+        color: white;
+        padding: 10px 15px;
+        font-weight: 500;
+        font-size: 13px;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .info-row {
+        display: flex;
+        margin-bottom: 10px;
+        font-size: 13px;
+        align-items: flex-start;
+    }
+
+    .info-row .label {
+        width: 90px;
+        font-weight: 600;
+        color: #6c757d;
+    }
+
+    .info-row .value {
+        flex: 1;
+        color: #2c3e50;
+        word-break: break-word;
+    }
+
+    .card-actions {
+        display: flex;
+        gap: 10px;
+        padding: 10px 15px 15px;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .btn-card {
+        flex: 1;
+        padding: 8px;
+        border: none;
+        border-radius: 4px;
+        font-size: 13px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .btn-card.view {
+        background: #e7f1ff;
+        color: #0d6efd;
+    }
+
+    .btn-card.assign {
+        background: #e7f1ff;
+        color: #0d6efd;
+    }
+
+    .btn-card.edit {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .btn-card.delete {
+        background: #f8d7da;
+        color: #dc3545;
+    }
+
+    /* FOOTER */
+    .table-footer {
+        margin-top: 20px;
+    }
+
+    .records-info {
+        font-size: 13px;
+        color: #6c757d;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .pagination-wrapper {
+        margin-bottom: 15px;
+        text-align: center;
+    }
+
+    .pagination-wrapper button {
+        background: white;
+        border: 1px solid var(--border-color);
+        padding: 5px 15px;
+        margin: 0 5px;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    .pagination-wrapper button:hover:not(:disabled) {
+        background: var(--arta-blue1);
+        color: white;
+    }
+
+    .pagination-wrapper button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .pagination-wrapper .active {
+        background: var(--arta-blue1);
+        color: white;
+        border-color: var(--arta-blue1);
+    }
+
+    /* Modal header colors */
+    .modal-header {
+        background: var(--arta-blue2);
+        color: white;
+    }
+
+    .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+    }
+
+    .modal-title {
+        color: white;
+    }
+
+    .btn-primary {
+        background-color: var(--arta-blue1);
+        border-color: var(--arta-blue1);
+    }
+
+    .btn-primary:hover {
+        background-color: var(--arta-blue2);
+        border-color: var(--arta-blue2);
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+
+    /* RESPONSIVE BREAKPOINTS */
+    @media (max-width: 768px) {
+        .table-view {
+            display: none;
+        }
+        
+        .mobile-view {
+            display: flex;
+        }
+        
+        .search-section {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .btn-add {
+            width: 100%;
+        }
+
+        #rowsPerPage {
+            width: 100% !important;
+        }
+    }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+    let currentPage = 1;
+    let limit = 10;
+    let totalRecords = 0;
+    let usersData = [];
+
+    // ============ LOAD USERS ============
+    function loadUsers(page = 1) {
+        currentPage = page;
+        limit = parseInt(document.getElementById('rowsPerPage').value || 10);
+        const query = document.getElementById('searchInput').value.trim();
+
+        fetch(`../api/users/get_users.php?page=${page}&limit=${limit}&q=${encodeURIComponent(query)}`)
+            .then(res => res.json())
+            .then(result => {
+                if (result.status === 200) {
+                    usersData = result.data.users || [];
+                    totalRecords = result.data.totalRecords || usersData.length;
+                    
+                    renderTableView(usersData);
+                    renderMobileView(usersData);
+                    updateFooter(usersData.length, totalRecords);
+                    renderPagination(result.data.currentPage, result.data.totalPages);
+                } else {
+                    document.getElementById("tableBody").innerHTML = `<tr><td colspan="9" class="text-center py-4">No users found</td></tr>`;
+                    document.getElementById("mobileView").innerHTML = '<div class="text-center py-4">No users found</div>';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById("tableBody").innerHTML = `<tr><td colspan="9" class="text-center text-danger">Failed to load users</td></tr>`;
+            });
+    }
+
+    // ============ RENDER TABLE VIEW ============
+    function renderTableView(users) {
+        const tbody = document.getElementById("tableBody");
+        tbody.innerHTML = "";
+
+        if (!users || users.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4">No users found</td></tr>`;
+            return;
+        }
+
+        users.forEach(user => {
+            const created = user.date_created ? new Date(user.date_created).toLocaleDateString() : '';
+            const row = `
+                <tr>
+                    <td>${user.portal_id ? user.portal_id.substring(0,8) : ''}</td>
+                    <td>${user.national_id || ''}</td>
+                    <td>${escapeHtml(user.firstname) || ''}</td>
+                    <td>${escapeHtml(user.lastname) || ''}</td>
+                    <td>${user.contact || ''}</td>
+                    <td>${user.email || ''}</td>
+                    <td>
+                        <span class="status-badge ${user.role === 'admin' ? 'active' : 'inactive'}">
+                            ${user.role || 'user'}
+                        </span>
+                    </td>
+                    <td>${created}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-action view" onclick="viewTransactions('${user.portal_id}')" title="View Transactions">
+                                <i class="fa-regular fa-eye"></i> View
+                            </button>
+                            <button class="btn-action assign" onclick="openAssignModal('${user.portal_id}')" title="Assign">
+                                <i class="fa-solid fa-building-user"></i> Assign
+                            </button>
+                            <button class="btn-action edit" onclick="openEditModal('${user.portal_id}')" title="Edit">
+                                <i class="fa-regular fa-pen-to-square"></i> Edit
+                            </button>
+                            <button class="btn-action delete" onclick="deleteUser('${user.portal_id}')" title="Delete">
+                                <i class="fa-regular fa-trash-can"></i> Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
+
+    // ============ RENDER MOBILE VIEW ============
+    function renderMobileView(users) {
+        const mobileView = document.getElementById("mobileView");
+        mobileView.innerHTML = "";
+
+        if (!users || users.length === 0) {
+            mobileView.innerHTML = '<div class="text-center py-4">No users found</div>';
+            return;
+        }
+
+        users.forEach(user => {
+            const created = user.date_created ? new Date(user.date_created).toLocaleDateString() : '';
+            const card = `
+                <div class="user-card">
+                    <div class="card-header">
+                        ID: ${user.portal_id ? user.portal_id.substring(0,8) : ''} | ${user.role || 'user'}
+                    </div>
+                    <div class="card-body">
+                        <div class="info-row">
+                            <span class="label">Name:</span>
+                            <span class="value">${escapeHtml(user.firstname) || ''} ${escapeHtml(user.lastname) || ''}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">National ID:</span>
+                            <span class="value">${user.national_id || ''}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Contact:</span>
+                            <span class="value">${user.contact || ''}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Email:</span>
+                            <span class="value">${user.email || ''}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Created:</span>
+                            <span class="value">${created}</span>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-card view" onclick="viewTransactions('${user.portal_id}')">
+                            <i class="fa-regular fa-eye"></i> View
+                        </button>
+                        <button class="btn-card assign" onclick="openAssignModal('${user.portal_id}')">
+                            <i class="fa-solid fa-building-user"></i> Assign
+                        </button>
+                        <button class="btn-card edit" onclick="openEditModal('${user.portal_id}')">
+                            <i class="fa-regular fa-pen-to-square"></i> Edit
+                        </button>
+                        <button class="btn-card delete" onclick="deleteUser('${user.portal_id}')">
+                            <i class="fa-regular fa-trash-can"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+            mobileView.innerHTML += card;
+        });
+    }
+
+    // ============ UPDATE FOOTER ============
+    function updateFooter(displayed, total) {
+        document.getElementById("recordCount").textContent = displayed;
+        document.getElementById("recordsInfo").textContent = `Showing ${displayed} of ${total} records`;
+    }
+
+    // ============ RENDER PAGINATION ============
+    function renderPagination(page, totalPages) {
+        const pagination = document.getElementById("pagination");
+        pagination.innerHTML = "";
+        
+        if (totalPages <= 1) return;
+
+        // Previous button
+        if (page > 1) {
+            pagination.innerHTML += `<button onclick="loadUsers(${page - 1})">Prev</button>`;
+        }
+
+        // Page numbers
+        const maxVisible = 5;
+        let start = Math.max(1, page - Math.floor(maxVisible / 2));
+        let end = Math.min(totalPages, start + maxVisible - 1);
+
+        if (end - start + 1 < maxVisible) {
+            start = Math.max(1, end - maxVisible + 1);
+        }
+
+        for (let i = start; i <= end; i++) {
+            pagination.innerHTML += `<button class="${i === page ? 'active' : ''}" onclick="loadUsers(${i})">${i}</button>`;
+        }
+
+        // Next button
+        if (page < totalPages) {
+            pagination.innerHTML += `<button onclick="loadUsers(${page + 1})">Next</button>`;
+        }
+    }
+
+    // ============ SEARCH ============
+    document.getElementById("searchInput").addEventListener("keyup", function() {
+        clearTimeout(window.searchTimer);
+        window.searchTimer = setTimeout(() => loadUsers(1), 350);
+    });
+
+    // ============ ROWS PER PAGE ============
+    document.getElementById("rowsPerPage").addEventListener("change", function() {
+        loadUsers(1);
+    });
+
+    // ============ ADD USER ============
+    document.getElementById("addUserForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const formData = Object.fromEntries(new FormData(e.target).entries());
+
+        fetch("../api/users/create_user.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData)
+        })
+        .then(res => res.json())
+        .then(result => {
+            if (result.status === 200) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: result.message,
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    bootstrap.Modal.getInstance(document.getElementById("addUserModal")).hide();
+                    document.getElementById("addUserForm").reset();
+                    loadUsers(1);
+                });
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: result.message });
+            }
+        })
+        .catch(() => Swal.fire({ icon: "error", title: "Error", text: "Request failed" }));
+    });
+
+    // ============ OPEN EDIT MODAL ============
+    async function openEditModal(id) {
+        try {
+            const res = await fetch(`../api/users/get_users.php?id=${id}`);
+            const result = await res.json();
+            if (result.status !== 200) return Swal.fire('Error', 'User not found', 'error');
+            
+            const user = result.data;
+            document.getElementById('editPortalId').value = user.portal_id;
+            document.getElementById('editFirstname').value = user.firstname || '';
+            document.getElementById('editLastname').value = user.lastname || '';
+            document.getElementById('editContact').value = user.contact || '';
+            document.getElementById('editEmail').value = user.email || '';
+            document.getElementById('editRole').value = user.role || '';
+            document.getElementById('editPassword').value = '';
+            
+            new bootstrap.Modal(document.getElementById('editModal')).show();
+        } catch (err) {
+            Swal.fire('Error', 'Server error', 'error');
+        }
+    }
+
+    // ============ UPDATE USER ============
+    async function updateUser() {
+        const data = {
+            portal_id: document.getElementById('editPortalId').value,
+            firstname: document.getElementById('editFirstname').value,
+            lastname: document.getElementById('editLastname').value,
+            contact: document.getElementById('editContact').value,
+            email: document.getElementById('editEmail').value,
+            role: document.getElementById('editRole').value,
+            password: document.getElementById('editPassword').value
+        };
+
+        try {
+            const res = await fetch('../api/users/update_user.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await res.json();
+            if (result.status === 200) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Updated',
+                    text: result.message,
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+                    loadUsers(currentPage);
+                });
+            } else {
+                Swal.fire('Error', result.message || 'Failed to update', 'error');
+            }
+        } catch {
+            Swal.fire('Error', 'Server error', 'error');
+        }
+    }
+
+    // ============ OPEN ASSIGN MODAL ============
+    async function openAssignModal(portal_id) {
+        document.getElementById('assignPortalId').value = portal_id;
+        resetAssignModal();
+        const modal = new bootstrap.Modal(document.getElementById('assignModal'));
+        modal.show();
+        await loadOffices();
+        bindAssignEvents();
+    }
+
+    function resetAssignModal() {
+        const office = document.getElementById('officeSelect');
+        const division = document.getElementById('divisionSelect');
+        const unit = document.getElementById('unitSelect');
+        const designation = document.getElementById('designationSelect');
+
+        office.innerHTML = '<option value="">Select Office</option>';
+        division.innerHTML = '<option value="">Select Division</option>';
+        unit.innerHTML = '<option value="">Select Unit</option>';
+        designation.innerHTML = '<option value="">Select Designation</option>';
+
+        division.disabled = true;
+        unit.disabled = true;
+        designation.disabled = true;
+    }
+
+    function bindAssignEvents() {
+        document.getElementById('officeSelect').addEventListener('change', async (e) => {
+            const officeId = e.target.value;
+            if (!officeId) {
+                document.getElementById('divisionSelect').innerHTML = '<option value="">Select Division</option>';
+                document.getElementById('divisionSelect').disabled = true;
+                document.getElementById('unitSelect').innerHTML = '<option value="">Select Unit</option>';
+                document.getElementById('unitSelect').disabled = true;
+                document.getElementById('designationSelect').innerHTML = '<option value="">Select Designation</option>';
+                document.getElementById('designationSelect').disabled = true;
+                return;
+            }
+            await loadDivisions(officeId);
+        });
+
+        document.getElementById('divisionSelect').addEventListener('change', async (e) => {
+            const divisionId = e.target.value;
+            if (!divisionId) {
+                document.getElementById('unitSelect').innerHTML = '<option value="">Select Unit</option>';
+                document.getElementById('unitSelect').disabled = true;
+                document.getElementById('designationSelect').innerHTML = '<option value="">Select Designation</option>';
+                document.getElementById('designationSelect').disabled = true;
+                return;
+            }
+            await loadUnits(divisionId);
+        });
+
+        document.getElementById('unitSelect').addEventListener('change', async (e) => {
+            const unitId = e.target.value;
+            if (!unitId) {
+                document.getElementById('designationSelect').innerHTML = '<option value="">Select Designation</option>';
+                document.getElementById('designationSelect').disabled = true;
+                return;
+            }
+            await loadDesignations(unitId);
+        });
+    }
+
+    // ============ LOAD OFFICES ============
+    async function loadOffices() {
+        const select = document.getElementById('officeSelect');
+        select.innerHTML = '<option value="">Loading...</option>';
+        try {
+            const res = await fetch('../api/offices/get_offices.php?limit=1000&page=1');
+            const result = await res.json();
+            if (result.status === 200 && result.data && result.data.offices) {
+                select.innerHTML = '<option value="">Select Office</option>';
+                result.data.offices.forEach(o => {
+                    const id = o.id;
+                    const name = o.office_name;
+                    select.innerHTML += `<option value="${id}">${escapeHtml(name)}</option>`;
+                });
+            } else {
+                select.innerHTML = '<option value="">No offices found</option>';
+            }
+        } catch (err) {
+            console.error('Error loading offices:', err);
+            select.innerHTML = '<option value="">Error loading</option>';
+        }
+    }
+
+    // ============ LOAD DIVISIONS ============
+    async function loadDivisions(officeId) {
+        const select = document.getElementById('divisionSelect');
+        select.disabled = true;
+        select.innerHTML = '<option>Loading...</option>';
+        try {
+            const res = await fetch(`../api/divisions/get_divisions.php?office_id=${officeId}&limit=1000&page=1`);
+            const result = await res.json();
+            select.innerHTML = '<option value="">Select Division</option>';
+            if (result.status === 200 && result.data && result.data.divisions && result.data.divisions.length) {
+                result.data.divisions.forEach(d => {
+                    const id = d.id;
+                    const name = d.division_name;
+                    select.innerHTML += `<option value="${id}">${escapeHtml(name)}</option>`;
+                });
+                select.disabled = false;
+            } else {
+                select.innerHTML = '<option value="">No divisions found</option>';
+                select.disabled = true;
+            }
+        } catch (err) {
+            console.error('Error loading divisions:', err);
+            select.innerHTML = '<option value="">Error loading</option>';
+            select.disabled = true;
+        }
+    }
+
+    // ============ LOAD UNITS ============
+    async function loadUnits(divisionId) {
+        const select = document.getElementById('unitSelect');
+        select.disabled = true;
+        select.innerHTML = '<option>Loading...</option>';
+        try {
+            const res = await fetch(`../api/units/get_units.php?division_id=${divisionId}&limit=1000&page=1`);
+            const result = await res.json();
+            select.innerHTML = '<option value="">Select Unit</option>';
+            if (result.status === 200 && result.data && result.data.units && result.data.units.length) {
+                result.data.units.forEach(u => {
+                    const id = u.id;
+                    const name = u.unit_name;
+                    select.innerHTML += `<option value="${id}">${escapeHtml(name)}</option>`;
+                });
+                select.disabled = false;
+            } else {
+                select.innerHTML = '<option value="">No units found</option>';
+                select.disabled = true;
+            }
+        } catch (err) {
+            console.error('Error loading units:', err);
+            select.innerHTML = '<option value="">Error loading</option>';
+            select.disabled = true;
+        }
+    }
+
+    // ============ LOAD DESIGNATIONS ============
+    async function loadDesignations(unitId) {
+        const select = document.getElementById('designationSelect');
+        select.disabled = true;
+        select.innerHTML = '<option>Loading...</option>';
+        try {
+            const res = await fetch(`../api/designations/get_designations.php?unit_id=${unitId}&limit=1000&page=1`);
+            const result = await res.json();
+            select.innerHTML = '<option value="">Select Designation</option>';
+            if (result.status === 200 && result.data && result.data.designations && result.data.designations.length) {
+                result.data.designations.forEach(d => {
+                    const id = d.id;
+                    const name = d.designation_name;
+                    select.innerHTML += `<option value="${id}">${escapeHtml(name)}</option>`;
+                });
+                select.disabled = false;
+            } else {
+                select.innerHTML = '<option value="">No designations found</option>';
+                select.disabled = true;
+            }
+        } catch (err) {
+            console.error('Error loading designations:', err);
+            select.innerHTML = '<option value="">Error loading</option>';
+            select.disabled = true;
+        }
+    }
+
+    // ============ SAVE ASSIGNMENT ============
+    async function saveAssignment() {
+        const portal_id = document.getElementById('assignPortalId').value;
+        const office_id = document.getElementById('officeSelect').value;
+        const division_id = document.getElementById('divisionSelect').value;
+        const unit_id = document.getElementById('unitSelect').value;
+        const designation_id = document.getElementById('designationSelect').value;
+
+        if (!office_id || !division_id || !unit_id || !designation_id) {
+            Swal.fire('Warning', 'Please complete all fields', 'warning');
+            return;
+        }
+
+        try {
+            const res = await fetch('../api/users/assign_user.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ portal_id, office_id, division_id, unit_id, designation_id })
+            });
+            const result = await res.json();
+            if (result.status === 200) {
+                Swal.fire('Assigned!', result.message || 'Assignment saved', 'success');
+                bootstrap.Modal.getInstance(document.getElementById('assignModal')).hide();
+                loadUsers(currentPage);
+            } else {
+                Swal.fire('Error', result.message || 'Failed to assign', 'error');
+            }
+        } catch (err) {
+            console.error('Error saving assignment:', err);
+            Swal.fire('Error', 'Server error', 'error');
+        }
+    }
+
+    // ============ VIEW TRANSACTIONS ============
+    function viewTransactions(portal_id) {
+        Swal.fire({
+            title: 'Transactions',
+            html: `Viewing transactions for user ID: ${portal_id}`,
+            icon: 'info'
+        });
+    }
+
+    // ============ DELETE USER ============
+    function deleteUser(id) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This will permanently delete the user!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Delete'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch("../api/users/delete_user.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ portal_id: id })
+                })
+                .then(res => res.json())
+                .then(resp => {
+                    if (resp.status === 200) {
+                        Swal.fire("Deleted!", resp.message, "success");
+                        loadUsers(currentPage);
+                    } else {
+                        Swal.fire("Error!", resp.message, "error");
+                    }
+                })
+                .catch(() => Swal.fire("Error!", "Failed to delete user", "error"));
+            }
+        });
+    }
+
+    // ============ ESCAPE HTML HELPER ============
+    function escapeHtml(text) {
+        if (text === null || text === undefined) return '';
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    // ============ INITIALIZE ============
+    document.addEventListener("DOMContentLoaded", () => {
+        loadUsers(1);
+    });
+    </script>
+
+    <!-- ✅ Footer include -->
+    <?php include_once __DIR__ . '/../includes/footer.php'; ?>
+
 </body>
 </html>
