@@ -62,6 +62,7 @@
                                 <th class="text-white bg-dark">CONTACT</th>
                                 <th class="text-white bg-dark">EMAIL</th>
                                 <th class="text-white bg-dark">ROLE</th>
+                                <th class="text-white bg-dark">STATUS</th>
                                 <th class="text-white bg-dark">CREATED</th>
                                 <th class="text-white bg-dark">ACTION</th>
                             </tr>
@@ -124,6 +125,7 @@
                                 <select name="role" class="form-select">
                                     <option value="user" selected>User</option>
                                     <option value="admin">Admin</option>
+                                    <option value="subadmin">Subadmin</option>
                                 </select>
                             </div>
                         </div>
@@ -150,23 +152,37 @@
                         <input type="hidden" id="editPortalId">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label">First Name</label>
-                                <input type="text" id="editFirstname" class="form-control" required>
+                                <label class="form-label">National ID <span class="text-danger">*</span></label>
+                                <input type="text" id="editNationalId" class="form-control" required 
+                                       pattern="[0-9]{9,12}" title="National ID must be 9-12 digits">
+                                <small class="text-muted">9-12 digits only</small>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Last Name</label>
-                                <input type="text" id="editLastname" class="form-control" required>
+                                <label class="form-label">First Name <span class="text-danger">*</span></label>
+                                <input type="text" id="editFirstname" class="form-control" required
+                                       pattern="[a-zA-Z\s'-]+" title="Only letters, spaces, apostrophes and hyphens allowed">
+                                <small class="text-muted">Letters and spaces only</small>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Contact</label>
-                                <input type="text" id="editContact" class="form-control" required>
+                                <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                                <input type="text" id="editLastname" class="form-control" required
+                                       pattern="[a-zA-Z\s'-]+" title="Only letters, spaces, apostrophes and hyphens allowed">
+                                <small class="text-muted">Letters and spaces only</small>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Email</label>
-                                <input type="email" id="editEmail" class="form-control" required>
+                                <label class="form-label">Contact <span class="text-danger">*</span></label>
+                                <input type="text" id="editContact" class="form-control" required
+                                       pattern="^(09|\+639)\d{9}$" title="Please enter a valid mobile number (e.g., 09123456789 or +639123456789)">
+                                <small class="text-muted">Format: 09123456789 or +639123456789</small>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Role</label>
+                                <label class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" id="editEmail" class="form-control" required
+                                       pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address">
+                                <small class="text-muted">Valid email address</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Role <span class="text-danger">*</span></label>
                                 <select id="editRole" class="form-select" required>
                                     <option value="">Select role</option>
                                     <option value="admin">Admin</option>
@@ -175,9 +191,21 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
+                                <label class="form-label">Status <span class="text-danger">*</span></label>
+                                <select id="editStatus" class="form-select" required>
+                                    <option value="">Select status</option>
+                                    <option value="active">Active</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
                                 <label class="form-label">New Password</label>
                                 <input type="password" id="editPassword" class="form-control"
-                                    placeholder="Leave blank to keep current">
+                                       placeholder="Leave blank to keep current"
+                                       pattern="^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*(),.?\":{}|<>]).{8,}$" 
+                                       title="Password must be at least 8 characters with uppercase, lowercase, number and special character">
+                                <small class="text-muted">Min 8 chars with uppercase, lowercase, number & special char</small>
                             </div>
                         </div>
                     </form>
@@ -247,6 +275,32 @@
         --arta-header-bg: #1a2a3a;
         --arta-header-text: #ffffff;
         --arta-table-header: #0f2027;
+        
+        /* Role Colors */
+        --role-admin-bg: #cfe4ff;
+        --role-admin-text: #004085;
+        --role-admin-border: #b8daff;
+        
+        --role-subadmin-bg: #fff3cd;
+        --role-subadmin-text: #856404;
+        --role-subadmin-border: #ffeeba;
+        
+        --role-user-bg: #d4edda;
+        --role-user-text: #155724;
+        --role-user-border: #c3e6cb;
+        
+        /* Status Colors */
+        --status-active-bg: #d4edda;
+        --status-active-text: #155724;
+        --status-active-border: #c3e6cb;
+        
+        --status-pending-bg: #fff3cd;
+        --status-pending-text: #856404;
+        --status-pending-border: #ffeeba;
+        
+        --status-inactive-bg: #f8d7da;
+        --status-inactive-text: #721c24;
+        --status-inactive-border: #f5c6cb;
     }
 
     * {
@@ -451,22 +505,22 @@
     /* Column widths */
     .table th:nth-child(1),
     .table td:nth-child(1) {
-        width: 8%;
+        width: 7%;
     }
 
     .table th:nth-child(2),
     .table td:nth-child(2) {
-        width: 10%;
+        width: 9%;
     }
 
     .table th:nth-child(3),
     .table td:nth-child(3) {
-        width: 10%;
+        width: 9%;
     }
 
     .table th:nth-child(4),
     .table td:nth-child(4) {
-        width: 10%;
+        width: 9%;
     }
 
     .table th:nth-child(5),
@@ -476,41 +530,83 @@
 
     .table th:nth-child(6),
     .table td:nth-child(6) {
-        width: 15%;
+        width: 14%;
     }
 
     .table th:nth-child(7),
     .table td:nth-child(7) {
-        width: 8%;
+        width: 7%;
     }
 
     .table th:nth-child(8),
     .table td:nth-child(8) {
-        width: 11%;
+        width: 7%;
     }
 
     .table th:nth-child(9),
     .table td:nth-child(9) {
+        width: 10%;
+    }
+
+    .table th:nth-child(10),
+    .table td:nth-child(10) {
         width: 20%;
     }
 
-    /* Status badge */
+    /* Role badges */
+    .role-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 500;
+        border: 1px solid transparent;
+    }
+
+    .role-badge.admin {
+        background: var(--role-admin-bg);
+        color: var(--role-admin-text);
+        border-color: var(--role-admin-border);
+    }
+
+    .role-badge.subadmin {
+        background: var(--role-subadmin-bg);
+        color: var(--role-subadmin-text);
+        border-color: var(--role-subadmin-border);
+    }
+
+    .role-badge.user {
+        background: var(--role-user-bg);
+        color: var(--role-user-text);
+        border-color: var(--role-user-border);
+    }
+
+    /* Status badges */
     .status-badge {
         display: inline-block;
         padding: 4px 8px;
         border-radius: 20px;
         font-size: 11px;
         font-weight: 500;
+        border: 1px solid transparent;
     }
 
     .status-badge.active {
-        background: #d4edda;
-        color: #155724;
+        background: var(--status-active-bg);
+        color: var(--status-active-text);
+        border-color: var(--status-active-border);
+    }
+
+    .status-badge.pending {
+        background: var(--status-pending-bg);
+        color: var(--status-pending-text);
+        border-color: var(--status-pending-border);
     }
 
     .status-badge.inactive {
-        background: #f8d7da;
-        color: #721c24;
+        background: var(--status-inactive-bg);
+        color: var(--status-inactive-text);
+        border-color: var(--status-inactive-border);
     }
 
     /* Action buttons */
@@ -596,6 +692,9 @@
         padding: 10px 15px;
         font-weight: 500;
         font-size: 13px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
     .card-body {
@@ -733,6 +832,23 @@
         border-color: #6c757d;
     }
 
+    /* Invalid input styling */
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
+
+    .is-invalid:focus {
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+    }
+
+    .invalid-feedback {
+        display: block;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 0.875em;
+        color: #dc3545;
+    }
+
     /* RESPONSIVE BREAKPOINTS */
     @media (max-width: 768px) {
         .table-view {
@@ -767,6 +883,89 @@
     let totalRecords = 0;
     let usersData = [];
 
+    // ============ FIX MODAL FOCUS MANAGEMENT ============
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fix for all Bootstrap modals
+        document.querySelectorAll('.modal').forEach(modal => {
+            // Remove aria-hidden when modal is about to show
+            modal.addEventListener('show.bs.modal', function() {
+                this.removeAttribute('aria-hidden');
+            });
+            
+            // Set focus to appropriate field after modal is shown
+            modal.addEventListener('shown.bs.modal', function() {
+                // Small delay to ensure DOM is ready
+                setTimeout(() => {
+                    if (this.id === 'editModal') {
+                        const field = document.getElementById('editNationalId');
+                        if (field) field.focus();
+                    } else if (this.id === 'addUserModal') {
+                        const field = document.querySelector('#addUserModal input[name="national_id"]');
+                        if (field) field.focus();
+                    } else if (this.id === 'assignModal') {
+                        const field = document.getElementById('officeSelect');
+                        if (field) field.focus();
+                    }
+                }, 100);
+            });
+            
+            // Restore aria-hidden when modal is hidden
+            modal.addEventListener('hidden.bs.modal', function() {
+                this.setAttribute('aria-hidden', 'true');
+            });
+        });
+    });
+
+    // ============ HELPER FUNCTION FOR ROLE ============
+    function getRoleInfo(role) {
+        const roleValue = role ? role.toLowerCase() : 'user';
+        let roleClass = 'user';
+        let roleText = 'USER';
+        
+        switch(roleValue) {
+            case 'admin':
+                roleClass = 'admin';
+                roleText = 'ADMIN';
+                break;
+            case 'subadmin':
+                roleClass = 'subadmin';
+                roleText = 'SUBADMIN';
+                break;
+            default:
+                roleClass = 'user';
+                roleText = 'USER';
+        }
+        
+        return { roleClass, roleText };
+    }
+
+    // ============ HELPER FUNCTION FOR STATUS ============
+    function getStatusInfo(status) {
+        const statusValue = status ? status.toLowerCase() : 'pending';
+        let statusClass = 'pending';
+        let statusText = 'PENDING';
+        
+        switch(statusValue) {
+            case 'active':
+                statusClass = 'active';
+                statusText = 'ACTIVE';
+                break;
+            case 'pending':
+                statusClass = 'pending';
+                statusText = 'PENDING';
+                break;
+            case 'inactive':
+                statusClass = 'inactive';
+                statusText = 'INACTIVE';
+                break;
+            default:
+                statusClass = 'pending';
+                statusText = 'PENDING';
+        }
+        
+        return { statusClass, statusText };
+    }
+
     // ============ LOAD USERS ============
     function loadUsers(page = 1) {
         currentPage = page;
@@ -785,13 +984,13 @@
                     updateFooter(usersData.length, totalRecords);
                     renderPagination(result.data.currentPage, result.data.totalPages);
                 } else {
-                    document.getElementById("tableBody").innerHTML = `<tr><td colspan="9" class="text-center py-4">No users found</td></tr>`;
+                    document.getElementById("tableBody").innerHTML = `<tr><td colspan="10" class="text-center py-4">No users found</td></tr>`;
                     document.getElementById("mobileView").innerHTML = '<div class="text-center py-4">No users found</div>';
                 }
             })
             .catch(err => {
                 console.error(err);
-                document.getElementById("tableBody").innerHTML = `<tr><td colspan="9" class="text-center text-danger">Failed to load users</td></tr>`;
+                document.getElementById("tableBody").innerHTML = `<tr><td colspan="10" class="text-center text-danger">Failed to load users</td></tr>`;
             });
     }
 
@@ -801,12 +1000,15 @@
         tbody.innerHTML = "";
 
         if (!users || users.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4">No users found</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="10" class="text-center py-4">No users found</td></tr>`;
             return;
         }
 
         users.forEach(user => {
             const created = user.date_created ? new Date(user.date_created).toLocaleDateString() : '';
+            const { roleClass, roleText } = getRoleInfo(user.role);
+            const { statusClass, statusText } = getStatusInfo(user.status);
+            
             const row = `
                 <tr>
                     <td>${user.portal_id ? user.portal_id.substring(0,8) : ''}</td>
@@ -816,8 +1018,13 @@
                     <td>${user.contact || ''}</td>
                     <td>${user.email || ''}</td>
                     <td>
-                        <span class="status-badge ${user.role === 'admin' ? 'active' : 'inactive'}">
-                            ${user.role || 'user'}
+                        <span class="role-badge ${roleClass}">
+                            ${roleText}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge ${statusClass}">
+                            ${statusText}
                         </span>
                     </td>
                     <td>${created}</td>
@@ -855,10 +1062,14 @@
 
         users.forEach(user => {
             const created = user.date_created ? new Date(user.date_created).toLocaleDateString() : '';
+            const { roleClass, roleText } = getRoleInfo(user.role);
+            const { statusClass, statusText } = getStatusInfo(user.status);
+            
             const card = `
                 <div class="user-card">
                     <div class="card-header">
-                        ID: ${user.portal_id ? user.portal_id.substring(0,8) : ''} | ${user.role || 'user'}
+                        <span>ID: ${user.portal_id ? user.portal_id.substring(0,8) : ''}</span>
+                        <span class="status-badge ${statusClass}">${statusText}</span>
                     </div>
                     <div class="card-body">
                         <div class="info-row">
@@ -876,6 +1087,14 @@
                         <div class="info-row">
                             <span class="label">Email:</span>
                             <span class="value">${user.email || ''}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Role:</span>
+                            <span class="value">
+                                <span class="role-badge ${roleClass}">
+                                    ${roleText}
+                                </span>
+                            </span>
                         </div>
                         <div class="info-row">
                             <span class="label">Created:</span>
@@ -990,43 +1209,217 @@
             
             const user = result.data;
             document.getElementById('editPortalId').value = user.portal_id;
+            document.getElementById('editNationalId').value = user.national_id || '';
             document.getElementById('editFirstname').value = user.firstname || '';
             document.getElementById('editLastname').value = user.lastname || '';
             document.getElementById('editContact').value = user.contact || '';
             document.getElementById('editEmail').value = user.email || '';
             document.getElementById('editRole').value = user.role || '';
+            
+            // Handle status - if null, set to 'pending'
+            const status = user.status ? user.status.toLowerCase() : 'pending';
+            document.getElementById('editStatus').value = status;
+            
             document.getElementById('editPassword').value = '';
             
-            new bootstrap.Modal(document.getElementById('editModal')).show();
+            // Remove any existing validation messages
+            clearValidationErrors();
+            
+            // Show modal
+            const modalElement = document.getElementById('editModal');
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+            
         } catch (err) {
             Swal.fire('Error', 'Server error', 'error');
         }
     }
 
+    // ============ CLEAR VALIDATION ERRORS ============
+    function clearValidationErrors() {
+        const inputs = document.querySelectorAll('#editForm input, #editForm select');
+        inputs.forEach(input => {
+            input.classList.remove('is-invalid');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            if (feedback) {
+                feedback.remove();
+            }
+        });
+    }
+
+    // ============ SHOW VALIDATION ERROR ============
+    function showValidationError(inputId, message) {
+        const input = document.getElementById(inputId);
+        input.classList.add('is-invalid');
+        
+        // Remove existing feedback if any
+        const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
+        if (existingFeedback) {
+            existingFeedback.remove();
+        }
+        
+        // Add new feedback
+        const feedback = document.createElement('div');
+        feedback.className = 'invalid-feedback';
+        feedback.textContent = message;
+        input.parentNode.appendChild(feedback);
+    }
+
+    // ============ VALIDATE FORM BEFORE SUBMIT ============
+    function validateEditForm() {
+        let isValid = true;
+        clearValidationErrors();
+        
+        // Validate National ID
+        const nationalId = document.getElementById('editNationalId').value;
+        if (!nationalId) {
+            showValidationError('editNationalId', 'National ID is required');
+            isValid = false;
+        } else if (!/^[0-9]{9,12}$/.test(nationalId)) {
+            showValidationError('editNationalId', 'National ID must be 9-12 digits');
+            isValid = false;
+        }
+        
+        // Validate Firstname
+        const firstname = document.getElementById('editFirstname').value;
+        if (!firstname) {
+            showValidationError('editFirstname', 'First name is required');
+            isValid = false;
+        } else if (firstname.length < 2 || firstname.length > 50) {
+            showValidationError('editFirstname', 'First name must be between 2 and 50 characters');
+            isValid = false;
+        } else if (!/^[a-zA-Z\s'-]+$/.test(firstname)) {
+            showValidationError('editFirstname', 'First name contains invalid characters');
+            isValid = false;
+        }
+        
+        // Validate Lastname
+        const lastname = document.getElementById('editLastname').value;
+        if (!lastname) {
+            showValidationError('editLastname', 'Last name is required');
+            isValid = false;
+        } else if (lastname.length < 2 || lastname.length > 50) {
+            showValidationError('editLastname', 'Last name must be between 2 and 50 characters');
+            isValid = false;
+        } else if (!/^[a-zA-Z\s'-]+$/.test(lastname)) {
+            showValidationError('editLastname', 'Last name contains invalid characters');
+            isValid = false;
+        }
+        
+        // Validate Contact
+        const contact = document.getElementById('editContact').value;
+        if (!contact) {
+            showValidationError('editContact', 'Contact number is required');
+            isValid = false;
+        } else if (!/^(09|\+639)\d{9}$/.test(contact)) {
+            showValidationError('editContact', 'Invalid contact number format');
+            isValid = false;
+        }
+        
+        // Validate Email
+        const email = document.getElementById('editEmail').value;
+        if (!email) {
+            showValidationError('editEmail', 'Email is required');
+            isValid = false;
+        } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+            showValidationError('editEmail', 'Invalid email format');
+            isValid = false;
+        }
+        
+        // Validate Role
+        const role = document.getElementById('editRole').value;
+        if (!role) {
+            showValidationError('editRole', 'Please select a role');
+            isValid = false;
+        } else if (!['admin', 'subadmin', 'user'].includes(role)) {
+            showValidationError('editRole', 'Invalid role selected');
+            isValid = false;
+        }
+        
+        // Validate Status
+        const status = document.getElementById('editStatus').value;
+        if (!status) {
+            showValidationError('editStatus', 'Please select a status');
+            isValid = false;
+        } else if (!['active', 'pending', 'inactive'].includes(status)) {
+            showValidationError('editStatus', 'Invalid status selected');
+            isValid = false;
+        }
+        
+        // Validate Password if provided
+        const password = document.getElementById('editPassword').value;
+        if (password) {
+            if (password.length < 8) {
+                showValidationError('editPassword', 'Password must be at least 8 characters');
+                isValid = false;
+            } else if (!/(?=.*[A-Z])/.test(password)) {
+                showValidationError('editPassword', 'Password must contain at least one uppercase letter');
+                isValid = false;
+            } else if (!/(?=.*[a-z])/.test(password)) {
+                showValidationError('editPassword', 'Password must contain at least one lowercase letter');
+                isValid = false;
+            } else if (!/(?=.*\d)/.test(password)) {
+                showValidationError('editPassword', 'Password must contain at least one number');
+                isValid = false;
+            } else if (!/(?=.*[!@#$%^&*(),.?":{}|<>])/.test(password)) {
+                showValidationError('editPassword', 'Password must contain at least one special character');
+                isValid = false;
+            }
+        }
+        
+        return isValid;
+    }
+
     // ============ UPDATE USER ============
     async function updateUser() {
+        // Validate form first
+        if (!validateEditForm()) {
+            Swal.fire('Validation Error', 'Please check the form for errors', 'error');
+            return;
+        }
+        
         const data = {
             portal_id: document.getElementById('editPortalId').value,
+            national_id: document.getElementById('editNationalId').value,
             firstname: document.getElementById('editFirstname').value,
             lastname: document.getElementById('editLastname').value,
             contact: document.getElementById('editContact').value,
             email: document.getElementById('editEmail').value,
             role: document.getElementById('editRole').value,
+            status: document.getElementById('editStatus').value,
             password: document.getElementById('editPassword').value
         };
 
+        // Show loading state
+        Swal.fire({
+            title: 'Updating...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
         try {
-            const res = await fetch('../api/users/update_user.php', {
+            const apiPath = '../api/users/update_user.php';
+            console.log('Using API path:', apiPath);
+            
+            const res = await fetch(apiPath, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
+            
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            
             const result = await res.json();
+            
             if (result.status === 200) {
                 Swal.fire({
                     icon: 'success',
-                    title: 'Updated',
-                    text: result.message,
+                    title: 'Updated!',
+                    text: result.message || 'User updated successfully',
                     timer: 1500,
                     showConfirmButton: false
                 }).then(() => {
@@ -1034,10 +1427,16 @@
                     loadUsers(currentPage);
                 });
             } else {
-                Swal.fire('Error', result.message || 'Failed to update', 'error');
+                Swal.fire('Error', result.message || 'Failed to update user', 'error');
             }
-        } catch {
-            Swal.fire('Error', 'Server error', 'error');
+        } catch (err) {
+            console.error('Update error:', err);
+            Swal.fire({
+                icon: 'error',
+                title: 'Connection Error',
+                text: `Failed to connect to server. Please check if update_user.php exists at: ../api/users/update_user.php`,
+                footer: 'Make sure the file exists in the api/users/ folder'
+            });
         }
     }
 
@@ -1045,8 +1444,11 @@
     async function openAssignModal(portal_id) {
         document.getElementById('assignPortalId').value = portal_id;
         resetAssignModal();
-        const modal = new bootstrap.Modal(document.getElementById('assignModal'));
+        
+        const modalElement = document.getElementById('assignModal');
+        const modal = new bootstrap.Modal(modalElement);
         modal.show();
+        
         await loadOffices();
         bindAssignEvents();
     }
@@ -1292,11 +1694,46 @@
             .replace(/'/g, '&#039;');
     }
 
+    // ============ TEST API CONNECTION ============
+    function testApiConnection() {
+        const paths = [
+            '../api/users/update_user.php',
+            '../api/users/get_users.php',
+            '../api/users/create_user.php',
+            '../api/users/delete_user.php'
+        ];
+        
+        let results = [];
+        
+        Promise.all(paths.map(async (path) => {
+            try {
+                const res = await fetch(path, { method: 'OPTIONS' });
+                results.push(`${path}: ✅ ${res.status} ${res.statusText}`);
+            } catch (e) {
+                results.push(`${path}: ❌ Failed - ${e.message}`);
+            }
+        })).then(() => {
+            Swal.fire({
+                title: 'API Path Test Results',
+                html: results.join('<br>'),
+                icon: 'info',
+                width: '600px'
+            });
+        });
+    }
+
     // ============ INITIALIZE ============
     document.addEventListener("DOMContentLoaded", () => {
         loadUsers(1);
     });
     </script>
+
+    <!-- Test API Button (you can remove this after confirming) -->
+    <div style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
+        <button class="btn btn-sm btn-warning" onclick="testApiConnection()" title="Test API Connection">
+            <i class="fa-solid fa-vial"></i> Test API
+        </button>
+    </div>
 
     <!-- ✅ Footer include -->
     <?php include_once __DIR__ . '/../includes/footer.php'; ?>

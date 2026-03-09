@@ -31,7 +31,7 @@
             background: #f4f6f9;
         }
 
-        /* ----- CARD STYLING ----- */
+        /* ----- CARD STYLING (base) ----- */
         .system-card {
             cursor: pointer;
             height: 240px;
@@ -76,10 +76,10 @@
             color: #333;
         }
 
-        /* ----- ROLE BADGE (text-muted, walang background) ----- */
+        /* ----- ROLE BADGE (text-muted) ----- */
         .role-badge {
             font-size: 13px;
-            color: #6c757d;         /* text-muted */
+            color: #6c757d;
             background: none;
             padding: 0;
             border-radius: 0;
@@ -113,16 +113,16 @@
             background: linear-gradient(45deg, #dc3545, #ff6b6b);
         }
 
-        /* ----- INACTIVE SYSTEM (hindi clickable) ----- */
+        /* ----- INACTIVE SYSTEM ----- */
         .system-card.inactive-system {
-            pointer-events: none;       /* 👈 walang kahit anong click */
+            pointer-events: none;
             opacity: 0.7;
             filter: grayscale(0.7);
             background: #f1f3f6;
             cursor: default;
         }
 
-        /* ----- HOVER TOOLTIP para sa inactive systems (may arrow) ----- */
+        /* ----- TOOLTIP (inactive only) ----- */
         .system-card.inactive-system {
             position: relative;
         }
@@ -142,7 +142,7 @@
             max-width: 250px;
             white-space: normal;
             word-wrap: break-word;
-            z-index: 9999;            /* napakataas para siguradong kita */
+            z-index: 9999;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             pointer-events: none;
             line-height: 1.4;
@@ -158,6 +158,124 @@
             border-style: solid;
             border-color: transparent transparent #212529 transparent;
             z-index: 9999;
+        }
+
+        /* ========== RESPONSIVE MEDIA QUERIES ========== */
+
+        /* --- Tablet (768px - 991px) --- */
+        @media (max-width: 991px) {
+            .system-card {
+                height: 220px;
+                padding: 18px;
+            }
+            .system-logo {
+                width: 60px;
+                height: 60px;
+            }
+            .system-icon {
+                font-size: 40px;
+            }
+            .card-title {
+                font-size: 18px;
+            }
+            .role-badge {
+                font-size: 12px;
+            }
+            .status-badge {
+                font-size: 10px;
+                padding: 4px 10px;
+                top: 10px;
+                left: 10px;
+            }
+        }
+
+        /* --- Mobile (max-width: 767px) --- */
+        @media (max-width: 767px) {
+            /* Para sa sobrang liit, gawing 2 cards per row */
+            .col-md-3 {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+            .system-card {
+                height: auto;           /* auto height, lalaki depende sa content */
+                min-height: 200px;
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            .system-logo {
+                width: 55px;
+                height: 55px;
+                margin-bottom: 12px;
+            }
+            .system-icon {
+                font-size: 38px;
+                margin-bottom: 12px;
+            }
+            .card-title {
+                font-size: 16px;
+                margin-bottom: 5px;
+            }
+            .role-badge {
+                font-size: 11px;
+                margin-top: 3px;
+            }
+            .status-badge {
+                font-size: 9px;
+                padding: 3px 8px;
+                top: 8px;
+                left: 8px;
+            }
+            /* I-adjust ang tooltip para hindi lumabas sa screen */
+            .system-card.inactive-system:hover::after {
+                max-width: 200px;
+                font-size: 12px;
+                white-space: normal;
+                left: 50%;
+                transform: translateX(-50%) translateY(-8px);
+            }
+        }
+
+        /* --- Maliit na mobile (max-width: 480px) --- */
+        @media (max-width: 480px) {
+            .col-md-3 {
+                flex: 0 0 100%;        /* 1 card per row */
+                max-width: 100%;
+            }
+            .system-card {
+                min-height: 180px;
+                padding: 12px;
+            }
+            .system-logo {
+                width: 50px;
+                height: 50px;
+                margin-bottom: 10px;
+            }
+            .system-icon {
+                font-size: 35px;
+                margin-bottom: 10px;
+            }
+            .card-title {
+                font-size: 16px;
+            }
+            .role-badge {
+                font-size: 11px;
+            }
+        }
+
+        /* --- Para sa malalaking desktop, puwedeng dagdagan ang cards per row --- */
+        @media (min-width: 1400px) {
+            .col-md-3 {
+                flex: 0 0 20%;         /* 5 cards per row sa sobrang laki */
+                max-width: 20%;
+            }
+        }
+
+        /* --- Siguraduhing hindi mag-ooverflow ang sidebar sa mobile --- */
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0 !important;  /* kung naka-collapse ang sidebar, adjust */
+                padding-top: 70px;
+            }
         }
     </style>
 
@@ -238,11 +356,10 @@
                 }
 
                 data.forEach(system => {
-                    // ----- DETECT ACTIVE STATUS (case-insensitive) -----
+                    // ----- DETECT ACTIVE STATUS -----
                     const isActive = system.status && system.status.toLowerCase() === 'active';
-                    const active = isActive || !system.status;   // default active kung walang status
+                    const active = isActive || !system.status;
 
-                    // ----- CREATE CARD COLUMN -----
                     const card = document.createElement('div');
                     card.className = 'col-md-3 mb-4';
 
@@ -272,19 +389,18 @@
                     const safeSystemId = system.system_id ? String(system.system_id) : '';
                     const safeRole = system.role || '';
 
-                    // ----- STATUS BADGE (top-left) -----
+                    // ----- STATUS BADGE -----
                     const statusText = active ? 'Active' : 'Inactive';
                     const statusClass = active ? 'status-active' : 'status-inactive';
                     const statusBadge = `<span class="status-badge ${statusClass}">${statusText}</span>`;
 
-                    // ----- TOOLTIP CONTENT (para sa inactive systems) -----
-                    // Gamitin ang system.description kung meron; kung wala, gamitin ang system name at role
+                    // ----- TOOLTIP CONTENT (inactive only) -----
                     const tooltipDescription = system.description 
                         ? system.description 
                         : `${safeSystemName} – ${safeRole} (Inactive)` 
                         || 'System is currently unavailable';
                     
-                    // ----- CARD HTML (WALANG BUTTON) -----
+                    // ----- CARD HTML -----
                     card.innerHTML = `
                         <div class="system-card ${!active ? 'inactive-system' : ''}" 
                              data-system-id="${safeSystemId}"
@@ -317,9 +433,6 @@
             }
         }
 
-        // ------------------------------------------------------------
-        //  INIT
-        // ------------------------------------------------------------
         window.addEventListener('DOMContentLoaded', function () {
             loadDashboardSystems();
         });

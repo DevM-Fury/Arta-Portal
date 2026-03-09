@@ -12,21 +12,58 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 require_once __DIR__ . '/../../includes/config_system.php';
 
 try {
-    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 1000;
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 5;
+    $offset = ($page - 1) * $limit;
     $division_id = isset($_GET['division_id']) ? (int)$_GET['division_id'] : null;
     
-    // ✅ Schema: id, unit_name, unit_status, division_id
-    //    Walang unit_code, at status column ay unit_status
+    // Base query for counting
+    $countQuery = "SELECT COUNT(*) as total FROM units";
+    $countParams = [];
+    
     if ($division_id) {
-        $query = "SELECT id, unit_name, division_id FROM units WHERE unit_status = 'Active' AND division_id = :division_id ORDER BY unit_name LIMIT :limit";
-        $stmt = $pdo_system->prepare($query);
-        $stmt->bindParam(':division_id', $division_id);
-    } else {
-        $query = "SELECT id, unit_name, division_id FROM units WHERE unit_status = 'Active' ORDER BY unit_name LIMIT :limit";
-        $stmt = $pdo_system->prepare($query);
+        $countQuery .= " WHERE division_id = :division_id";
+        $countParams[':division_id'] = $division_id;
     }
     
+    $countStmt = $pdo_system->prepare($countQuery);
+    foreach ($countParams as $key => $value) {
+        $countStmt->bindValue($key, $value);
+    }
+    $countStmt->execute();
+    $totalRecords = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+    $totalPages = ceil($totalRecords / $limit);
+    
+    // ✅ FIXED: Select ALL fields needed by the frontend and JOIN with divisions table
+    $query = "SELECT 
+                u.id, 
+                u.unit_name, 
+                u.unit_description, 
+                u.unit_status, 
+                u.division_id,
+                u.created_at, 
+                u.updated_at,
+                d.division_name
+              FROM units u
+              LEFT JOIN divisions d ON u.division_id = d.id";
+    
+    $params = [];
+    
+    if ($division_id) {
+        $query .= " WHERE u.division_id = :division_id";
+        $params[':division_id'] = $division_id;
+    }
+    
+    $query .= " ORDER BY u.id DESC LIMIT :limit OFFSET :offset";
+    
+    $stmt = $pdo_system->prepare($query);
+    
+    // Bind parameters
+    foreach ($params as $key => $value) {
+        $stmt->bindValue($key, $value);
+    }
     $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+    $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
     $stmt->execute();
     
     $units = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -36,7 +73,10 @@ try {
         "message" => "Units retrieved successfully",
         "data" => [
             "units" => $units,
-            "count" => count($units)
+            "total" => (int)$totalRecords,
+            "currentPage" => $page,
+            "totalPages" => $totalPages,
+            "limit" => $limit
         ]
     ]);
     
@@ -48,3 +88,6 @@ try {
     ]);
 }
 ?>
+
+
+

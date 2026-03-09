@@ -4,490 +4,414 @@
 
 <head>
     <style>
-        /* === GLOBAL === */
+        /* === RESET / GLOBAL === */
         body {
-            background-color: #f3f6fa;
-            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+            background-color: #f0f4f8;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
             margin: 0;
             padding: 0;
         }
 
-        /* === MAIN CONTENT WRAPPER === */
+        /* === SIDEBAR OFFSET + FIXED HEADER AVOID OVERLAP === */
         .main-content {
-            margin-left: 250px;
-            padding-top: 50px;
-            padding-right: 30px;
-            transition: margin-left 0.3s ease;
+            margin-left: 250px;          /* space for sidebar_user.php */
+            padding: 20px 35px 35px 35px;
+            margin-top: 70px;             /* creates gap so header doesn't cover content */
+            transition: all 0.2s;
         }
 
-        /* === TWO-COLUMN LAYOUT – responsive margin === */
-        .profile-wrapper {
-            display: flex;
-            gap: 30px;
-            align-items: stretch;
-            max-width: 1100px;
-            margin: 120px auto 20px auto; /* binabaan nang konti */
-        }
-
-        /* === LEFT: NATIONAL ID CARD (FIXED SIZE, PERO MAGIGING FLEXIBLE SA MOBILE) === */
-        .card-fixed-wrapper {
-            flex: 0 0 600px;
-            height: 360px;
+        /* === ORIGINAL HEADER === */
+        .header-bar {
+            background: #002b7f !important;
+            color: white;
+            padding: 15px 30px;
+            width: 100%;
             position: relative;
+            z-index: 10;
         }
 
-        .profile-card {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+        /* === PROFILE HEADER inside main === */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
-
-        .card-inner {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-            border-radius: 20px;
+        .profile-header h2 {
+            font-weight: 600;
+            font-size: 1.8rem;
+            color: #0a2540;
+            letter-spacing: -0.3px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .profile-header h2 i {
+            color: #2b6c9e;
             background: white;
+            padding: 10px;
+            border-radius: 16px;
+            box-shadow: 0 4px 10px rgba(0,40,80,0.08);
+        }
+        .badge-verified {
+            background: #e3f2fd;
+            color: #0b4770;
+            padding: 6px 15px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid #bcd9f0;
         }
 
-        .card-front {
-            width: 100%;
-            height: 100%; /* FIXED: dati 130% - ngayon 100% */
+        /* === TOP STAT CARDS — FULLY RESPONSIVE === */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
             background: white;
+            border-radius: 24px;
+            padding: 18px 18px;
+            box-shadow: 0 8px 20px -6px rgba(0, 45, 85, 0.1);
+            border: 1px solid #e6edf5;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0; /* Prevents overflow */
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #eef6ff, #ddeeff);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #003f88;
+            flex-shrink: 0; /* Prevents icon from shrinking */
+        }
+
+        .stat-content {
+            min-width: 0; /* Allows text to truncate if needed */
+            flex: 1;
+        }
+
+        .stat-content h4 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.2;
+            color: #122b44;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .stat-content p {
+            margin: 2px 0 0;
+            color: #3f5b76;
+            font-weight: 500;
+            font-size: 0.85rem;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* === TWO-COLUMN LAYOUT === */
+        .profile-dashboard {
+            display: flex;
+            gap: 24px;
+            align-items: stretch;
+        }
+
+        /* === LEFT PANEL === */
+        .left-panel {
+            flex: 1.2;
+            min-width: 0;
             display: flex;
             flex-direction: column;
-            padding: 20px 25px;
-            border: 1px solid #d0d9e5;
-            border-radius: 20px;
-            position: relative;
-            box-sizing: border-box;
+            gap: 24px;
         }
 
-        .flag-ribbon {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 8px;
-            background: linear-gradient(90deg, #0038a8 33%, #bf0a30 33%, #bf0a30 66%, #fcdc42 66%);
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-        }
-
-        .philid-header-horizontal {
+        /* === RIGHT PANEL === */
+        .right-panel {
+            flex: 1.8;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* === universal card style === */
+        .info-card {
+            background: white;
+            border-radius: 24px;
+            padding: 22px 24px;
+            box-shadow: 0 12px 24px -10px rgba(0,30,60,0.08);
+            border: 1px solid #e2eaf2;
+        }
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a3d62;
+            margin-bottom: 16px;
+            display: flex;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
+            gap: 8px;
             border-bottom: 2px solid #ffcd00;
+            padding-bottom: 10px;
+        }
+        .card-title i {
+            color: #1a5d9c;
+            background: #ecf3fa;
+            padding: 6px;
+            border-radius: 12px;
+            font-size: 1rem;
         }
 
-        .republic-text {
-            font-family: 'Times New Roman', serif;
+        /* === DETAIL GRIDS === */
+        .grid-2col {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px 24px;
         }
-
-        .republic-big {
-            font-size: 16px;
-            font-weight: 800;
-            color: #0038a8;
-            letter-spacing: 1px;
+        .grid-1col {
+            display: grid;
+            gap: 16px;
+        }
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px dashed #d0ddee;
+            padding-bottom: 8px;
+        }
+        .detail-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #4e6b85;
             text-transform: uppercase;
-            line-height: 1.2;
+            letter-spacing: 0.3px;
+            margin-bottom: 3px;
+        }
+        .detail-value {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #0d2135;
+            word-break: break-word;
         }
 
-        .republic-small {
-            font-size: 10px;
-            color: #5a5a5a;
-            text-transform: uppercase;
+        /* contact chips */
+        .contact-chip {
+            background: #ecf7ff;
+            border-radius: 32px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+            border: 1px solid #bee0ff;
+            margin-bottom: 6px;
+        }
+        .contact-chip i {
+            width: 24px;
+            color: #004e9e;
+            font-size: 1rem;
         }
 
-        .philid-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: #1a1a1a;
-            text-align: right;
-            line-height: 1.3;
-            text-transform: uppercase;
+        /* assignment block */
+        .assignment-block {
+            background: #f7faff;
+            border-radius: 18px;
+            padding: 16px 20px;
+            border-left: 5px solid #ffcd00;
+            margin-top: 4px;
         }
-
-        .id-header-details {
+        .assignment-item {
             display: flex;
             justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #dde5ef;
+            font-size: 0.9rem;
+        }
+        .assignment-item:last-child { border-bottom: none; }
+        .assignment-label { font-weight: 600; color: #305f82; }
+        .assignment-value { font-weight: 500; color: #122b44; }
+
+        /* avatar */
+        .avatar-large {
+            display: flex;
             align-items: center;
-            margin-bottom: 20px;
+            gap: 18px;
+            margin-bottom: 12px;
         }
-
-        .card-number {
-            font-family: 'Courier New', monospace;
-            font-size: 24px;
-            font-weight: 700;
-            color: #0d2d4b;
-            background: #eef3f9;
-            padding: 10px 20px;
-            border-radius: 40px;
-            letter-spacing: 3px;
-            border: 1px solid #b0c4ce;
-            flex: 1;
-            margin-right: 15px;
-            text-align: center;
-        }
-
-        .photo-placeholder {
-            width: 90px;
-            height: 110px;
-            background: #f2f2f2;
-            border-radius: 10px;
-            border: 2px solid #ffcd00;
+        .avatar-circle {
+            width: 75px;
+            height: 75px;
+            background: linear-gradient(145deg, #273c61, #164675);
+            border-radius: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 36px;
-            color: #0038a8;
-            background: linear-gradient(145deg, #ffffff, #e6ecf5);
-            box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+            color: white;
+            box-shadow: 0 8px 16px rgba(0,35,70,0.15);
+            border: 3px solid #ffcd00;
         }
-
-        .id-details-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px 20px;
-            margin-top: 5px;
-            flex: 1;
-        }
-
-        .id-item {
-            display: flex;
-            flex-direction: column;
-            border-bottom: 1px solid #eaeef2;
-            padding-bottom: 4px;
-        }
-
-        .id-label {
-            font-size: 9px;
-            font-weight: 700;
-            color: #6c757d;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .id-value {
-            font-size: 14px;
+        .avatar-text h3 {
+            font-size: 1.6rem;
             font-weight: 600;
-            color: #212529;
-            word-break: break-word;
-            text-transform: uppercase;
+            margin: 0 0 4px;
+            color: #0f293f;
+        }
+        .avatar-text p {
+            color: #2d577b;
+            font-weight: 500;
+            margin: 0;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .phl-badge-horizontal {
+        /* quick id row */
+        .quick-id-row {
+            display: flex;
+            gap: 12px;
+            background: #f0f7fe;
+            border-radius: 36px;
+            padding: 8px 16px;
+            margin-top: 12px;
+            font-size: 0.85rem;
+        }
+
+        /* footer note */
+        .footer-note {
+            margin-top: 24px;
+            font-size: 0.8rem;
+            color: #5a7492;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-top: 15px;
-            border-top: 2px solid #ffcd00;
-            padding-top: 12px;
+            border-top: 1px solid #cfddee;
+            padding-top: 16px;
         }
 
-        .phl-flag-icon {
-            font-size: 26px;
-        }
-
-        .phl-text {
-            background: #0038a8;
-            color: white;
-            padding: 4px 20px;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 16px;
-            letter-spacing: 2px;
-        }
-
-        /* === RIGHT: USER DETAILS PANEL === */
-        .details-panel {
-            flex: 1;
-            background: white;
-            border-radius: 20px;
-            padding: 30px 35px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
-            border: 1px solid #e0e0e0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .details-panel h4 {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 25px;
-            border-left: 6px solid #ffcd00;
-            padding-left: 16px;
-            letter-spacing: 1px;
-            color: #0038a8;
-        }
-
-        .details-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px 30px;
-        }
-
-        .detail-item {
-            display: flex;
-            flex-direction: column;
-            border-bottom: 1px solid #e9ecef;
-            padding-bottom: 8px;
-        }
-
-        .detail-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: #6c757d;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .detail-value {
-            font-size: 16px;
-            font-weight: 500;
-            color: #212529;
-            word-break: break-word;
-        }
-
-        .footer-note {
-            margin-top: 25px;
-            font-size: 11px;
-            color: #6c757d;
-            text-align: center;
-            border-top: 1px solid #e9ecef;
-            padding-top: 15px;
-        }
-
-        /* ========== RESPONSIVE MEDIA QUERIES ========== */
-
-        /* --- Tablet (max-width: 991px) --- */
-        @media (max-width: 991px) {
-            .main-content {
-                margin-left: 0; /* para sa mobile kapag naka-collapse ang sidebar */
-                padding-top: 70px;
-                padding-right: 20px;
-                padding-left: 20px;
-            }
-
-            .profile-wrapper {
-                flex-direction: column;
-                align-items: center;
-                margin-top: 80px;
-                gap: 25px;
-            }
-
-            .card-fixed-wrapper {
-                flex: 0 0 auto;
-                width: 500px;
-                height: 320px;
-                margin-bottom: 10px;
-            }
-
-            .card-number {
-                font-size: 20px;
-                padding: 8px 16px;
-            }
-
-            .photo-placeholder {
-                width: 80px;
-                height: 100px;
-                font-size: 32px;
-            }
-
-            .id-value {
-                font-size: 13px;
-            }
-
-            .details-panel {
-                width: 100%;
-                max-width: 500px;
-                padding: 25px 30px;
-            }
-
-            .details-panel h4 {
-                font-size: 22px;
-            }
-        }
-
-        /* --- Mobile (max-width: 767px) --- */
-        @media (max-width: 767px) {
-            .profile-wrapper {
-                margin-top: 60px;
-            }
-
-            .card-fixed-wrapper {
-                width: 100%;
-                max-width: 450px;
-                height: auto;
-                min-height: 300px;
-            }
-
-            .card-front {
-                padding: 15px 18px;
-            }
-
-            .philid-header-horizontal {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-
-            .philid-title {
-                text-align: left;
-                font-size: 12px;
-            }
-
-            .republic-big {
-                font-size: 14px;
-            }
-
-            .republic-small {
-                font-size: 9px;
-            }
-
-            .id-header-details {
-                flex-wrap: wrap;
-            }
-
-            .card-number {
-                font-size: 18px;
-                padding: 8px 12px;
-                margin-right: 10px;
-            }
-
-            .photo-placeholder {
-                width: 70px;
-                height: 90px;
-                font-size: 28px;
-            }
-
-            .id-details-grid {
-                gap: 8px 15px;
-            }
-
-            .id-label {
-                font-size: 8px;
-            }
-
-            .id-value {
-                font-size: 12px;
-            }
-
-            .phl-flag-icon {
-                font-size: 22px;
-            }
-
-            .phl-text {
-                padding: 3px 16px;
-                font-size: 14px;
-            }
-
-            .details-panel {
-                padding: 20px 25px;
-            }
-
-            .details-grid {
-                grid-template-columns: 1fr; /* isang column na lang */
+        /* === RESPONSIVE BREAKPOINTS === */
+        @media screen and (max-width: 1200px) {
+            .stat-grid {
                 gap: 12px;
             }
-
-            .detail-label {
-                font-size: 10px;
+            
+            .stat-card {
+                padding: 15px 12px;
+                gap: 10px;
             }
-
-            .detail-value {
-                font-size: 14px;
+            
+            .stat-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+                border-radius: 14px;
+            }
+            
+            .stat-content h4 {
+                font-size: 1.3rem;
+            }
+            
+            .stat-content p {
+                font-size: 0.75rem;
             }
         }
 
-        /* --- Maliit na mobile (max-width: 480px) --- */
-        @media (max-width: 480px) {
-            .profile-wrapper {
-                margin-top: 40px;
+        @media screen and (max-width: 992px) {
+            .stat-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
             }
-
-            .card-fixed-wrapper {
-                max-width: 100%;
-                min-height: 280px;
+            
+            .profile-dashboard {
+                flex-direction: column;
             }
+        }
 
-            .card-front {
+        @media screen and (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+                margin-top: 80px;
+            }
+            
+            .stat-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .stat-card {
+                padding: 15px 18px;
+            }
+            
+            .stat-content h4 {
+                font-size: 1.4rem;
+                white-space: normal; /* Allow wrapping on mobile */
+            }
+            
+            .stat-content p {
+                font-size: 0.85rem;
+                white-space: normal;
+            }
+            
+            .grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .stat-card {
                 padding: 12px 15px;
             }
-
-            .card-number {
-                font-size: 16px;
-                padding: 6px 10px;
-                letter-spacing: 2px;
+            
+            .stat-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
             }
-
-            .photo-placeholder {
-                width: 60px;
-                height: 80px;
-                font-size: 24px;
+            
+            .stat-content h4 {
+                font-size: 1.2rem;
             }
-
-            .id-details-grid {
-                gap: 6px 10px;
+            
+            .avatar-large {
+                flex-direction: column;
+                text-align: center;
             }
-
-            .id-label {
-                font-size: 7px;
-            }
-
-            .id-value {
-                font-size: 11px;
-            }
-
-            .phl-flag-icon {
-                font-size: 20px;
-            }
-
-            .phl-text {
-                padding: 2px 14px;
-                font-size: 12px;
-            }
-
-            .details-panel {
-                padding: 15px 20px;
-            }
-
-            .details-panel h4 {
-                font-size: 20px;
-                margin-bottom: 20px;
-            }
-
-            .footer-note {
-                font-size: 9px;
-            }
-
-            .text-muted {
-                font-size: 10px;
-            }
-        }
-
-        /* --- Para sa sobrang laking desktop, hindi mag‑ooverflow --- */
-        @media (min-width: 1400px) {
-            .profile-wrapper {
-                max-width: 1200px;
+            
+            .quick-id-row {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 5px;
             }
         }
     </style>
+    <!-- Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <?php include_once __DIR__ . '/../includes/sidebar_subadmin.php'; ?>
 
-    <!-- Header -->
+    <!-- ORIGINAL HEADER -->
     <div class="header-bar shadow-sm" style="background:#002b7f; color:white; padding:15px 30px;">
         <div class="header-title d-flex align-items-center">
             <i class="fa-solid fa-id-card me-2"></i>
@@ -497,108 +421,184 @@
 
     <!-- Main Content -->
     <div class="main-content">
-        <div class="profile-wrapper">
-            <!-- LEFT: NATIONAL ID CARD -->
-            <div class="card-fixed-wrapper">
-                <div class="profile-card">
-                    <div class="card-inner">
-                        <div class="card-front">
-                            <div class="flag-ribbon"></div>
-                            <div class="philid-header-horizontal">
-                                <div class="republic-text">
-                                    <div class="republic-big">ANTI-RED TAPE AUTHORITY</div>
-                                    <div class="republic-small">Office Of The President</div>
-                                </div>
-                                <div class="philid-title">
-                                    NFA Building 5th Floor Vasra Visayas Avenue Quezon City<br>
-                                    <span style="font-size:12px;">Portal Identification Card</span>
-                                </div>
+        <!-- profile header inside main -->
+        <div class="profile-header">
+            <h2>
+                <i class="fa-solid fa-circle-user"></i> 
+                User Profile
+            </h2>
+            <div class="badge-verified">
+                <i class="fa-solid fa-check-circle" style="color:#1e7e34;"></i> 
+                verified ARTA account
+            </div>
+        </div>
+
+        <!-- stat cards -->
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fa-solid fa-id-card"></i></div>
+                <div class="stat-content">
+                    <h4 id="stat_national_id">•••••526</h4>
+                    <p>National ID (last digits)</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fa-solid fa-briefcase"></i></div>
+                <div class="stat-content">
+                    <h4 id="stat_designation">ISA I</h4>
+                    <p>Designation</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                <div class="stat-content">
+                    <h4 id="stat_date_joined">2025</h4>
+                    <p>Date created</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fa-solid fa-building"></i></div>
+                <div class="stat-content">
+                    <h4 id="stat_office">OODDGAF</h4>
+                    <p>Office</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TWO COLUMN DETAILS -->
+        <div class="profile-dashboard">
+            <!-- LEFT PANEL -->
+            <div class="left-panel">
+                <!-- avatar / name block -->
+                <div class="info-card">
+                    <div class="avatar-large">
+                        <div class="avatar-circle">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div class="avatar-text">
+                            <h3 id="fullNameDisplay">PATRICIA M. LUI</h3>
+                            <p><i class="fa-solid fa-location-dot" style="color:#004e9e;"></i> <span id="officeLocation">NFA Bldg, Quezon City</span></p>
+                        </div>
+                    </div>
+                    <!-- quick id row -->
+                    <div class="quick-id-row">
+                        <span><i class="fa-regular fa-id-card"></i> Portal ID: <strong id="portal_id_mini">9199...118</strong></span>
+                        <span class="text-muted">|</span>
+                        <span><i class="fa-regular fa-id-card"></i> National ID: <strong id="national_id_mini">8987...526</strong></span>
+                    </div>
+                </div>
+
+                <!-- WORK ASSIGNMENT card -->
+                <div class="info-card">
+                    <div class="card-title"><i class="fa-solid fa-sitemap"></i> Work assignment</div>
+                    <div class="assignment-block">
+                        <div class="assignment-item">
+                            <span class="assignment-label">Office</span>
+                            <span class="assignment-value" id="office_display">OODDGAF</span>
+                        </div>
+                        <div class="assignment-item">
+                            <span class="assignment-label">Division</span>
+                            <span class="assignment-value" id="division_display">ICT</span>
+                        </div>
+                        <div class="assignment-item">
+                            <span class="assignment-label">Unit / section</span>
+                            <span class="assignment-value" id="unit_display">Development</span>
+                        </div>
+                        <div class="assignment-item">
+                            <span class="assignment-label">Designation</span>
+                            <span class="assignment-value" id="designation_display">ISA I</span>
+                        </div>
+                        <div class="assignment-item">
+                            <span class="assignment-label">Role in system</span>
+                            <span class="assignment-value" id="role_display">USER</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- security footer -->
+                <div class="info-card" style="padding: 18px;">
+                    <div style="display: flex; gap: 12px; color: #2d577b; font-size:0.9rem;">
+                        <i class="fa-solid fa-shield-halved fa-xl"></i>
+                        <span style="font-weight:500;">ARTA – official employee record<br><small style="font-size:0.7rem;">verification: active</small></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL -->
+            <div class="right-panel">
+                <!-- PERSONAL INFORMATION -->
+                <div class="info-card">
+                    <div class="card-title"><i class="fa-solid fa-user-details"></i> Personal information</div>
+                    <div class="grid-2col">
+                        <div class="detail-item">
+                            <span class="detail-label">Last name</span>
+                            <span class="detail-value" id="lastNameDisplay">LUI</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">First name</span>
+                            <span class="detail-value" id="firstNameDisplay">PATRICIA</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Middle name</span>
+                            <span class="detail-value" id="middleNameDisplay">MARTINEZ</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Birthdate</span>
+                            <span class="detail-value" id="dobDisplay">JAN 01, 1990</span>
+                        </div>
+                        <div class="detail-item" style="grid-column: span 2;">
+                            <span class="detail-label">Complete address</span>
+                            <span class="detail-value" id="addressDisplay">OODDGAF, ICT, DEV · NFA Bldg, Vasra</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTACT & SYSTEM INFO -->
+                <div class="info-card">
+                    <div class="card-title"><i class="fa-solid fa-address-book"></i> Contact & system</div>
+                    <div class="grid-1col">
+                        <div class="contact-chip">
+                            <i class="fa-solid fa-envelope"></i> <span id="emailDisplay">patricia.lui@arta.gov.ph</span>
+                        </div>
+                        <div class="contact-chip">
+                            <i class="fa-solid fa-phone"></i> <span id="contactDisplay">+63 (2) 8790 1234</span>
+                        </div>
+                        <div class="grid-2col" style="margin-top: 6px;">
+                            <div class="detail-item">
+                                <span class="detail-label">Portal UUID</span>
+                                <span class="detail-value" id="portal_id_display">9199a873...118</span>
                             </div>
-                            <div class="id-header-details">
-                                <div class="card-number" id="cardNumberDisplay">8987 6543 526</div>
-                                <div class="photo-placeholder">
-                                    <i class="fa-solid fa-user"></i>
-                                </div>
+                            <div class="detail-item">
+                                <span class="detail-label">National ID (full)</span>
+                                <span class="detail-value" id="national_id_display">8987 6543 526</span>
                             </div>
-                            <div class="id-details-grid">
-                                <div class="id-item">
-                                    <span class="id-label">Apelyido / Last Name</span>
-                                    <span class="id-value" id="lastNameDisplay">LUI</span>
-                                </div>
-                                <div class="id-item">
-                                    <span class="id-label">Mga Pangalan / Given Names</span>
-                                    <span class="id-value" id="givenNamesDisplay">PATRICIA</span>
-                                </div>
-                                <div class="id-item">
-                                    <span class="id-label">Gitnang Apelyido / Middle Name</span>
-                                    <span class="id-value" id="middleNameDisplay">MARTINEZ</span>
-                                </div>
-                                <div class="id-item">
-                                    <span class="id-label">Petsa ng Kapanganakan / Date of Birth</span>
-                                    <span class="id-value" id="dobDisplay">JAN 01, 1990</span>
-                                </div>
-                                <div class="id-item" style="grid-column: span 2;">
-                                    <span class="id-label">Assignment</span>
-                                    <span class="id-value" id="addressDisplay">OODDGAF, ICT, DEV</span>
-                                </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Date created</span>
+                                <span class="detail-value" id="date_created_display">Oct 20, 2025</span>
                             </div>
-                            <div class="phl-badge-horizontal">
-                                <span class="phl-flag-icon">🇵🇭</span>
-                                <span class="phl-text">PHL</span>
+                            <div class="detail-item">
+                                <span class="detail-label">Last update</span>
+                                <span class="detail-value" id="lastUpdate">Mar 10, 2026</span>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- RIGHT: USER DETAILS PANEL -->
-            <div class="details-panel">
-                <h4><i class="fa-solid fa-id-card me-2"></i>USER DETAILS</h4>
-                <div class="details-grid">
-                    <div class="detail-item">
-                        <span class="detail-label">Portal ID</span>
-                        <span class="detail-value" id="portal_id">9199a873-28d6-4840-9272-24b7725ee118</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">National ID</span>
-                        <span class="detail-value" id="national_id">89876543526</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Role</span>
-                        <span class="detail-value" id="role">USER</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Office</span>
-                        <span class="detail-value" id="office">OODDGAF</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Division</span>
-                        <span class="detail-value" id="division">ICT</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Unit</span>
-                        <span class="detail-value" id="unit">Dev</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Designation</span>
-                        <span class="detail-value" id="designation">ISA I</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Date Created</span>
-                        <span class="detail-value" id="date_created">October 20, 2025</span>
-                    </div>
-                </div>
+                <!-- extra note -->
                 <div class="footer-note">
-                    <i class="fa-solid fa-shield"></i> Official Government Identification
+                    <span><i class="fa-regular fa-clock"></i> employee since 2024</span>
+                    <span><i class="fa-solid fa-lock"></i> secured</span>
                 </div>
             </div>
         </div>
-        <div class="text-center mt-4">
-            <small class="text-muted">ARTA Portal Identification Card – secure, valid, at opisyal.</small>
+
+        <!-- small footer outside columns -->
+        <div style="text-align: right; margin-top: 20px; color:#4d6f8f; font-size:0.85rem;">
+            <i class="fa-solid fa-circle-check" style="color:#2b6c2b;"></i> Verified · <span id="footerDate">2026</span>
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js" crossorigin="anonymous"></script>
@@ -606,41 +606,79 @@
     <script>
         async function loadUserProfile() {
             try {
-                const res = await fetch("../api/users/get_profile.php", {
-                    credentials: 'same-origin'
-                });
+                const res = await fetch("../api/users/get_profile.php", { credentials: 'same-origin' });
                 const text = await res.text();
                 let data;
+                try { data = JSON.parse(text); } catch (e) { console.log('Using mock data'); }
 
-                try {
-                    data = JSON.parse(text);
-                } catch (e) {
-                    console.log('Using static mock data');
-                    return;
+                let user = {};
+                if (data && data.status === "success") {
+                    user = data.user;
+                } else {
+                    user = {
+                        lastname: "LUI",
+                        firstname: "PATRICIA",
+                        middlename: "MARTINEZ",
+                        birthdate: "JAN 01, 1990",
+                        address: "OODDGAF, ICT, DEV, NFA Bldg Vasra",
+                        national_id: "8987 6543 526",
+                        portal_id: "9199a873-28d6-4840-9272-24b7725ee118",
+                        role: "USER",
+                        office_name: "OODDGAF",
+                        division_name: "ICT",
+                        unit_name: "Dev",
+                        designation_name: "ISA I",
+                        date_created: "October 20, 2025",
+                        email: "patricia.lui@arta.gov.ph",
+                        contact: "+63 (2) 8790 1234",
+                        office_location: "NFA Bldg, Quezon City",
+                        last_update: "March 10, 2026"
+                    };
                 }
 
-                if (data.status === "success") {
-                    const user = data.user;
-                    // FRONT
-                    document.getElementById("lastNameDisplay").textContent = (user.lastname || "LUI").toUpperCase();
-                    document.getElementById("givenNamesDisplay").textContent = (user.firstname || "PATRICIA").toUpperCase();
-                    document.getElementById("middleNameDisplay").textContent = (user.middlename || "MARTINEZ").toUpperCase() || "N/A";
-                    let dob = user.birthdate || "JAN 01, 1990";
-                    document.getElementById("dobDisplay").textContent = dob.toUpperCase();
-                    let address = user.address || "OODDGAF, ICT, DEV";
-                    document.getElementById("addressDisplay").textContent = address.toUpperCase();
-                    document.getElementById("cardNumberDisplay").textContent = user.national_id || "8987 6543 526";
-                    
-                    // RIGHT PANEL
-                    document.getElementById("portal_id").textContent = user.portal_id || "9199a873-28d6-4840-9272-24b7725ee118";
-                    document.getElementById("national_id").textContent = user.national_id || "89876543526";
-                    document.getElementById("role").textContent = user.role || "USER";
-                    document.getElementById("office").textContent = user.office_name || "OODDGAF";
-                    document.getElementById("division").textContent = user.division_name || "ICT";
-                    document.getElementById("unit").textContent = user.unit_name || "Dev";
-                    document.getElementById("designation").textContent = user.designation_name || "ISA I";
-                    document.getElementById("date_created").textContent = user.date_created || "October 20, 2025";
-                }
+                document.getElementById("lastNameDisplay").textContent = user.lastname || "LUI";
+                document.getElementById("firstNameDisplay").textContent = user.firstname || "PATRICIA";
+                document.getElementById("middleNameDisplay").textContent = user.middlename || "MARTINEZ";
+                document.getElementById("dobDisplay").textContent = user.birthdate || "JAN 01, 1990";
+                document.getElementById("addressDisplay").textContent = (user.address || "OODDGAF, ICT, DEV, NFA Bldg Vasra").toUpperCase();
+
+                const fullName = `${user.firstname || 'PATRICIA'} ${(user.middlename ? user.middlename.charAt(0)+'.' : 'M.')} ${user.lastname || 'LUI'}`;
+                document.getElementById("fullNameDisplay").textContent = fullName;
+
+                // FIXED: Convert to string to prevent slice errors
+                const natId = String(user.national_id || "8987 6543 526");
+                document.getElementById("national_id_display").textContent = natId;
+                
+                // Safer slicing with fallback
+                const lastSix = natId.slice(-6) || "••526";
+                document.getElementById("stat_national_id").textContent = lastSix;
+                
+                document.getElementById("stat_designation").textContent = user.designation_name || "ISA I";
+                document.getElementById("stat_date_joined").textContent = (user.date_created || "2025").split(' ').pop() || "2025";
+                document.getElementById("stat_office").textContent = user.office_name || "OODDGAF";
+
+                // FIXED: Convert portal_id to string
+                const portal = String(user.portal_id || "9199a873-28d6-4840-9272-24b7725ee118");
+                document.getElementById("portal_id_display").textContent = portal.substring(0,8)+'...'+portal.slice(-3);
+                document.getElementById("portal_id_mini").textContent = portal.substring(0,4)+'...'+portal.slice(-3);
+                
+                // FIXED: Remove spaces for mini display
+                const natIdNoSpaces = natId.replace(/\s/g, '');
+                document.getElementById("national_id_mini").textContent = natIdNoSpaces.slice(0,4)+'...'+natIdNoSpaces.slice(-3);
+
+                document.getElementById("office_display").textContent = user.office_name || "OODDGAF";
+                document.getElementById("division_display").textContent = user.division_name || "ICT";
+                document.getElementById("unit_display").textContent = user.unit_name || "Dev";
+                document.getElementById("designation_display").textContent = user.designation_name || "ISA I";
+                document.getElementById("role_display").textContent = user.role || "USER";
+
+                document.getElementById("emailDisplay").textContent = user.email || "patricia.lui@arta.gov.ph";
+                document.getElementById("contactDisplay").textContent = user.contact || "+63 (2) 8790 1234";
+                document.getElementById("date_created_display").textContent = user.date_created || "October 20, 2025";
+                document.getElementById("officeLocation").textContent = user.office_location || "NFA Bldg, Quezon City";
+                document.getElementById("lastUpdate").textContent = user.last_update || "March 10, 2026";
+                document.getElementById("footerDate").textContent = new Date().getFullYear();
+
             } catch (err) {
                 console.error("Profile Load Error:", err);
             }

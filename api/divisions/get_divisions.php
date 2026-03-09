@@ -12,23 +12,58 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 require_once __DIR__ . '/../../includes/config_system.php';
 
 try {
-    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 1000;
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 5;
+    $offset = ($page - 1) * $limit;
     $office_id = isset($_GET['office_id']) ? (int)$_GET['office_id'] : null;
     
-    // ✅ FIXED: 
-    // - inalis ang 'division_code' (wala sa table)
-    // - pinalitan ang 'status' ng 'division_status'
-    // - idinagdag ang 'office_id' para sa filtering
+    // Base query for counting
+    $countQuery = "SELECT COUNT(*) as total FROM divisions";
+    $countParams = [];
+    
     if ($office_id) {
-        $query = "SELECT id, division_name, office_id FROM divisions WHERE division_status = 'Active' AND office_id = :office_id ORDER BY division_name LIMIT :limit";
-        $stmt = $pdo_system->prepare($query);
-        $stmt->bindParam(':office_id', $office_id);
-    } else {
-        $query = "SELECT id, division_name, office_id FROM divisions WHERE division_status = 'Active' ORDER BY division_name LIMIT :limit";
-        $stmt = $pdo_system->prepare($query);
+        $countQuery .= " WHERE office_id = :office_id";
+        $countParams[':office_id'] = $office_id;
     }
     
+    $countStmt = $pdo_system->prepare($countQuery);
+    foreach ($countParams as $key => $value) {
+        $countStmt->bindValue($key, $value);
+    }
+    $countStmt->execute();
+    $totalRecords = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+    $totalPages = ceil($totalRecords / $limit);
+    
+    // ✅ FIXED: Select ALL fields needed by the frontend and JOIN with offices table
+    $query = "SELECT 
+                d.id, 
+                d.division_name, 
+                d.division_description, 
+                d.division_status, 
+                d.office_id,
+                d.created_at, 
+                d.updated_at,
+                o.office_name
+              FROM divisions d
+              LEFT JOIN offices o ON d.office_id = o.id";
+    
+    $params = [];
+    
+    if ($office_id) {
+        $query .= " WHERE d.office_id = :office_id";
+        $params[':office_id'] = $office_id;
+    }
+    
+    $query .= " ORDER BY d.id DESC LIMIT :limit OFFSET :offset";
+    
+    $stmt = $pdo_system->prepare($query);
+    
+    // Bind parameters
+    foreach ($params as $key => $value) {
+        $stmt->bindValue($key, $value);
+    }
     $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+    $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
     $stmt->execute();
     
     $divisions = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -38,7 +73,10 @@ try {
         "message" => "Divisions retrieved successfully",
         "data" => [
             "divisions" => $divisions,
-            "count" => count($divisions)
+            "total" => (int)$totalRecords,
+            "currentPage" => $page,
+            "totalPages" => $totalPages,
+            "limit" => $limit
         ]
     ]);
     

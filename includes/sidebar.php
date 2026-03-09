@@ -1,4 +1,4 @@
-<!-- ✅ Responsive Sidebar with Overlay -->
+<!-- ✅ Responsive Sidebar with Overlay + Floating Toggle Button (Dark Elegant) -->
 <div id="sidebar-overlay"></div>
 
 <nav id="sidebar" class="sidebar d-flex flex-column">
@@ -33,99 +33,184 @@
 
 </nav>
 
-<style>
-/* ===== SIDEBAR ===== */
-.sidebar {
-	background: linear-gradient(180deg, #23395d 0%, #1e2a3a 60%, #0f2027 100%);
-	color: #fff;
-	min-height: 100vh;
-	padding-top: 2rem;
-	position: fixed;
-	left: 0;
-	top: 0;
-	width: 220px;
-	box-shadow: 2px 0 24px rgba(0, 0, 0, 0.18);
-	transition: all 0.3s ease;
-	z-index: 150;
-}
+<!-- ✅ FLOATING BUTTON – DARK ELEGANT DESIGN -->
+<button id="sidebarToggleBtn" class="sidebar-toggle-btn" aria-label="Toggle menu">
+    <i class="fa-solid fa-bars"></i>
+</button>
 
-.sidebar.collapsed {
-	left: -240px;
+<style>
+/* ===== SIDEBAR – ORIGINAL DESIGN (WALANG BINAGO) ===== */
+.sidebar {
+    background: linear-gradient(180deg, #23395d 0%, #1e2a3a 60%, #0f2027 100%);
+    color: #fff;
+    min-height: 100vh;
+    padding-top: 2rem;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 220px;
+    box-shadow: 2px 0 24px rgba(0, 0, 0, 0.18);
+    transition: left 0.3s ease;
+    z-index: 150;
 }
 
 .sidebar .nav-link {
-	color: #fff !important;
-	font-weight: 100;
-	padding: 14px 26px;
-	border-radius: 5px;
-	margin-bottom: 5px;
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	transition: background .2s, color .2s;
+    color: #fff !important;
+    font-weight: 100;
+    padding: 14px 26px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background .2s, color .2s;
 }
 
 .sidebar .nav-link.active,
 .sidebar .nav-link:hover {
-	background: #fff;
-	color: #23395d !important;
+    background: #fff;
+    color: #23395d !important;
 }
 
 .sidebar .sidebar-title {
-	font-size: 1.0rem;
-	font-weight: 250;
-	margin-bottom: 2.5rem;
-	text-align: center;
+    font-size: 1.0rem;
+    font-weight: 250;
+    margin-bottom: 2.5rem;
+    text-align: center;
 }
 
-/* ===== OVERLAY ===== */
+/* ===== OVERLAY – ORIGINAL ===== */
 #sidebar-overlay {
-	display: none;
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: rgba(0, 0, 0, 0.5);
-	z-index: 150;
-	transition: opacity 0.3s ease;
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 140;
+    transition: opacity 0.3s ease;
+}
+
+/* ===== FLOATING BUTTON – DARK ELEGANT (BAGONG DESIGN) ===== */
+.sidebar-toggle-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(30, 30, 40, 0.85);
+    backdrop-filter: blur(4px);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    font-size: 26px;
+    display: none; /* itatago sa desktop, ipapakita sa mobile */
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sidebar-toggle-btn:hover {
+    background: #2c3e50;
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
 }
 
 /* ===== MOBILE VIEW ===== */
 @media (max-width: 991px) {
-	.sidebar {
-		left: -240px;
-	}
+    .sidebar {
+        left: -240px; /* nakatago sa simula */
+    }
 
-	.sidebar.show {
-		left: 0;
-	}
+    .sidebar.show {
+        left: 0; /* lilitaw kapag may .show class */
+    }
 
-	#sidebar-overlay.show {
-		display: block;
-		opacity: 1;
-	}
+    #sidebar-overlay.show {
+        display: block;
+        opacity: 1;
+    }
+
+    /* Ipakita ang floating button sa mobile */
+    .sidebar-toggle-btn {
+        display: flex;
+    }
+
+    /* Kapag bukas ang sidebar, itago ang button */
+    .sidebar.show ~ .sidebar-toggle-btn {
+        display: none;
+    }
+}
+
+/* ===== DESKTOP – itago ang floating button ===== */
+@media (min-width: 992px) {
+    .sidebar-toggle-btn {
+        display: none;
+    }
+}
+
+/* ===== SOBRANG LIIT NA MOBILE – adjust size ===== */
+@media (max-width: 480px) {
+    .sidebar-toggle-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 22px;
+        bottom: 20px;
+        right: 20px;
+    }
 }
 </style>
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-	const sidebar = document.getElementById("sidebar");
-	const overlay = document.getElementById("sidebar-overlay");
-	const toggleIcon = document.querySelector(".header-title i.fa-building-columns");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebar-overlay");
+    const toggleBtn = document.getElementById("sidebarToggleBtn");
 
-	if (toggleIcon) {
-		toggleIcon.addEventListener("click", () => {
-			sidebar.classList.toggle("show");
-			overlay.classList.toggle("show");
-		});
-	}
+    // Toggle function
+    function toggleSidebar(show) {
+        if (show === undefined) {
+            sidebar.classList.toggle("show");
+            overlay.classList.toggle("show");
+        } else {
+            if (show) {
+                sidebar.classList.add("show");
+                overlay.classList.add("show");
+            } else {
+                sidebar.classList.remove("show");
+                overlay.classList.remove("show");
+            }
+        }
+    }
 
-	if (overlay) {
-		overlay.addEventListener("click", () => {
-			sidebar.classList.remove("show");
-			overlay.classList.remove("show");
-		});
-	}
+    // Click sa floating button
+    if (toggleBtn) {
+        toggleBtn.addEventListener("click", function(e) {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+    }
+
+    // Click sa overlay para isara
+    if (overlay) {
+        overlay.addEventListener("click", function() {
+            toggleSidebar(false);
+        });
+    }
+
+    // Kapag nag-resize pabalik sa desktop, tanggalin ang 'show'
+    function handleResize() {
+        if (window.innerWidth > 991) {
+            sidebar.classList.remove("show");
+            overlay.classList.remove("show");
+        }
+    }
+    window.addEventListener("resize", handleResize);
+    handleResize();
 });
 </script>

@@ -211,7 +211,7 @@ session_start();
 
     <div class="logo">
         <i class="fas fa-shield-alt"></i>
-        <h3>Create Account</h3>
+        <h3>CREATE ACCOUNT</h3>
         <p>ARTA Portal – Government Personnel</p>
     </div>
 

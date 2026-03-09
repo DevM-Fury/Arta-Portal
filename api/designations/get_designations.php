@@ -12,15 +12,32 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 require_once __DIR__ . '/../../includes/config_system.php';
 
 try {
-    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 1000;
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 5;
+    $offset = ($page - 1) * $limit;
     
-    // ✅ FIXED: 
-    // - inalis ang 'level' (wala sa table)
-    // - pinalitan ang 'status' ng 'designation_status'
-    // - walang 'designation_code' (wala rin)
-    $query = "SELECT id, designation_name FROM designations WHERE designation_status = 'Active' ORDER BY designation_name LIMIT :limit";
+    // Get total count
+    $countQuery = "SELECT COUNT(*) as total FROM designations";
+    $countStmt = $pdo_system->prepare($countQuery);
+    $countStmt->execute();
+    $totalRecords = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+    $totalPages = ceil($totalRecords / $limit);
+    
+    // ✅ FIXED: Select ALL fields needed by the frontend
+    $query = "SELECT 
+                id, 
+                designation_name, 
+                designation_description, 
+                designation_status, 
+                created_at, 
+                updated_at 
+              FROM designations 
+              ORDER BY id DESC 
+              LIMIT :limit OFFSET :offset";
+    
     $stmt = $pdo_system->prepare($query);
     $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+    $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
     $stmt->execute();
     
     $designations = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -30,7 +47,10 @@ try {
         "message" => "Designations retrieved successfully",
         "data" => [
             "designations" => $designations,
-            "count" => count($designations)
+            "total" => (int)$totalRecords,
+            "currentPage" => $page,
+            "totalPages" => $totalPages,
+            "limit" => $limit
         ]
     ]);
     

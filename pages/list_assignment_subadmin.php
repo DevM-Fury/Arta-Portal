@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>ARTA PORTAL Dashboard</title>
+	<title>ARTA PORTAL - System Assignment</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<!-- Bootstrap JS (required for modal) -->
 	<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> -->
@@ -47,6 +47,7 @@
 		align-items: center;
 		flex-wrap: nowrap;
 		z-index: 100;
+		box-shadow: 0 4px 20px rgba(0,0,0,0.15);
 	}
 
 	.header-title {
@@ -58,6 +59,7 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+		text-shadow: 0 2px 4px rgba(0,0,0,0.2);
 	}
 
 	.header-title i {
@@ -75,6 +77,7 @@
 		background: rgba(2, 2, 41, 1);
 		border-radius: clamp(6px, 1vw, 10px);
 		flex-wrap: nowrap;
+		box-shadow: inset 0 1px 3px rgba(255,255,255,0.1), 0 4px 8px rgba(0,0,0,0.2);
 	}
 
 	.header-user i {
@@ -259,12 +262,13 @@
 		/* same width as your sidebar */
 		width: calc(100% - 220px);
 		/* adjust width */
-		background-color: #fff;
-		box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+		background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+		box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
 		font-size: 0.9rem;
 		z-index: 1000;
 		padding: 0.75rem 1rem;
 		text-align: center;
+		border-top: 1px solid rgba(0,0,0,0.05);
 	}
 
 	/* ✅ Mobile View - sidebar collapses, so footer spans full width */
@@ -281,15 +285,17 @@
 		}
 	}
 
-	/* Additional table styles */
+	/* Enhanced Table Container */
 	.table-container {
 		background: white;
-		border-radius: 15px;
-		padding: 1rem;
-		box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+		border-radius: 20px;
+		padding: 1.5rem;
+		box-shadow: 0 8px 30px rgba(0,0,0,0.12);
 		margin-top: 1rem;
 		width: 100%;
 		overflow: hidden;
+		border: 1px solid rgba(255,255,255,0.1);
+		backdrop-filter: blur(10px);
 	}
 
 	.table-responsive-custom {
@@ -298,52 +304,131 @@
 		margin: 0 -0.5rem;
 		padding: 0 0.5rem;
 		width: calc(100% + 1rem);
+		border-radius: 12px;
+	}
+
+	/* Enhanced Table Styles */
+	.table {
+		border-collapse: separate;
+		border-spacing: 0 4px;
+		width: 100%;
 	}
 
 	.table thead th {
-		background-color: #23395d;
+		background: linear-gradient(135deg, var(--arta-blue3) 0%, #1a2c35 100%);
 		color: white;
 		font-weight: 600;
 		font-size: 0.85rem;
-		padding: 0.75rem 0.5rem;
+		padding: 0.9rem 0.5rem;
 		white-space: nowrap;
 		border-bottom: none;
+		text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+		box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	}
+
+	.table thead th:first-child {
+		border-top-left-radius: 12px;
+		border-bottom-left-radius: 12px;
+	}
+
+	.table thead th:last-child {
+		border-top-right-radius: 12px;
+		border-bottom-right-radius: 12px;
 	}
 
 	.table tbody td {
-		padding: 0.75rem 0.5rem;
+		padding: 0.8rem 0.5rem;
 		font-size: 0.9rem;
 		vertical-align: middle;
-		border-bottom: 1px solid #e9ecef;
+		background: white;
+		box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+		border: none;
 	}
 
-	.table-hover tbody tr:hover {
-		background-color: #f8f9ff;
+	.table tbody tr {
+		transition: all 0.2s ease;
+		border-radius: 12px;
 	}
 
-	/* Action buttons */
+	.table tbody tr:hover td {
+		background-color: #f8faff;
+		transform: translateY(-1px);
+		box-shadow: 0 4px 12px rgba(35, 57, 93, 0.08);
+	}
+
+	.table tbody tr:nth-child(even) td {
+		background-color: #fafafa;
+	}
+
+	/* Enhanced Action buttons */
 	.btn-action {
-		padding: 0.25rem 0.4rem;
+		padding: 0.35rem 0.6rem;
 		font-size: 0.8rem;
-		border-radius: 6px;
+		border-radius: 8px;
 		margin: 0 2px;
+		transition: all 0.2s ease;
+		box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+	}
+
+	.btn-outline-primary.btn-action {
+		color: var(--arta-blue1);
+		border-color: var(--arta-blue1);
+		background: linear-gradient(to bottom, #fff, #f8f9fa);
+	}
+
+	.btn-outline-primary.btn-action:hover {
+		background: linear-gradient(135deg, var(--arta-blue1) 0%, #2a4570 100%);
+		border-color: var(--arta-blue1);
+		transform: translateY(-1px);
+		box-shadow: 0 4px 8px rgba(35, 57, 93, 0.3);
+		color: white;
+	}
+
+	.btn-outline-warning.btn-action {
+		color: #b85e00;
+		border-color: #b85e00;
+		background: linear-gradient(to bottom, #fff, #f8f9fa);
+	}
+
+	.btn-outline-warning.btn-action:hover {
+		background: linear-gradient(135deg, #b85e00 0%, #8a4700 100%);
+		border-color: #b85e00;
+		transform: translateY(-1px);
+		box-shadow: 0 4px 8px rgba(184, 94, 0, 0.3);
+		color: white;
+	}
+
+	.btn-outline-danger.btn-action {
+		color: #b02a37;
+		border-color: #b02a37;
+		background: linear-gradient(to bottom, #fff, #f8f9fa);
+	}
+
+	.btn-outline-danger.btn-action:hover {
+		background: linear-gradient(135deg, #b02a37 0%, #8b1e28 100%);
+		border-color: #b02a37;
+		transform: translateY(-1px);
+		box-shadow: 0 4px 8px rgba(176, 42, 55, 0.3);
+		color: white;
 	}
 
 	.action-group {
 		display: flex;
-		gap: 3px;
+		gap: 4px;
 		flex-wrap: wrap;
 		justify-content: center;
 	}
 
-	/* Badge styles */
+	/* Enhanced Badge styles */
 	.role-badge {
-		padding: 0.25rem 0.5rem;
-		border-radius: 20px;
+		padding: 0.35rem 0.75rem;
+		border-radius: 30px;
 		font-size: 0.75rem;
-		font-weight: 500;
-		background: #e3f2fd;
+		font-weight: 600;
+		background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
 		color: #1976d2;
+		box-shadow: 0 2px 4px rgba(25, 118, 210, 0.2);
+		display: inline-block;
 	}
 
 	/* Text truncation */
@@ -361,21 +446,21 @@
 		
 		.table thead th {
 			font-size: 0.75rem;
-			padding: 0.5rem 0.25rem;
+			padding: 0.6rem 0.25rem;
 		}
 		
 		.table tbody td {
 			font-size: 0.75rem;
-			padding: 0.5rem 0.25rem;
+			padding: 0.6rem 0.25rem;
 		}
 		
 		.btn-action {
-			padding: 0.2rem 0.3rem;
+			padding: 0.25rem 0.4rem;
 			font-size: 0.7rem;
 		}
 	}
 
-	/* Search box */
+	/* Enhanced Search box */
 	.search-wrapper {
 		position: relative;
 		max-width: 300px;
@@ -384,8 +469,15 @@
 
 	.search-wrapper input {
 		padding-right: 40px;
-		border-radius: 20px;
-		border: 1px solid #dee2e6;
+		border-radius: 30px;
+		border: 1px solid rgba(0,0,0,0.1);
+		box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+		transition: all 0.2s ease;
+	}
+
+	.search-wrapper input:focus {
+		border-color: var(--arta-blue1);
+		box-shadow: 0 0 0 3px rgba(35, 57, 93, 0.15);
 	}
 
 	.search-wrapper i {
@@ -396,7 +488,7 @@
 		color: #6c757d;
 	}
 
-	/* Pagination */
+	/* Enhanced Pagination */
 	.pagination-custom {
 		display: flex;
 		flex-wrap: wrap;
@@ -407,14 +499,138 @@
 
 	.pagination-custom .btn {
 		min-width: 35px;
-		padding: 0.25rem 0.5rem;
+		padding: 0.35rem 0.6rem;
 		font-size: 0.85rem;
+		border-radius: 8px;
+		transition: all 0.2s ease;
+		box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+	}
+
+	.pagination-custom .btn-primary {
+		background: linear-gradient(135deg, var(--arta-blue3) 0%, #1a2c35 100%);
+		border: none;
+		box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+	}
+
+	.pagination-custom .btn-outline-primary {
+		color: var(--arta-blue1);
+		border-color: var(--arta-blue1);
+		background: white;
+	}
+
+	.pagination-custom .btn-outline-primary:hover {
+		background: linear-gradient(135deg, var(--arta-blue1) 0%, #2a4570 100%);
+		color: white;
+		transform: translateY(-1px);
+		box-shadow: 0 4px 8px rgba(35, 57, 93, 0.3);
 	}
 
 	/* Table info */
 	.table-info {
 		font-size: 0.85rem;
 		color: #6c757d;
+		padding: 0.35rem 0;
+		text-shadow: 0 1px 1px rgba(255,255,255,0.5);
+	}
+
+	/* Enhanced Modal Styles */
+	.modal-content {
+		border: none;
+		border-radius: 24px;
+		box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+		overflow: hidden;
+	}
+
+	.modal-header {
+		padding: 1rem 1.5rem;
+		background: linear-gradient(135deg, var(--arta-blue3) 0%, #1a2c35 100%) !important;
+		border-bottom: 1px solid rgba(255,255,255,0.1);
+	}
+
+	.modal-header.bg-warning {
+		background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%) !important;
+	}
+
+	.modal-title {
+		font-size: 1.1rem;
+		font-weight: 600;
+		text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+	}
+
+	.modal-body {
+		padding: 1.5rem;
+		background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+	}
+
+	.modal-footer {
+		padding: 1rem 1.5rem;
+		background: #f8f9fa;
+		border-top: 1px solid rgba(0,0,0,0.05);
+	}
+
+	/* View Modal Details */
+	.modal-body .row {
+		background: white;
+		padding: 1rem;
+		border-radius: 16px;
+		box-shadow: inset 0 1px 3px rgba(0,0,0,0.02), 0 4px 12px rgba(0,0,0,0.03);
+	}
+
+	.modal-body .col-6 {
+		padding: 0.5rem;
+		font-size: 0.95rem;
+	}
+
+	.modal-body .col-6:first-child {
+		font-weight: 600;
+		color: var(--arta-blue1);
+		border-right: 1px solid rgba(0,0,0,0.05);
+	}
+
+	/* Form Controls */
+	.form-control, .form-select {
+		border-radius: 12px;
+		border: 1px solid rgba(0,0,0,0.1);
+		box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);
+		padding: 0.6rem 1rem;
+		font-size: 0.95rem;
+	}
+
+	.form-control:focus, .form-select:focus {
+		border-color: var(--arta-blue1);
+		box-shadow: 0 0 0 3px rgba(35, 57, 93, 0.15);
+	}
+
+	.form-control[readonly] {
+		background-color: #f8f9fa;
+		border: 1px solid rgba(0,0,0,0.05);
+	}
+
+	.form-label.small {
+		font-size: 0.8rem;
+		margin-bottom: 0.25rem;
+		color: #495057;
+		font-weight: 600;
+	}
+
+	/* Custom Scrollbar */
+	.table-responsive-custom::-webkit-scrollbar {
+		height: 6px;
+		width: 6px;
+	}
+
+	.table-responsive-custom::-webkit-scrollbar-track {
+		background: #f0f0f0;
+		border-radius: 10px;
+	}
+
+	.table-responsive-custom::-webkit-scrollbar-thumb {
+		background: linear-gradient(135deg, var(--arta-blue3) 0%, #1a2c35 100%);
+		border-radius: 10px;
+	}
+
+	.table-responsive-custom::-webkit-scrollbar-thumb:hover {
+		background: linear-gradient(135deg, #1a2c35 0%, #0f2027 100%);
 	}
 	</style>
 </head>
@@ -447,7 +663,7 @@
 
 			<!-- 📋 Table -->
 			<div class="table-responsive-custom">
-				<table class="table table-hover align-middle mb-0 w-100">
+				<table class="table align-middle mb-0 w-100">
 					<thead>
 						<tr>
 							<th style="width: 5%;">#</th>
@@ -477,25 +693,25 @@
 		</div>
 	</div>
 
-	<!-- 👤 View User Modal -->
+	<!-- 👤 View User Modal - Dark Header -->
 	<div class="modal fade" id="viewUserModal" tabindex="-1">
 		<div class="modal-dialog modal-dialog-centered">
 			<div class="modal-content rounded-4 border-0 shadow">
-				<div class="modal-header" style="background: #23395d; color: white;">
+				<div class="modal-header bg-dark text-white">
 					<h5 class="modal-title"><i class="fa-solid fa-user-circle me-2"></i>User Details</h5>
 					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 				</div>
 				<div class="modal-body">
-					<table class="table table-sm table-borderless">
-						<tr><th style="width: 120px;">Full Name:</th><td id="modalFullName"></td></tr>
-						<tr><th>Office:</th><td id="modalOffice"></td></tr>
-						<tr><th>Division:</th><td id="modalDivision"></td></tr>
-						<tr><th>Unit:</th><td id="modalUnit"></td></tr>
-						<tr><th>Designation:</th><td id="modalDesignation"></td></tr>
-						<tr><th>System:</th><td id="modalSystem"></td></tr>
-						<tr><th>Role:</th><td id="modalRole"></td></tr>
-						<tr><th>Date Assigned:</th><td id="modalDateAssigned"></td></tr>
-					</table>
+					<div class="row g-3">
+						<div class="col-6"><strong>Full Name:</strong></div><div class="col-6" id="modalFullName"></div>
+						<div class="col-6"><strong>Office:</strong></div><div class="col-6" id="modalOffice"></div>
+						<div class="col-6"><strong>Division:</strong></div><div class="col-6" id="modalDivision"></div>
+						<div class="col-6"><strong>Unit:</strong></div><div class="col-6" id="modalUnit"></div>
+						<div class="col-6"><strong>Designation:</strong></div><div class="col-6" id="modalDesignation"></div>
+						<div class="col-6"><strong>System:</strong></div><div class="col-6" id="modalSystem"></div>
+						<div class="col-6"><strong>Role:</strong></div><div class="col-6" id="modalRole"></div>
+						<div class="col-6"><strong>Date Assigned:</strong></div><div class="col-6" id="modalDateAssigned"></div>
+					</div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -504,32 +720,32 @@
 		</div>
 	</div>
 
-	<!-- 👤 Edit User Modal -->
+	<!-- 👤 Edit User Modal - Dark Header -->
 	<div class="modal fade" id="editUserModal" tabindex="-1">
 		<div class="modal-dialog modal-dialog-centered">
 			<div class="modal-content rounded-4 border-0 shadow">
-				<div class="modal-header" style="background: #ffc107; color: #000;">
+				<div class="modal-header bg-dark text-white">
 					<h5 class="modal-title"><i class="fa-solid fa-pen me-2"></i>Edit Assignment</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 				</div>
 				<div class="modal-body">
 					<form id="editForm">
 						<input type="hidden" id="editPortalId">
 						<input type="hidden" id="editSystemId">
 						
-						<div class="mb-2">
+						<div class="mb-3">
 							<label class="form-label small fw-bold">Full Name</label>
 							<input type="text" class="form-control" id="editFullName" readonly>
 						</div>
 						
-						<div class="mb-2">
+						<div class="mb-3">
 							<label class="form-label small fw-bold">System</label>
 							<select class="form-select" id="editSystem">
 								<option value="">Select System</option>
 							</select>
 						</div>
 						
-						<div class="mb-2">
+						<div class="mb-3">
 							<label class="form-label small fw-bold">Role</label>
 							<select class="form-select" id="editRole">
 								<option value="user">User</option>
@@ -541,7 +757,7 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-					<button type="button" class="btn btn-warning" id="saveEditBtn">Save Changes</button>
+					<button type="button" class="btn btn-dark" id="saveEditBtn">Save Changes</button>
 				</div>
 			</div>
 		</div>
@@ -566,7 +782,7 @@
 		{ portal_id: 1, system_id: 2, full_name: 'Rex Tomas', system_name: 'NRRT', role: 'user', office_name: 'OODDGAF', division_name: 'N/A', unit_name: 'Dev', date_assigned: '2024-01-17' },
 		{ portal_id: 3, system_id: 2, full_name: 'Dexter Santiago', system_name: 'NRRT', role: 'user', office_name: 'OODDGAF', division_name: 'GSD', unit_name: 'PLU', date_assigned: '2024-01-18' },
 		{ portal_id: 4, system_id: 2, full_name: 'Guevara Ronnel', system_name: 'NRRT', role: 'user', office_name: 'OODDGAF', division_name: 'ICT', unit_name: 'Network', date_assigned: '2024-01-19' },
-		{ portal_id: 5, system_id: 3, full_name: 'John Doe', system_name: 'ARTA-VRS', role: 'admin', office_name: 'OODDGAF', division_name: 'GSD', unit_name: 'PLU', date_assigned: '2024-01-20' },
+		{ portal_id: 5, system_id: 3, full_name: 'John Doe', system_name: 'ARTA Government System v2.1', role: 'admin', office_name: 'OODDGAF', division_name: 'GSD', unit_name: 'PLU', date_assigned: '2024-01-20' },
 	];
 
 	document.addEventListener('DOMContentLoaded', function() {
@@ -704,7 +920,7 @@
 		searchTimeout = setTimeout(() => {
 			const term = e.target.value.toLowerCase();
 			if (!term) {
-				assignedUsersData = sampleData;
+				assignedUsersData = [...sampleData];
 				currentPage = 1;
 				displayPage(1);
 				return;
@@ -793,7 +1009,8 @@
 			title: 'Success!',
 			text: 'Assignment updated successfully',
 			icon: 'success',
-			timer: 1500
+			timer: 1500,
+			showConfirmButton: false
 		});
 		
 		bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
@@ -810,7 +1027,13 @@
 			confirmButtonText: 'Yes, remove'
 		}).then((result) => {
 			if (result.isConfirmed) {
-				Swal.fire('Removed!', 'Access has been removed.', 'success');
+				Swal.fire({
+					title: 'Removed!',
+					text: 'Access has been removed.',
+					icon: 'success',
+					timer: 1500,
+					showConfirmButton: false
+				});
 				
 				// Remove from local array
 				assignedUsersData = assignedUsersData.filter(u => !(u.portal_id == portalId && u.system_id == systemId));

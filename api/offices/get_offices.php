@@ -12,12 +12,32 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 require_once __DIR__ . '/../../includes/config_system.php';
 
 try {
-    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 1000;
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 5;
+    $offset = ($page - 1) * $limit;
     
-    // ✅ FIXED: inalis ang 'office_code' – wala sa table
-    $query = "SELECT id, office_name FROM offices WHERE status = 'Active' ORDER BY office_name LIMIT :limit";
+    // Get total count
+    $countQuery = "SELECT COUNT(*) as total FROM offices";
+    $countStmt = $pdo_system->prepare($countQuery);
+    $countStmt->execute();
+    $totalRecords = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+    $totalPages = ceil($totalRecords / $limit);
+    
+    // ✅ FIXED: Select ALL fields needed by the frontend
+    $query = "SELECT 
+                id, 
+                office_name, 
+                description, 
+                status, 
+                created_at, 
+                updated_at 
+              FROM offices 
+              ORDER BY id DESC 
+              LIMIT :limit OFFSET :offset";
+    
     $stmt = $pdo_system->prepare($query);
     $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+    $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
     $stmt->execute();
     
     $offices = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -27,7 +47,10 @@ try {
         "message" => "Offices retrieved successfully",
         "data" => [
             "offices" => $offices,
-            "count" => count($offices)
+            "total" => (int)$totalRecords,
+            "currentPage" => $page,
+            "totalPages" => $totalPages,
+            "limit" => $limit
         ]
     ]);
     
