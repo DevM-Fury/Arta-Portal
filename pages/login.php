@@ -9,6 +9,34 @@ if (isset($_SESSION['user'])) {
     else header('Location: dashboard_user_list.php');
     exit();
 }
+
+
+
+?>
+<?php
+
+
+if (isset($_GET['token'])) {
+
+    $data = json_decode(base64_decode($_GET['token']), true);
+
+    if ($data && !empty($data['email'])) {
+
+        if (!isset($data['time']) || time() - $data['time'] > 300) {
+            die("Token expired");
+        }
+
+        $_SESSION['user'] = [
+            'portal_id' => $data['portal_id'],
+            'email'     => $data['email'],
+            'name'      => $data['name'],
+            'role'      => 'user'
+        ];
+
+        header("Location: dashboard_user_list.php");
+        exit;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
