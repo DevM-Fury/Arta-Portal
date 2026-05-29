@@ -1,6 +1,7 @@
 <?php
-// pages/login.php
-session_start();
+require_once __DIR__ . '/../includes/config_access.php';
+require_once __DIR__ . '/../includes/sso_helper.php';
+
 // Redirect if already logged in
 if (isset($_SESSION['user'])) {
     $role = $_SESSION['user']['role'] ?? '';
@@ -10,32 +11,8 @@ if (isset($_SESSION['user'])) {
     exit();
 }
 
-
-
-?>
-<?php
-
-
 if (isset($_GET['token'])) {
-
-    $data = json_decode(base64_decode($_GET['token']), true);
-
-    if ($data && !empty($data['email'])) {
-
-        if (!isset($data['time']) || time() - $data['time'] > 300) {
-            die("Token expired");
-        }
-
-        $_SESSION['user'] = [
-            'portal_id' => $data['portal_id'],
-            'email'     => $data['email'],
-            'name'      => $data['name'],
-            'role'      => 'user'
-        ];
-
-        header("Location: dashboard_user_list.php");
-        exit;
-    }
+    sso_log_event($pdo, null, 'portal_unsigned_login_token_blocked', 'Blocked unsigned token auto-login attempt on Portal login page');
 }
 ?>
 <!DOCTYPE html>

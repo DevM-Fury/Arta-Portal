@@ -299,8 +299,8 @@
         // ------------------------------------------------------------
         //  SSO REDIRECT (active systems only)
         // ------------------------------------------------------------
-        async function goToSystem(systemUrl, systemId) {
-            if (!systemUrl || !systemId) {
+        async function goToSystem(systemId) {
+            if (!systemId) {
                 Swal.fire('Error', 'Missing system details.', 'error');
                 return;
             }
@@ -313,7 +313,7 @@
             });
 
             try {
-                const apiUrl = `../api/sso/generate_token.php?system_url=${encodeURIComponent(systemUrl)}&system_id=${encodeURIComponent(systemId)}`;
+                const apiUrl = `../api/sso/generate_token.php?system_id=${encodeURIComponent(systemId)}`;
                 const res = await fetch(apiUrl, { credentials: 'same-origin' });
                 if (!res.ok) throw new Error(`Network response was not ok (${res.status})`);
                 const data = await res.json();
@@ -385,7 +385,6 @@
                     }
 
                     const safeSystemName = system.system_name || '';
-                    const safeDomainUrl = system.domain_url || '';
                     const safeSystemId = system.system_id ? String(system.system_id) : '';
                     const safeRole = system.role || '';
 
@@ -404,7 +403,6 @@
                     card.innerHTML = `
                         <div class="system-card ${!active ? 'inactive-system' : ''}" 
                              data-system-id="${safeSystemId}"
-                             data-system-url="${safeDomainUrl}"
                              ${!active ? `data-description="${tooltipDescription.replace(/"/g, '&quot;')}"` : ''}>
                             ${statusBadge}
                             ${logoOrIcon}
@@ -419,8 +417,7 @@
                     if (active) {
                         cardEl.addEventListener('click', function(e) {
                             const systemId = this.dataset.systemId;
-                            const systemUrl = this.dataset.systemUrl;
-                            goToSystem(systemUrl, systemId);
+                            goToSystem(systemId);
                         });
                     }
 

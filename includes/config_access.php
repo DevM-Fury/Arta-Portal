@@ -1,6 +1,46 @@
 <?php
-// includes/config_access.php
-session_start();
+
+function load_dotenv_access($path) {
+    if (!is_string($path) || $path === '' || !is_file($path) || !is_readable($path)) {
+        return;
+    }
+
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if ($lines === false) {
+        return;
+    }
+
+    foreach ($lines as $line) {
+        $trimmed = trim($line);
+        if ($trimmed === '' || strpos($trimmed, '#') === 0) {
+            continue;
+        }
+
+        $separatorPosition = strpos($line, '=');
+        if ($separatorPosition === false) {
+            continue;
+        }
+
+        $name = trim(substr($line, 0, $separatorPosition));
+        $value = trim(substr($line, $separatorPosition + 1));
+
+        if ($name === '') {
+            continue;
+        }
+
+        $value = trim($value, "\"'");
+
+        putenv($name . '=' . $value);
+        $_ENV[$name] = $value;
+        $_SERVER[$name] = $value;
+    }
+}
+
+load_dotenv_access(dirname(__DIR__) . '/.env');
+
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
 
 $db_host = getenv('DB_HOST') ?: 'localhost';
 $db_name = getenv('DB_NAME') ?: 'portal_db';
@@ -17,7 +57,6 @@ $options = [
 try {
     $pdo = new PDO($dsn, $db_user, $db_pass, $options);
 } catch (PDOException $e) {
-    // In production don't echo the error
     http_response_code(500);
     echo json_encode(['status' => 'error', 'message' => 'DB connection failed']);
     exit;
