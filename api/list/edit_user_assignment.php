@@ -19,5 +19,6 @@ try {
     echo json_encode(['status' => 'success', 'message' => 'Role updated successfully']);
 
 } catch (PDOException $e) {
-    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    error_log('edit_user_assignment failed: ' . $e->getMessage());
+    echo json_encode(['status' => 'error', 'message' => 'Unable to update assignment right now.']);
 }

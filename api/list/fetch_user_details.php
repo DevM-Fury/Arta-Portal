@@ -37,5 +37,6 @@ try {
 
     echo json_encode(['status'=>'success','data'=>$user]);
 } catch (Exception $e) {
-    echo json_encode(['status'=>'error','message'=>$e->getMessage()]);
+    error_log('fetch_user_details failed: ' . $e->getMessage());
+    echo json_encode(['status'=>'error','message'=>'Unable to fetch user details right now.']);
 }

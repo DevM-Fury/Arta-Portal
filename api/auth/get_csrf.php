@@ -1,14 +1,21 @@
 <?php
-require_once __DIR__ . '/../../includes/config.php';
-session_start([
-    'cookie_httponly' => true,
-    'cookie_samesite' => 'Lax'
-]);
+require_once __DIR__ . '/../../includes/config_access.php';
+require_once __DIR__ . '/../../includes/api_guard.php';
 
-if (empty($_SESSION['reg_token']) || ($_SESSION['reg_token_exp'] ?? 0) < time()) {
-    $_SESSION['reg_token'] = bin2hex(random_bytes(32));
-    $_SESSION['reg_token_exp'] = time() + 300; // 5 min
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    api_json_response(405, [
+        'status' => 405,
+        'message' => 'Method not allowed',
+    ]);
 }
 
-header('Content-Type: application/json; charset=utf-8');
-echo json_encode(['token' => $_SESSION['reg_token'], 'expires' => $_SESSION['reg_token_exp']]);
+$csrf = api_csrf_payload();
+
+// Backward-compatible session keys for any older registration flow still expecting them.
+$_SESSION['reg_token'] = $csrf['token'];
+$_SESSION['reg_token_exp'] = $csrf['expires'];
+
+api_json_response(200, [
+    'token' => $csrf['token'],
+    'expires' => $csrf['expires'],
+]);

@@ -8,9 +8,9 @@
 
     <a href="dashboard_subadmin.php" class="nav-link active"><i class="fa-solid fa-house"></i>Home</a>
     <a href="system_access.php" class="nav-link"><i class="fa-solid fa-list"></i> System Access </a>
+    <a href="role_category.php" class="nav-link"><i class="fa-solid fa-user-shield"></i> Role Management</a>
     <a href="list_assignment_subadmin.php" class="nav-link"><i class="fa-solid fa-key"></i> List of You've Assigned</a>
     <a href="dashboard_subadmin_list.php" class="nav-link"><i class="fa-solid fa-gear"></i>Assigned System</a>
-    <!-- <a href="role_category.php" class="nav-link"><i class="fa-solid fa-gear"></i>Add Role/Category</a> -->
     <a href="profile_subadmin.php" class="nav-link"><i class="fa-solid fa-user"></i>My Profile</a>
     <a href="logout.php" class="nav-link"><i class="fa-solid fa-right-from-bracket"></i>Logout</a>
 </nav>

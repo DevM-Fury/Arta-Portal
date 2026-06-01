@@ -1,11 +1,17 @@
 <?php
-require_once __DIR__ . '/../../includes/config.php';
-session_start();
+require_once __DIR__ . '/../../includes/config_access.php';
 
 header("Content-Type: application/json");
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
+    exit();
+}
+
 $input = json_decode(file_get_contents("php://input"), true);
 if (!$input || empty($input['token']) || empty($input['new_password']) || empty($input['confirm_password'])) {
+    http_response_code(400);
     echo json_encode(['status'=>'error','message'=>'All fields required']);
     exit();
 }
@@ -15,21 +21,18 @@ $new_password = $input['new_password'];
 $confirm = $input['confirm_password'];
 
 if ($new_password !== $confirm) {
+    http_response_code(400);
     echo json_encode(['status'=>'error','message'=>'Passwords do not match']);
     exit();
 }
 
 if (strlen($new_password) < 8) {
+    http_response_code(400);
     echo json_encode(['status'=>'error','message'=>'Password must be at least 8 characters']);
     exit();
 }
 
 try {
-    $pdo = new PDO("pgsql:host=$DB_HOST;dbname=$DB_NAME", $DB_USER, $DB_PASS, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-    ]);
-
-    // Fetch valid reset tokens
     $stmt = $pdo->prepare("SELECT * FROM password_resets WHERE used=false AND expires_at > NOW() ORDER BY created_at DESC");
     $stmt->execute();
     $resets = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -43,12 +46,14 @@ try {
         }
     }
 
-    if ($userId) {
-        echo json_encode(['status'=>'error','message'=>'Invalid or expired token']);
+    if (!$userId) {
+        http_response_code(400);
+        echo json_encode(['status'=>'error','message'=>'Invalid or expired reset link']);
         exit();
     }
 
-    // Update password in DB
+    $pdo->beginTransaction();
+
     $hashed = password_hash($new_password, PASSWORD_BCRYPT);
     $stmt = $pdo->prepare("UPDATE user_tbl SET password=:pw WHERE portal_id=:uid");
     $stmt->execute([':pw'=>$hashed, ':uid'=>$userId]);
@@ -57,9 +62,15 @@ try {
     $stmt = $pdo->prepare("UPDATE password_resets SET used=true WHERE id=:id");
     $stmt->execute([':id'=>$resetId]);
 
+    $pdo->commit();
+
     echo json_encode(['status'=>'success','message'=>'Password has been reset']);
 
 } catch (PDOException $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     error_log($e->getMessage());
+    http_response_code(500);
     echo json_encode(['status'=>'error','message'=>'Server error']);
 }

@@ -97,5 +97,6 @@ try {
     echo json_encode(["status" => 200, "message" => "System updated successfully"]);
 
 } catch (Exception $e) {
-    echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+    error_log('role update_system failed: ' . $e->getMessage());
+    echo json_encode(["status" => "error", "message" => "Unable to update system right now."]);
 }

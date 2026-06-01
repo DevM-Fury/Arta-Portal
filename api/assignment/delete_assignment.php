@@ -53,6 +53,7 @@ try {
 
     echo json_encode(['status'=>'success','message'=>'Assignment removed']);
 } catch (Exception $e) {
+    error_log('delete_assignment failed: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['status'=>'error','message'=>$e->getMessage()]);
+    echo json_encode(['status'=>'error','message'=>'Unable to remove assignment right now.']);
 }

@@ -16,6 +16,8 @@ try {
     // Count assigned users for each system
     $countStmt = $pdo->prepare("SELECT COUNT(*) as total FROM user_system_access WHERE system_id = ?");
 } catch (PDOException $e) {
-    die("DB Error: " . $e->getMessage());
+    error_log('assignment dashboard failed: ' . $e->getMessage());
+    http_response_code(500);
+    exit('Unable to load dashboard data.');
 }
 ?>

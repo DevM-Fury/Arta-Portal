@@ -1,15 +1,8 @@
 <?php
 // api/auth/forgot_password.php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST");
-header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-require_once __DIR__ . '/../../includes/config_system.php';
+require_once __DIR__ . '/../../includes/config_access.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -19,6 +12,17 @@ use PHPMailer\PHPMailer\Exception;
 // ✅ KUNIN ANG EMAIL MULA SA REQUEST
 // ============================================
 $data = json_decode(file_get_contents("php://input"));
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['status' => 'error', 'message' => 'Method not allowed.']);
+    exit;
+}
+
+$genericResponse = [
+    'status' => 'success',
+    'message' => 'If the account exists, a password reset link will be sent to the registered email address.'
+];
 
 if (empty($data) || empty($data->email)) {
     http_response_code(400);
@@ -40,84 +44,88 @@ if (!str_ends_with($email, '@arta.gov.ph')) {
 }
 
 try {
-    // ============================================
-    // ✅ CHECK KUNG EXIST ANG EMAIL – WALANG user_id
-    // ============================================
-    $stmt = $pdo_system->prepare("SELECT firstname, lastname FROM user_tbl WHERE email = :email");
+    $stmt = $pdo->prepare("SELECT portal_id, firstname, lastname, email, status FROM user_tbl WHERE email = :email LIMIT 1");
     $stmt->bindParam(':email', $email);
     $stmt->execute();
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$user) {
-        http_response_code(404);
-        echo json_encode(['status' => 'not_found', 'message' => 'Email not registered.']);
+    if (!$user || strtolower((string) ($user['status'] ?? 'active')) !== 'active') {
+        http_response_code(200);
+        echo json_encode($genericResponse);
         exit;
     }
 
-    // ============================================
-    // ✅ GENERATE RANDOM PASSWORD (8 characters)
-    // ============================================
-    $new_password = bin2hex(random_bytes(4));
-    $hashed_password = password_hash($new_password, PASSWORD_BCRYPT);
+    $rawToken = bin2hex(random_bytes(32));
+    $hashedToken = password_hash($rawToken, PASSWORD_DEFAULT);
+    $portalBaseUrl = rtrim((string) getenv('PORTAL_BASE_URL'), '/');
+    $resetLink = $portalBaseUrl . '/pages/reset_password.php?token=' . urlencode($rawToken);
 
-    // ============================================
-    // ✅ I-UPDATE ANG PASSWORD (gamit ang email)
-    // ============================================
-    $update = $pdo_system->prepare("UPDATE user_tbl SET password = :password, modified_date = NOW() WHERE email = :email");
-    $update->bindParam(':password', $hashed_password);
-    $update->bindParam(':email', $email);
-    $update->execute();
+    $pdo->beginTransaction();
+
+    $cleanup = $pdo->prepare("DELETE FROM password_resets WHERE user_id = :user_id OR expires_at <= NOW() OR used = TRUE");
+    $cleanup->execute([':user_id' => $user['portal_id']]);
+
+    $insert = $pdo->prepare("INSERT INTO password_resets (user_id, token, expires_at, used, created_at) VALUES (:user_id, :token, NOW() + INTERVAL '1 hour', FALSE, NOW())");
+    $insert->execute([
+        ':user_id' => $user['portal_id'],
+        ':token' => $hashedToken,
+    ]);
+
+    $pdo->commit();
 
     // ============================================
     // ✅ MAGPADALA NG EMAIL
     // ============================================
     $mail = new PHPMailer(true);
     $mail->isSMTP();
-    $mail->Host       = SMTP_HOST;
+    $mail->Host       = getenv('SMTP_HOST') ?: '';
     $mail->SMTPAuth   = true;
-    $mail->Username   = SMTP_USER;
-    $mail->Password   = SMTP_PASS;
-    $mail->SMTPSecure = SMTP_ENCRYPTION;
-    $mail->Port       = SMTP_PORT;
+    $mail->Username   = getenv('SMTP_USER') ?: '';
+    $mail->Password   = getenv('SMTP_PASS') ?: '';
+    $mail->SMTPSecure = getenv('SMTP_ENCRYPTION') ?: 'tls';
+    $mail->Port       = (int) (getenv('SMTP_PORT') ?: 587);
 
-    $mail->setFrom(SMTP_FROM, SMTP_FROM_NAME);
+    $mail->setFrom(getenv('SMTP_FROM') ?: '', getenv('SMTP_FROM_NAME') ?: 'ARTA Portal');
     $mail->addAddress($email, $user['firstname'] . ' ' . $user['lastname']);
 
     $mail->isHTML(true);
-    $mail->Subject = 'ARTA Portal - Password Reset';
+    $mail->Subject = 'ARTA Portal - Password Reset Link';
     $mail->Body    = "
-        <h3>Password Reset Successful</h3>
+        <h3>Password Reset Request</h3>
         <p>Hello <strong>{$user['firstname']} {$user['lastname']}</strong>,</p>
-        <p>Your password has been reset as requested.</p>
-        <p style='background: #f4f4f4; padding: 10px; font-size: 18px; font-family: monospace;'>
-            🔐 New password: <strong>{$new_password}</strong>
-        </p>
-        <p>Please login using this temporary password and change it immediately.</p>
-        <p>If you did not request this, please contact the system administrator.</p>
+        <p>We received a request to reset your ARTA Portal password.</p>
+        <p><a href='{$resetLink}' style='display:inline-block;padding:10px 18px;background:#1d4ed8;color:#ffffff;text-decoration:none;border-radius:6px;'>Reset Password</a></p>
+        <p>This link will expire in 1 hour.</p>
+        <p>If you did not request this, you can ignore this email and your password will remain unchanged.</p>
         <hr>
         <p style='color: #666; font-size: 12px;'>ARTA Portal - Secure Government Access</p>
     ";
-    $mail->AltBody = "Password Reset Successful\n\nHello {$user['firstname']},\n\nYour new password is: {$new_password}\n\nPlease login and change your password immediately.\n\nARTA Portal";
+    $mail->AltBody = "Password Reset Request\n\nHello {$user['firstname']},\n\nOpen this link to reset your password: {$resetLink}\n\nThis link expires in 1 hour.\n\nIf you did not request this, ignore this email.\n\nARTA Portal";
 
     $mail->send();
 
     http_response_code(200);
-    echo json_encode([
-        'status' => 'success',
-        'message' => 'A new password has been sent to your email address.'
-    ]);
+    echo json_encode($genericResponse);
 
 } catch (PDOException $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+    error_log('forgot_password db error: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'status' => 'error',
-        'message' => 'Database error: ' . $e->getMessage()
+        'message' => 'Unable to process the reset request right now.'
     ]);
 } catch (Exception $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+    error_log('forgot_password mail error: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'status' => 'error',
-        'message' => 'Email sending failed: ' . $e->getMessage()
+        'message' => 'Unable to process the reset request right now.'
     ]);
 }
 ?>

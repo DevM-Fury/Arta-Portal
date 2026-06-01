@@ -133,11 +133,6 @@
                         <label class="form-label small">Select Role</label>
                         <select id="roleSelect" class="form-select form-select-sm">
                             <option value="">Select Role</option>
-                            <option value="user">User</option>
-                            <option value="property">Property</option>
-                            <option value="inspector">Inspector</option>
-                            <option value="subadmin">Subadmin</option>
-                            <option value="admin">Admin</option>
                         </select>
                     </div>
                 </div>
@@ -171,11 +166,6 @@
                         <label class="form-label small">Select Role</label>
                         <select id="bulkRoleSelect" class="form-select form-select-sm">
                             <option value="">Select Role</option>
-                            <option value="user">User</option>
-                            <option value="property">Property</option>
-                            <option value="inspector">Inspector</option>
-                            <option value="subadmin">Subadmin</option>
-                            <option value="admin">Admin</option>
                         </select>
                     </div>
                 </div>
@@ -528,6 +518,82 @@
         document.getElementById('recentCount').textContent = recentRows.length;
     }
 
+    function formatRoleLabel(roleName) {
+        return String(roleName || '')
+            .split('_')
+            .filter(Boolean)
+            .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+            .join(' ');
+    }
+
+    let csrfTokenCache = null;
+
+    async function getCsrfToken(forceRefresh = false) {
+        if (!forceRefresh && csrfTokenCache) {
+            return csrfTokenCache;
+        }
+
+        const res = await fetch('../api/auth/get_csrf.php', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const payload = await res.json();
+
+        if (!res.ok || !payload.token) {
+            throw new Error(payload.message || 'Unable to initialize request security.');
+        }
+
+        csrfTokenCache = payload.token;
+        return csrfTokenCache;
+    }
+
+    async function csrfJsonFetch(url, payload) {
+        const makeRequest = async token => fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': token
+            },
+            body: JSON.stringify(payload)
+        });
+
+        let response = await makeRequest(await getCsrfToken());
+        if (response.status === 419) {
+            csrfTokenCache = null;
+            response = await makeRequest(await getCsrfToken(true));
+        }
+
+        return response;
+    }
+
+    async function loadRolesIntoSelect(selectId, selectedValue = '') {
+        const select = document.getElementById(selectId);
+        if (!select) {
+            return;
+        }
+
+        select.innerHTML = '<option value="">Loading roles...</option>';
+
+        try {
+            const res = await fetch('../api/role/get_roles.php');
+            const result = await res.json();
+            const roles = Array.isArray(result?.data?.roles) ? result.data.roles : [];
+
+            select.innerHTML = '<option value="">Select Role</option>';
+            roles.forEach(role => {
+                const option = document.createElement('option');
+                option.value = role.role_name;
+                option.textContent = formatRoleLabel(role.role_name);
+                if (selectedValue && selectedValue === role.role_name) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+        } catch (err) {
+            console.error('Error loading roles:', err);
+            select.innerHTML = '<option value="">Error loading roles</option>';
+        }
+    }
+
     async function loadAssignedSystems() {
         const tbody = document.getElementById('assignedTableBody');
         tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4">Loading...</td></tr>`;
@@ -634,16 +700,22 @@
 
     async function openAssignModal(portalId) {
         document.getElementById('assignPortalId').value = portalId;
-        const modalEl = document.getElementById('assignSystemModal');
-        const modal = new bootstrap.Modal(modalEl);
-        modal.show();
+        document.getElementById('roleSelect').innerHTML = '<option value="">Loading roles...</option>';
+        document.getElementById('systemSelect').innerHTML = '<option value="">Loading systems...</option>';
 
         try {
-            const res = await fetch(`../api/assignment/get_systems_subadmin.php`);
+            const [res] = await Promise.all([
+                fetch(`../api/assignment/get_systems_subadmin.php`),
+                loadRolesIntoSelect('roleSelect')
+            ]);
             const systems = await res.json();
             const select = document.getElementById('systemSelect');
             select.innerHTML = '<option value="">Select System</option>';
             systems.forEach(s => select.innerHTML += `<option value="${s.id}">${s.system_name}</option>`);
+
+            const modalEl = document.getElementById('assignSystemModal');
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
         } catch (err) {
             console.error('Error loading systems:', err);
         }
@@ -665,10 +737,10 @@
         }
 
         try {
-            const res = await fetch('../api/assignment/assign_system_subadmin.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ portal_id: portalId, system_id: systemId, role: role })
+            const res = await csrfJsonFetch('../api/assignment/assign_system_subadmin.php', {
+                portal_id: portalId,
+                system_id: systemId,
+                role: role
             });
 
             const result = await res.json();
@@ -750,7 +822,10 @@
             return;
         }
         document.getElementById('selectedCount').textContent = checkboxes.length;
-        await loadSystemsIntoSelect('bulkSystemSelect');
+        await Promise.all([
+            loadSystemsIntoSelect('bulkSystemSelect'),
+            loadRolesIntoSelect('bulkRoleSelect')
+        ]);
         const modalEl = document.getElementById('bulkAssignSystemModal');
         const modal = new bootstrap.Modal(modalEl);
         modal.show();
@@ -773,14 +848,10 @@
         const selectedPortalIds = Array.from(document.querySelectorAll('.user-checkbox:checked')).map(cb => cb.value);
 
         try {
-            const res = await fetch('../api/assignment/bulk_assign_system_subadmin.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    portal_ids: selectedPortalIds,
-                    system_id: systemId,
-                    role: role
-                })
+            const res = await csrfJsonFetch('../api/assignment/bulk_assign_system_subadmin.php', {
+                portal_ids: selectedPortalIds,
+                system_id: systemId,
+                role: role
             });
 
             const result = await res.json();

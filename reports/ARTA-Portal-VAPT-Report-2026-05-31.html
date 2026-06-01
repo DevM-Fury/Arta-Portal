@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARTA Portal VAPT Remediation Validation Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #1f2937;
+            line-height: 1.55;
+            margin: 0;
+            background: #eef2f7;
+        }
+        .page {
+            max-width: 980px;
+            margin: 24px auto;
+            background: #ffffff;
+            padding: 40px 48px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+        }
+        h1, h2, h3 {
+            color: #0f172a;
+            margin-top: 0;
+        }
+        h1 {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+        h2 {
+            font-size: 20px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 8px;
+            margin-top: 28px;
+        }
+        h3 {
+            font-size: 17px;
+            margin-top: 22px;
+        }
+        .meta {
+            color: #475569;
+            font-size: 14px;
+            margin-bottom: 18px;
+        }
+        .summary {
+            background: #ecfeff;
+            border: 1px solid #a5f3fc;
+            padding: 16px 18px;
+            border-radius: 12px;
+        }
+        .severity {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            color: #fff;
+        }
+        .critical { background: #b91c1c; }
+        .high { background: #dc2626; }
+        .medium { background: #d97706; }
+        .low { background: #2563eb; }
+        .info { background: #475569; }
+        .resolved { background: #059669; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 14px;
+        }
+        th, td {
+            border: 1px solid #e5e7eb;
+            padding: 10px 12px;
+            text-align: left;
+            vertical-align: top;
+            font-size: 14px;
+        }
+        th {
+            background: #f8fafc;
+        }
+        code {
+            background: #f3f4f6;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        ul, ol {
+            margin: 8px 0 0 20px;
+            padding: 0;
+        }
+        .finding {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 18px;
+            margin-top: 18px;
+            break-inside: avoid;
+        }
+        .footer {
+            margin-top: 32px;
+            font-size: 12px;
+            color: #64748b;
+        }
+        @media print {
+            body {
+                background: #fff;
+            }
+            .page {
+                box-shadow: none;
+                margin: 0;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <h1>ARTA Portal VAPT Remediation Validation Report</h1>
+        <div class="meta">
+            Target: ARTA Portal codebase and reachable local HTTP endpoints<br>
+            Workspace: c:\xampp\htdocs\Arta-Portal<br>
+            Validation date: 2026-06-01<br>
+            Method: targeted static review, syntax validation, pattern sweep, and non-destructive HTTP validation on a local PHP server
+        </div>
+
+        <div class="summary">
+            <strong>Executive summary</strong>
+            <p>The previously reported findings were re-tested after code changes and were successfully addressed in the current validation scope. Shared CSRF protection was added to the affected browser-triggered write actions, raw backend exception text was removed from the API sweep that previously leaked internals, anonymous full metadata endpoints now require authentication, and registration keeps working through a controlled anonymous lookup mode with minimal data. No critical, high, medium, or low finding from the prior report was reproduced in this remediation validation pass.</p>
+        </div>
+
+        <h2>Risk Summary</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Severity</th>
+                    <th>Count</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="severity critical">CRITICAL</span></td>
+                    <td>0</td>
+                    <td>No critical finding reproduced in the validated scope.</td>
+                </tr>
+                <tr>
+                    <td><span class="severity high">HIGH</span></td>
+                    <td>0</td>
+                    <td>No high-severity finding reproduced in the validated scope.</td>
+                </tr>
+                <tr>
+                    <td><span class="severity medium">MEDIUM</span></td>
+                    <td>0</td>
+                    <td>No medium finding reproduced in the validated scope.</td>
+                </tr>
+                <tr>
+                    <td><span class="severity low">LOW</span></td>
+                    <td>0</td>
+                    <td>No low finding reproduced in the validated scope.</td>
+                </tr>
+                <tr>
+                    <td><span class="severity resolved">RESOLVED</span></td>
+                    <td>6</td>
+                    <td>Previously reported items that now validate as addressed.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Validated Remediations</h2>
+        <div class="finding">
+            <h3><span class="severity resolved">RESOLVED</span> Anonymous role administration remains blocked</h3>
+            <p>Unauthenticated <code>POST /api/role/create_role.php</code> still returns <code>401 Authentication required</code>. The endpoint remains protected by role-based session checks and now also expects a CSRF token for authenticated browser requests.</p>
+        </div>
+
+        <div class="finding">
+            <h3><span class="severity resolved">RESOLVED</span> Anonymous assignment user enumeration remains blocked</h3>
+            <p>Unauthenticated <code>GET /api/assignment/get_users.php?type=office&amp;id=1</code> still returns <code>401 Authentication required</code>. The previous user-directory exposure was not reproducible.</p>
+        </div>
+
+        <div class="finding">
+            <h3><span class="severity resolved">RESOLVED</span> Password recovery behavior remains hardened</h3>
+            <p>Forgot-password still returns a generic success response for unknown accounts and uses reset links instead of direct password replacement. Registration POST now also requires a valid CSRF token and reaches normal field validation when the token is supplied.</p>
+        </div>
+
+        <div class="finding">
+            <h3><span class="severity resolved">RESOLVED</span> CSRF protection is now enforced on the affected browser write actions</h3>
+            <p>The shared API guard now issues and validates session-backed CSRF tokens. The role-management and system-assignment pages were updated to send <code>X-CSRF-Token</code> headers on JSON POST requests, with retry-on-expiry handling. Registration was also updated to submit with a CSRF token.</p>
+        </div>
+
+        <div class="finding">
+            <h3><span class="severity resolved">RESOLVED</span> Raw backend exception leakage was removed from the retested API sweep</h3>
+            <p>A follow-up source sweep for <code>display_errors = 1</code>, wildcard CORS on exposed APIs, <code>error_details</code>, and direct <code>$e-&gt;getMessage()</code> responses in the API tree returned no matches after remediation. The previously leaking registration, lookup, assignment, systems, and list endpoints now return generic client-facing errors.</p>
+        </div>
+
+        <div class="finding">
+            <h3><span class="severity resolved">RESOLVED</span> Anonymous full organization metadata exposure was reduced to controlled lookup mode</h3>
+            <p>The office, division, unit, and designation endpoints now require authentication for the full dataset. Anonymous callers only receive the minimal registration lookup dataset when <code>lookup=1</code> is explicitly used. Validation showed <code>401</code> for anonymous full office access and <code>200</code> for anonymous <code>lookup=1</code> requests returning minimal records.</p>
+        </div>
+
+        <h2>Validation Evidence</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Check</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>GET /api/auth/get_csrf.php</code></td>
+                    <td><code>200</code> with session-backed token payload</td>
+                </tr>
+                <tr>
+                    <td><code>GET /api/offices/get_offices.php?lookup=1&amp;limit=1</code></td>
+                    <td><code>200</code> with minimal office lookup payload</td>
+                </tr>
+                <tr>
+                    <td><code>GET /api/offices/get_offices.php?limit=1</code> without authentication</td>
+                    <td><code>401 Authentication required</code></td>
+                </tr>
+                <tr>
+                    <td><code>POST /api/auth/register.php</code> without CSRF token</td>
+                    <td><code>419</code> CSRF failure</td>
+                </tr>
+                <tr>
+                    <td><code>POST /api/auth/register.php</code> with valid CSRF token but incomplete body</td>
+                    <td><code>400</code> field validation response, confirming business logic is still reachable</td>
+                </tr>
+                <tr>
+                    <td>PHP syntax validation on touched files</td>
+                    <td>No syntax errors detected</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Integration Observation</h2>
+        <p>The Portal-to-AMS SSO handoff remains on the same <code>/sso-login?token=...</code> contract and still succeeds on a fresh first-use token. The remaining integration issue observed during separate testing is AMS treating expected validator failures such as <code>409 Token already used</code> as a generic <code>500</code>. That is an AMS-side error-handling concern rather than a Portal regression.</p>
+
+        <h2>Conclusion</h2>
+        <p>In the retested scope, the findings from the prior ARTA Portal VAPT report were addressed without introducing syntax errors in the touched files. This report is a remediation validation snapshot rather than a full replacement for broader future testing, but the specific issues previously raised in this workflow were not reproduced after the fixes.</p>
+
+        <div class="footer">
+            Generated locally for the ARTA Portal workspace on 2026-06-01.
+        </div>
+    </div>
+</body>
+</html>

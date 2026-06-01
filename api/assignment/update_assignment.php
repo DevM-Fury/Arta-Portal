@@ -54,6 +54,7 @@ try {
 
     echo json_encode(['status' => 200, 'message' => 'Assignment updated successfully']);
 } catch (PDOException $e) {
+    error_log('update_assignment failed: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['status' => 500, 'message' => 'Database error: ' . $e->getMessage()]);
+    echo json_encode(['status' => 500, 'message' => 'Unable to update assignment right now.']);
 }

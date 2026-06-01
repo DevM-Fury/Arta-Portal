@@ -1,15 +1,21 @@
 <?php
 // api/divisions/get_divisions.php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: GET");
-header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
 
 require_once __DIR__ . '/../../includes/config_system.php';
+
+if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'HEAD'], true)) {
+    respond_system(405, 'Method not allowed');
+}
+
+$isAuthenticated = system_has_authenticated_session();
+$isLookupMode = !$isAuthenticated && (string) ($_GET['lookup'] ?? '') === '1';
+
+if (!$isAuthenticated && !$isLookupMode) {
+    respond_system(401, 'Authentication required');
+}
 
 try {
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -34,24 +40,29 @@ try {
     $totalRecords = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
     $totalPages = ceil($totalRecords / $limit);
     
-    // ✅ FIXED: Select ALL fields needed by the frontend and JOIN with offices table
-    $query = "SELECT 
-                d.id, 
-                d.division_name, 
-                d.division_description, 
-                d.division_status, 
-                d.office_id,
-                d.created_at, 
-                d.updated_at,
-                o.office_name
-              FROM divisions d
-              LEFT JOIN offices o ON d.office_id = o.id";
+        if ($isLookupMode) {
+                $query = "SELECT d.id, d.division_name, d.office_id FROM divisions d";
+        } else {
+                $query = "SELECT 
+                                        d.id, 
+                                        d.division_name, 
+                                        d.division_description, 
+                                        d.division_status, 
+                                        d.office_id,
+                                        d.created_at, 
+                                        d.updated_at,
+                                        o.office_name
+                                    FROM divisions d
+                                    LEFT JOIN offices o ON d.office_id = o.id";
+        }
     
     $params = [];
     
     if ($office_id) {
         $query .= " WHERE d.office_id = :office_id";
         $params[':office_id'] = $office_id;
+    } elseif ($isLookupMode) {
+        $query .= " WHERE COALESCE(d.division_status, 'Active') = 'Active'";
     }
     
     $query .= " ORDER BY d.id DESC LIMIT :limit OFFSET :offset";
@@ -81,10 +92,11 @@ try {
     ]);
     
 } catch(PDOException $e) {
+    error_log('get_divisions failed: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         "status" => 500,
-        "message" => "Database error: " . $e->getMessage()
+        "message" => "Unable to fetch divisions right now."
     ]);
 }
 ?>

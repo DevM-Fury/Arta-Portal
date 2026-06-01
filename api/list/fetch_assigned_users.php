@@ -69,11 +69,11 @@ try {
     ]);
 
 } catch (PDOException $e) {
+    error_log('fetch_assigned_users failed: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'status' => 'error',
-        'message' => 'Database query failed',
-        'error_details' => $e->getMessage()
+        'message' => 'Database query failed'
     ]);
     exit;
 }

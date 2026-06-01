@@ -3,18 +3,14 @@ header('Content-Type: application/json');
 ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
-session_start(); // siguraduhing may session
-
 try {
     require_once __DIR__ . '/../../includes/config_access.php'; // may $pod
+    require_once __DIR__ . '/../../includes/api_guard.php';
 
-    // Kunin ang portal_id ng kasalukuyang user
-    if (!isset($_SESSION['user']['portal_id'])) {
-        // Kung walang session, return empty array o error
-        echo json_encode([]);
-        exit;
-    }
-    $currentUserId = $_SESSION['user']['portal_id'];
+    api_require_method('GET');
+    $currentUser = api_require_user(['admin', 'subadmin']);
+
+    $currentUserId = $currentUser['portal_id'];
 
     // Query: assignments na ang assigned_by ay ang current user
     $query = "
@@ -44,11 +40,7 @@ try {
     exit;
 
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
-    exit;
+    api_json_response(500, ['error' => 'Database error']);
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Server error: ' . $e->getMessage()]);
-    exit;
+    api_json_response(500, ['error' => 'Server error']);
 }

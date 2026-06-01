@@ -1,22 +1,27 @@
 <?php
 header('Content-Type: application/json');
 include_once __DIR__ . '/../../includes/config_access.php';
+include_once __DIR__ . '/../../includes/api_guard.php';
+include_once __DIR__ . '/../../includes/role_helper.php';
 
-// Check subadmin login
-$assigned_by = $_SESSION['user']['portal_id'] ?? null;
-if (!$assigned_by) {
-    echo json_encode(['status' => 401, 'title' => 'Unauthorized', 'message' => 'Please log in as admin.']);
-    exit;
-}
+api_require_method('POST');
+$currentUser = api_require_user(['admin', 'subadmin']);
+api_require_csrf();
+$assigned_by = $currentUser['portal_id'];
 
 // Get POST data
-$data = json_decode(file_get_contents('php://input'), true);
+$data = api_decode_json_body();
 $portal_ids = $data['portal_ids'] ?? [];
 $system_id = $data['system_id'] ?? '';
-$role = $data['role'] ?? 'user';
+$role = role_normalize_name($data['role'] ?? 'user');
 
 if (empty($portal_ids) || !$system_id) {
     echo json_encode(['status' => 400, 'title' => 'Invalid Data', 'message' => 'Portal IDs and System ID are required.']);
+    exit;
+}
+
+if (!role_exists($pdo, $role)) {
+    echo json_encode(['status' => 400, 'title' => 'Invalid Role', 'message' => 'Selected role does not exist.']);
     exit;
 }
 
@@ -56,10 +61,10 @@ try {
     }
 
 } catch (PDOException $e) {
-    echo json_encode([
+    api_json_response(500, [
         'status' => 500,
         'title' => 'Database Error',
-        'message' => $e->getMessage()
+        'message' => 'Unable to complete bulk assignment right now.'
     ]);
 }
 ?>

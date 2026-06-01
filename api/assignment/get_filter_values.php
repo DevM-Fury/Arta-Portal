@@ -1,6 +1,10 @@
 <?php
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../includes/config_access.php';
+require_once __DIR__ . '/../../includes/api_guard.php';
+
+api_require_method('GET');
+api_require_user(['admin', 'subadmin']);
 
 $type = $_GET['type'] ?? '';
 
@@ -25,6 +29,5 @@ try {
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode($rows);
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode([]);
+    api_json_response(500, ['status' => 500, 'message' => 'Unable to load filter values']);
 }

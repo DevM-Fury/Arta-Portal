@@ -2,20 +2,14 @@
 // get_systems_subadmin.php
 error_reporting(0);
 header('Content-Type: application/json');
-session_start();
 require_once __DIR__ . '/../../includes/config_access.php';
+require_once __DIR__ . '/../../includes/api_guard.php';
 
-// ✅ Check if user is logged in
-if (!isset($_SESSION['user']['portal_id'])) {
-    echo json_encode([
-        'status' => 401,
-        'message' => 'Not logged in.'
-    ]);
-    exit;
-}
+api_require_method('GET');
+$currentUser = api_require_user(['admin', 'subadmin']);
 
-$portal_id = $_SESSION['user']['portal_id'];
-$user_role = $_SESSION['user']['role'] ?? 'user';
+$portal_id = $currentUser['portal_id'];
+$user_role = $currentUser['role'] ?? 'user';
 
 try {
     if ($user_role === 'admin') {
@@ -41,9 +35,8 @@ try {
     echo json_encode($systems ?: []);
 
 } catch (PDOException $e) {
-    echo json_encode([
+    api_json_response(500, [
         'status' => 500,
-        'message' => 'Database error.',
-        'error' => $e->getMessage()
+        'message' => 'Database error.'
     ]);
 }

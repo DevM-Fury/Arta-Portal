@@ -179,9 +179,9 @@ try {
 
 } catch (PDOException $e) {
     error_log("update_user error: " . $e->getMessage());
-    respond_system(500, 'Server error: ' . $e->getMessage());
+    respond_system(500, 'Server error');
 } catch (Exception $e) {
     error_log("update_user error: " . $e->getMessage());
-    respond_system(500, 'Server error: ' . $e->getMessage());
+    respond_system(500, 'Server error');
 }
 ?>

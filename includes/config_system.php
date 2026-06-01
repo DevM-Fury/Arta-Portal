@@ -20,15 +20,35 @@ $DB_NAME_SYS = getenv('DB_NAME') ?: 'portal_db';
 $DB_USER_SYS = getenv('DB_USER') ?: 'postgres';
 $DB_PASS_SYS = getenv('DB_PASS') ?: 'secret';
 
+function system_apply_cors($methods = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']) {
+    header('Content-Type: application/json; charset=utf-8');
+    header('Access-Control-Allow-Methods: ' . implode(', ', $methods));
+    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, X-CSRF-Token');
+
+    $origin = trim((string) ($_SERVER['HTTP_ORIGIN'] ?? ''));
+    if ($origin !== '') {
+        $originHost = strtolower((string) parse_url($origin, PHP_URL_HOST));
+        $currentHost = strtolower((string) preg_replace('/:\d+$/', '', (string) ($_SERVER['HTTP_HOST'] ?? '')));
+        $portalHost = strtolower((string) parse_url((string) getenv('PORTAL_BASE_URL'), PHP_URL_HOST));
+        $allowedHosts = array_filter(array_unique([$currentHost, $portalHost, 'localhost', '127.0.0.1']));
+
+        if ($originHost !== '' && in_array($originHost, $allowedHosts, true)) {
+            header('Access-Control-Allow-Origin: ' . $origin);
+            header('Vary: Origin');
+        }
+    }
+}
+
+function system_has_authenticated_session() {
+    return !empty($_SESSION['user']['portal_id']) || !empty($_SESSION['portal_id']);
+}
+
 // ✅ CORS + JSON headers
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+system_apply_cors();
 
 // ✅ Handle OPTIONS request (para hindi mag 403 preflight)
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
+    http_response_code(204);
     exit;
 }
 
@@ -45,13 +65,19 @@ try {
         ]
     );
 } catch (PDOException $e) {
+    error_log('config_system DB connection failed: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Database connection failed', 'details' => $e->getMessage()]);
+    echo json_encode(['error' => 'Database connection failed']);
     exit;
 }
 
 // ✅ Response helper
 function respond_system($statusCode, $message, $data = null) {
+    if ($statusCode >= 500 && $data !== null) {
+        error_log('respond_system internal error payload: ' . json_encode($data));
+        $data = null;
+    }
+
     http_response_code($statusCode);
     echo json_encode([
         'status' => $statusCode,

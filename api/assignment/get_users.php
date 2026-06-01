@@ -1,6 +1,10 @@
 <?php
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../includes/config_access.php';
+require_once __DIR__ . '/../../includes/api_guard.php';
+
+api_require_method('GET');
+api_require_user(['admin', 'subadmin']);
 
 $type = $_GET['type'] ?? '';
 $id = $_GET['id'] ?? '';
@@ -33,6 +37,10 @@ $where
 ORDER BY u.lastname, u.firstname
 ";
 
-$stmt = $pdo->prepare($sql);
-$stmt->execute($params);
-echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+try {
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+} catch (Throwable $e) {
+    api_json_response(500, ['status' => 500, 'message' => 'Unable to fetch users right now']);
+}

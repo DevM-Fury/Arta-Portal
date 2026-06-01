@@ -40,9 +40,11 @@ try {
     $stmt->execute([$portal_id, $system_id, $role, $assigned_by]);
     echo json_encode(['status' => 200, 'message' => 'System assigned successfully']);
 } catch (PDOException $e) {
+    error_log('assign_system failed: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['status' => 500, 'message' => 'Database error: ' . $e->getMessage()]);
+    echo json_encode(['status' => 500, 'message' => 'Unable to assign system right now.']);
 } catch (Exception $e) {
+    error_log('assign_system failed: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['status' => 500, 'message' => 'Server error: ' . $e->getMessage()]);
+    echo json_encode(['status' => 500, 'message' => 'Unable to assign system right now.']);
 }

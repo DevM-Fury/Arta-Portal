@@ -1,15 +1,11 @@
 <?php
 // api/auth/register.php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST");
-header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
-
+require_once __DIR__ . '/../../includes/config_access.php';
+require_once __DIR__ . '/../../includes/api_guard.php';
 require_once __DIR__ . '/../../includes/config_system.php';
+
+api_require_method('POST');
+api_require_csrf();
 
 // Get posted data
 $raw_data = file_get_contents("php://input");
@@ -126,8 +122,7 @@ try {
         http_response_code(500);
         echo json_encode([
             "status" => 500,
-            "message" => "Insert failed.",
-            "error_info" => $error_info
+            "message" => "Unable to submit registration right now."
         ]);
     }
 
@@ -136,14 +131,14 @@ try {
     http_response_code(500);
     echo json_encode([
         "status" => 500,
-        "message" => "Database error: " . $e->getMessage()
+        "message" => "Unable to submit registration right now."
     ]);
 } catch (Exception $e) {
     error_log("Exception in register.php: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         "status" => 500,
-        "message" => "Server error: " . $e->getMessage()
+        "message" => "Unable to submit registration right now."
     ]);
 }
 ?>

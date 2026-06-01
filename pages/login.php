@@ -347,7 +347,7 @@ if (isset($_GET['token'])) {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p class="text-muted mb-3">Enter your registered email. A new password will be sent to your inbox.</p>
+                <p class="text-muted mb-3">Enter your registered email. If the account exists, a password reset link will be sent to your inbox.</p>
                 <div class="input-group-custom mb-0">
                     <label class="form-label"><i class="fas fa-envelope"></i> Email Address</label>
                     <div class="position-relative">
@@ -361,7 +361,7 @@ if (isset($_GET['token'])) {
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" id="sendResetLinkBtn" class="btn btn-primary" 
                         style="background:linear-gradient(to right, var(--primary-blue), #3b82f6); border:none;">
-                    <i class="fas fa-paper-plane me-2"></i>Send New Password
+                    <i class="fas fa-paper-plane me-2"></i>Send Reset Link
                 </button>
             </div>
         </div>
@@ -539,7 +539,7 @@ if (isset($_GET['token'])) {
             if (modalInstance) modalInstance.hide();
 
             if (response.ok && data.status === 'success') {
-                Swal.fire('Password Reset', data.message, 'success');
+                Swal.fire('Reset Link Sent', data.message, 'success');
                 resetEmail.value = '';
             } else {
                 Swal.fire('Request Failed', data.message || 'Please try again later.', 'error');

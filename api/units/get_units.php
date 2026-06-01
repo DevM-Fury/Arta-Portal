@@ -1,15 +1,21 @@
 <?php
 // api/units/get_units.php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: GET");
-header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
 
 require_once __DIR__ . '/../../includes/config_system.php';
+
+if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'HEAD'], true)) {
+    respond_system(405, 'Method not allowed');
+}
+
+$isAuthenticated = system_has_authenticated_session();
+$isLookupMode = !$isAuthenticated && (string) ($_GET['lookup'] ?? '') === '1';
+
+if (!$isAuthenticated && !$isLookupMode) {
+    respond_system(401, 'Authentication required');
+}
 
 try {
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -34,24 +40,29 @@ try {
     $totalRecords = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
     $totalPages = ceil($totalRecords / $limit);
     
-    // ✅ FIXED: Select ALL fields needed by the frontend and JOIN with divisions table
-    $query = "SELECT 
-                u.id, 
-                u.unit_name, 
-                u.unit_description, 
-                u.unit_status, 
-                u.division_id,
-                u.created_at, 
-                u.updated_at,
-                d.division_name
-              FROM units u
-              LEFT JOIN divisions d ON u.division_id = d.id";
+        if ($isLookupMode) {
+                $query = "SELECT u.id, u.unit_name, u.division_id FROM units u";
+        } else {
+                $query = "SELECT 
+                                        u.id, 
+                                        u.unit_name, 
+                                        u.unit_description, 
+                                        u.unit_status, 
+                                        u.division_id,
+                                        u.created_at, 
+                                        u.updated_at,
+                                        d.division_name
+                                    FROM units u
+                                    LEFT JOIN divisions d ON u.division_id = d.id";
+        }
     
     $params = [];
     
     if ($division_id) {
         $query .= " WHERE u.division_id = :division_id";
         $params[':division_id'] = $division_id;
+    } elseif ($isLookupMode) {
+        $query .= " WHERE COALESCE(u.unit_status, 'Active') = 'Active'";
     }
     
     $query .= " ORDER BY u.id DESC LIMIT :limit OFFSET :offset";
@@ -81,10 +92,11 @@ try {
     ]);
     
 } catch(PDOException $e) {
+    error_log('get_units failed: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         "status" => 500,
-        "message" => "Database error: " . $e->getMessage()
+        "message" => "Unable to fetch units right now."
     ]);
 }
 ?>

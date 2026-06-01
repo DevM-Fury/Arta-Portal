@@ -445,6 +445,44 @@ session_start();
     const loadingOverlay = document.getElementById('loadingOverlay');
     const submitBtn = document.getElementById('submitBtn');
     let dropdownsLoaded = false;
+    let csrfTokenCache = null;
+
+    async function getCsrfToken(forceRefresh = false) {
+        if (!forceRefresh && csrfTokenCache) {
+            return csrfTokenCache;
+        }
+
+        const res = await fetch(API_BASE + 'auth/get_csrf.php', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const payload = await res.json();
+
+        if (!res.ok || !payload.token) {
+            throw new Error(payload.message || 'Unable to initialize request security.');
+        }
+
+        csrfTokenCache = payload.token;
+        return csrfTokenCache;
+    }
+
+    async function csrfJsonFetch(url, payload) {
+        const makeRequest = async token => fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': token
+            },
+            body: JSON.stringify(payload)
+        });
+
+        let response = await makeRequest(await getCsrfToken());
+        if (response.status === 419) {
+            csrfTokenCache = null;
+            response = await makeRequest(await getCsrfToken(true));
+        }
+
+        return response;
+    }
 
     // Helper: extract array from backend JSON response
     function extractArray(data, key) {
@@ -540,15 +578,15 @@ session_start();
 
         try {
             // Test connection
-            let test = await fetch(API_BASE + 'offices/get_offices.php?limit=1', { method: 'HEAD' });
+            let test = await fetch(API_BASE + 'offices/get_offices.php?lookup=1&limit=1', { method: 'HEAD' });
             if (!test.ok) throw new Error(`Offices API not reachable (HTTP ${test.status})`);
 
             // Fetch all dropdown data in parallel
             let [officesRes, divisionsRes, unitsRes, designationsRes] = await Promise.all([
-                fetch(API_BASE + 'offices/get_offices.php?limit=1000'),
-                fetch(API_BASE + 'divisions/get_divisions.php?limit=1000'),
-                fetch(API_BASE + 'units/get_units.php?limit=1000'),
-                fetch(API_BASE + 'designations/get_designations.php?limit=1000')
+                fetch(API_BASE + 'offices/get_offices.php?lookup=1&limit=1000'),
+                fetch(API_BASE + 'divisions/get_divisions.php?lookup=1&limit=1000'),
+                fetch(API_BASE + 'units/get_units.php?lookup=1&limit=1000'),
+                fetch(API_BASE + 'designations/get_designations.php?lookup=1&limit=1000')
             ]);
 
             if (!officesRes.ok) throw new Error(`Offices API failed (${officesRes.status})`);
@@ -656,11 +694,7 @@ session_start();
         loadingOverlay.style.display = 'flex';
 
         try {
-            const res = await fetch(API_BASE + 'auth/register.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            });
+            const res = await csrfJsonFetch(API_BASE + 'auth/register.php', formData);
             const text = await res.text();
             let data;
             try { data = JSON.parse(text); } catch { throw new Error('Invalid server response'); }

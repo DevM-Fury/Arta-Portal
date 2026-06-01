@@ -18,5 +18,6 @@ try {
     echo json_encode(['status' => 'success', 'message' => 'Access removed successfully']);
 
 } catch (PDOException $e) {
-    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    error_log('remove_user_access failed: ' . $e->getMessage());
+    echo json_encode(['status' => 'error', 'message' => 'Unable to remove user access right now.']);
 }

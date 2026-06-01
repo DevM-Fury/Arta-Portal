@@ -44,5 +44,6 @@ try {
     echo json_encode(["status" => 200, "message" => "System deleted successfully"]);
 
 } catch (Exception $e) {
-    echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+    error_log('systems delete_system failed: ' . $e->getMessage());
+    echo json_encode(["status" => "error", "message" => "Unable to delete system right now."]);
 }
