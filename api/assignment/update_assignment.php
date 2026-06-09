@@ -5,6 +5,7 @@ ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
 require_once __DIR__ . '/../../includes/config_access.php';
+require_once __DIR__ . '/../../includes/log_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -51,6 +52,20 @@ try {
     // Proceed with update
     $updateStmt = $pdo->prepare("UPDATE user_system_access SET system_id = ?, role = ? WHERE access_id = ?");
     $updateStmt->execute([$system_id, $role, $access_id]);
+
+    log_transaction(
+        $pdo,
+        $currentUserId,
+        'UPDATE_ASSIGNMENT',
+        'user_system_access',
+        $access_id,
+        'Updated a system assignment.',
+        [
+            'system_id' => $system_id,
+            'role' => $role,
+        ],
+        $currentUserRole ?: null
+    );
 
     echo json_encode(['status' => 200, 'message' => 'Assignment updated successfully']);
 } catch (PDOException $e) {

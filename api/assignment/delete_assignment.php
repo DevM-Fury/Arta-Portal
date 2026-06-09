@@ -3,6 +3,7 @@
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../includes/config_access.php';
 require_once __DIR__ . '/../../includes/rbac.php';
+require_once __DIR__ . '/../../includes/log_helper.php';
 session_start();
 
 $deleted_by = $_SESSION['portal_id'] ?? null;
@@ -50,6 +51,20 @@ try {
         ':ip'=>$_SERVER['REMOTE_ADDR'] ?? null,
         ':device'=>$_SERVER['HTTP_USER_AGENT'] ?? null
     ]);
+
+    log_transaction(
+        $pdo,
+        $deleted_by,
+        'DELETE_ASSIGNMENT',
+        'user_system_access',
+        $access_id,
+        'Removed a system assignment.',
+        [
+            'target_portal_id' => $info['portal_id'],
+            'system_id' => $info['system_id'],
+        ],
+        $role ?: null
+    );
 
     echo json_encode(['status'=>'success','message'=>'Assignment removed']);
 } catch (Exception $e) {

@@ -1,5 +1,10 @@
 <?php
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
 require_once __DIR__ . '/../../includes/config_system.php';
+require_once __DIR__ . '/../../includes/log_helper.php';
 
 try {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -65,8 +70,27 @@ try {
         ':domain' => $domainUrl
     ]);
 
+    $newSystemId = $pdo_system->lastInsertId();
+
+    if (!empty($_SESSION['user']['portal_id'])) {
+        log_transaction(
+            $pdo_system,
+            $_SESSION['user']['portal_id'],
+            'CREATE_SYSTEM',
+            'systems',
+            $newSystemId,
+            'Created a new external system entry.',
+            [
+                'system_name' => $systemName,
+                'status' => $status,
+                'domain_url' => $domainUrl,
+            ],
+            $_SESSION['user']['role'] ?? null
+        );
+    }
+
     respond_system(200, "System created successfully", [
-        "id" => $pdo_system->lastInsertId(),
+        "id" => $newSystemId,
         "system_name" => $systemName,
         "description" => $description,
         "status" => $status,

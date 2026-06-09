@@ -1,8 +1,13 @@
 <?php
 header("Content-Type: application/json");
 
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
 // Include config
 require_once __DIR__ . "/../../includes/config_system.php";
+require_once __DIR__ . '/../../includes/log_helper.php';
 
 // Alias PDO
 $pdo = $pdo_system;
@@ -23,7 +28,7 @@ if (empty($id)) {
 
 try {
     // Check if system exists
-    $stmt = $pdo->prepare("SELECT logo_path FROM systems WHERE id = :id");
+    $stmt = $pdo->prepare("SELECT system_name, domain_url, logo_path FROM systems WHERE id = :id");
     $stmt->execute([':id' => $id]);
     $system = $stmt->fetch();
 
@@ -39,6 +44,22 @@ try {
     // Delete logo file if exists
     if (!empty($system['logo_path']) && file_exists(__DIR__ . "/../../" . $system['logo_path'])) {
         unlink(__DIR__ . "/../../" . $system['logo_path']);
+    }
+
+    if (!empty($_SESSION['user']['portal_id'])) {
+        log_transaction(
+            $pdo,
+            $_SESSION['user']['portal_id'],
+            'DELETE_SYSTEM',
+            'systems',
+            $id,
+            'Deleted a system record.',
+            [
+                'system_name' => $system['system_name'] ?? null,
+                'domain_url' => $system['domain_url'] ?? null,
+            ],
+            $_SESSION['user']['role'] ?? null
+        );
     }
 
     echo json_encode(["status" => 200, "message" => "System deleted successfully"]);
