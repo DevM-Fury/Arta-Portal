@@ -59,9 +59,9 @@ $db_host = getenv('DB_HOST') ?: 'localhost';
 $db_name = getenv('DB_NAME') ?: 'portal_db';
 $db_user = getenv('DB_USER') ?: 'postgres';
 $db_pass = getenv('DB_PASS') ?: 'secret';
-$db_port = getenv('DB_PORT') ?: '5432';
 
-$dsn = "pgsql:host={$db_host};port={$db_port};dbname={$db_name}";
+// DB_HOST already contains port (e.g. "127.0.0.1;port=5433"), so no separate port needed
+$dsn = "pgsql:host={$db_host};dbname={$db_name}";
 $options = [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
