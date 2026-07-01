@@ -1,8 +1,13 @@
 <?php
 header("Content-Type: application/json");
 
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
 // ✅ Include config
 require_once __DIR__ . "/../../includes/config_system.php";
+require_once __DIR__ . '/../../includes/log_helper.php';
 
 // Alias $pdo_system to $pdo for backward compatibility
 $pdo = $pdo_system;
@@ -93,6 +98,22 @@ try {
         ":status" => $status,
         ":id" => $id,
     ]);
+
+    if (!empty($_SESSION['user']['portal_id'])) {
+        log_transaction(
+            $pdo,
+            $_SESSION['user']['portal_id'],
+            'UPDATE_SYSTEM',
+            'systems',
+            $id,
+            'Updated a system record.',
+            [
+                'system_name' => $system_name,
+                'status' => $status,
+            ],
+            $_SESSION['user']['role'] ?? null
+        );
+    }
 
     echo json_encode(["status" => 200, "message" => "System updated successfully"]);
 

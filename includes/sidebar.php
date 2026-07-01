@@ -23,6 +23,8 @@
 	<a href="designation.php" class="nav-link"><i class="fa-solid fa-person"></i>Designation</a>
 	<a href="system.php" class="nav-link"><i class="fa-solid fa-desktop"></i>System</a>
 	<a href="system_assignment.php" class="nav-link"><i class="fa-solid fa-list"></i> System Access </a>
+    <a href="system_logs.php" class="nav-link"><i class="fa-solid fa-clock-rotate-left"></i>System Logs</a>
+    <a href="transaction_logs.php" class="nav-link"><i class="fa-solid fa-file-invoice"></i>Transaction Logs</a>
 	<a href="dashboard.php" class="nav-link"><i class="fa-solid fa-gear"></i>Assigned System</a>
 	<a href="profile_admin.php" class="nav-link"><i class="fa-solid fa-user"></i>My Profile</a>
 	<a href="logout.php" class="nav-link"><i class="fa-solid fa-right-from-bracket"></i>Logout</a>

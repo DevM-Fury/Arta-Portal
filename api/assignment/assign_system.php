@@ -1,6 +1,10 @@
 <?php
 header('Content-Type: application/json');
-include_once __DIR__ . '/../../includes/config_access.php';
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+
+require_once __DIR__ . '/../../includes/config_access.php';
+require_once __DIR__ . '/../../includes/log_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -42,6 +46,22 @@ try {
 
     $stmt = $pdo->prepare("INSERT INTO user_system_access (portal_id, system_id, role, assigned_by, date_assigned) VALUES (?, ?, ?, ?, NOW())");
     $stmt->execute([$portal_id, $system_id, $role, $assigned_by]);
+
+    log_transaction(
+        $pdo,
+        $assigned_by,
+        'ASSIGN_SYSTEM',
+        'user_system_access',
+        $pdo->lastInsertId() ?: null,
+        'Assigned a system to a portal user.',
+        [
+            'target_portal_id' => $portal_id,
+            'system_id' => $system_id,
+            'assigned_role' => $role,
+        ],
+        $_SESSION['user']['role'] ?? null
+    );
+
     echo json_encode(['status' => 200, 'message' => 'System assigned successfully']);
 } catch (PDOException $e) {
     error_log('assign_system failed: ' . $e->getMessage());
