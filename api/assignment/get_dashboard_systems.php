@@ -45,8 +45,8 @@ try {
                 logo_path,
                 status, 
                 description,            -- ⚠️ kunin din ang status
-                'subadmin' AS role 
-            FROM systems 
+                'admin' AS role
+            FROM systems
             ORDER BY system_name
         ");
         $assigned_systems = $stmt2->fetchAll(PDO::FETCH_ASSOC);

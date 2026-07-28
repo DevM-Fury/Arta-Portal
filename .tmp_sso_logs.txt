@@ -1,0 +1,1 @@
+udo grep -R \\\[SSO\\\]\\\|\\\[SSO\ ACCESS\ CHECK\\\] /var/log

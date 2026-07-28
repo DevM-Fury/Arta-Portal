@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../includes/config_system.php';
+require_once __DIR__ . '/../../includes/sso_helper.php';
 
 try {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -46,9 +47,34 @@ try {
         respond_system(400, "System name is required");
     }
 
+    $statusMap = [
+        'active' => 'Active',
+        'inactive' => 'Inactive',
+    ];
+    $statusKey = strtolower(trim((string) $status));
+    if (!isset($statusMap[$statusKey])) {
+        respond_system(400, "Status must be Active or Inactive");
+    }
+    $status = $statusMap[$statusKey];
+
+    if ($status === 'Active' && $domainUrl === '') {
+        respond_system(400, "Domain URL is required for active systems");
+    }
+
+    if ($domainUrl !== '' && (filter_var($domainUrl, FILTER_VALIDATE_URL) === false || !sso_is_safe_url($domainUrl))) {
+        respond_system(400, "Domain URL must be a valid HTTP or HTTPS URL");
+    }
+
     // ✅ Duplication Check (by system_name OR domain_url)
-    $check = $pdo_system->prepare("SELECT COUNT(*) FROM systems WHERE system_name = :name OR domain_url = :domain");
-    $check->execute([':name' => $systemName, ':domain' => $domainUrl]);
+    $duplicateSql = "SELECT COUNT(*) FROM systems WHERE system_name = :name";
+    $duplicateParams = [':name' => $systemName];
+    if ($domainUrl !== '') {
+        $duplicateSql .= " OR domain_url = :domain";
+        $duplicateParams[':domain'] = $domainUrl;
+    }
+
+    $check = $pdo_system->prepare($duplicateSql);
+    $check->execute($duplicateParams);
     if ($check->fetchColumn() > 0) {
         respond_system(409, "System already exists with the same name or domain");
     }

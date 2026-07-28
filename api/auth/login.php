@@ -1,7 +1,23 @@
 <?php
 // api/auth/login.php
 require_once __DIR__ . '/../../includes/config.php';
-session_start();
+
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || (isset($_SERVER['SERVER_PORT']) && (int) $_SERVER['SERVER_PORT'] === 443);
+
+    ini_set('session.use_only_cookies', '1');
+    ini_set('session.use_strict_mode', '1');
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'domain' => '',
+        'secure' => $isHttps,
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+    session_start();
+}
 
 // Security & headers
 header("X-Content-Type-Options: nosniff");
@@ -133,6 +149,8 @@ try {
         'email'     => $user['email'],
         'role'      => $user['role']
     ];
+    $_SESSION['portal_id'] = $user['portal_id'];
+    $_SESSION['role'] = $user['role'];
 
     // Regenerate session ID for security
     session_regenerate_id(true);

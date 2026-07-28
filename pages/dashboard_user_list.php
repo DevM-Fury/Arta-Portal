@@ -315,8 +315,10 @@
             try {
                 const apiUrl = `../api/sso/generate_token.php?system_id=${encodeURIComponent(systemId)}`;
                 const res = await fetch(apiUrl, { credentials: 'same-origin' });
-                if (!res.ok) throw new Error(`Network response was not ok (${res.status})`);
-                const data = await res.json();
+                const data = await res.json().catch(() => null);
+                if (!res.ok) {
+                    throw new Error(data?.message || `Network response was not ok (${res.status})`);
+                }
 
                 if (data.status === "success") {
                     Swal.fire({

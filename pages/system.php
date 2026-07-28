@@ -121,6 +121,7 @@
             <div class="modal-content">
                 <form id="editSystemForm" enctype="multipart/form-data">
                     <input type="hidden" name="id" id="editSystemId">
+                    <input type="hidden" name="current_logo" id="editCurrentLogo">
                     <div class="modal-header">
                         <h5 class="modal-title">Edit System</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -147,7 +148,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Logo (optional)</label>
-                            <input type="file" name="logo" class="form-control" accept="image/*">
+                            <input type="file" name="logo" id="editSystemLogo" class="form-control" accept="image/*">
                             <small class="text-muted d-block mt-1">Leave empty if you don't want to change the logo.</small>
                             <div class="mt-2" id="currentLogoContainer">
                                 <img id="currentLogoPreview" src="" alt="Current Logo" style="max-height:60px; display:none;" class="border p-1 rounded">
@@ -863,6 +864,8 @@
         document.getElementById("editSystemURL").value = system.domain_url || '';
         document.getElementById("editSystemDescription").value = system.description || '';
         document.getElementById("editSystemStatus").value = system.status || 'Active';
+        document.getElementById("editCurrentLogo").value = system.logo_path || '';
+        document.getElementById("editSystemLogo").value = '';
         
         const preview = document.getElementById("currentLogoPreview");
         if (system.logo_path) {
@@ -905,7 +908,8 @@
             } else {
                 Swal.fire({ icon: "error", title: "Error", text: result.message });
             }
-        });
+        })
+        .catch(() => Swal.fire({ icon: "error", title: "Error", text: "Request failed" }));
     });
 
     // Delete System

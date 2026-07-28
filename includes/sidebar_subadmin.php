@@ -23,42 +23,49 @@
 <style>
 /* ===== SIDEBAR – ORIGINAL DESIGN (WALANG BINAGO) ===== */
 .sidebar {
-    background: linear-gradient(180deg, #23395d 0%, #1e2a3a 60%, #0f2027 100%);
+    background: linear-gradient(180deg, #07182f 0%, #0b2d59 58%, #123d77 100%);
     color: #fff;
     min-height: 100vh;
-    padding-top: 2rem;
+    padding: 1.6rem 1rem 1rem;
     position: fixed;
     left: 0;
     top: 0;
     width: 220px;
-    box-shadow: 2px 0 24px rgba(0, 0, 0, 0.18);
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 14px 0 40px rgba(5, 19, 43, 0.28);
+    backdrop-filter: blur(16px);
     transition: left 0.3s ease;
     z-index: 150;
 }
 
 .sidebar .nav-link {
-    color: #fff !important;
-    font-weight: 100;
-    padding: 14px 26px;
-    border-radius: 5px;
-    margin-bottom: 5px;
+    color: rgba(255, 255, 255, 0.92) !important;
+    font-weight: 600;
+    padding: 13px 16px;
+    border-radius: 16px;
+    margin-bottom: 6px;
     display: flex;
     align-items: center;
-    gap: 10px;
-    transition: background .2s, color .2s;
+    gap: 12px;
+    transition: background .2s, color .2s, transform .2s;
 }
 
 .sidebar .nav-link.active,
 .sidebar .nav-link:hover {
-    background: #fff;
-    color: #23395d !important;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff !important;
+    transform: translateX(2px);
 }
 
 .sidebar .sidebar-title {
-    font-size: 1.0rem;
-    font-weight: 250;
-    margin-bottom: 2.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
     text-align: center;
+    padding: 0.9rem 1rem;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 /* ===== OVERLAY – ORIGINAL ===== */
@@ -82,11 +89,11 @@
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: rgba(30, 30, 40, 0.85);
+    background: linear-gradient(135deg, #07182f, #0b2d59);
     backdrop-filter: blur(4px);
     color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.28);
     font-size: 26px;
     display: none; /* itatago sa desktop, ipapakita sa mobile */
     align-items: center;
@@ -97,7 +104,7 @@
 }
 
 .sidebar-toggle-btn:hover {
-    background: #2c3e50;
+    background: linear-gradient(135deg, #0b2d59, #17477f);
     border-color: rgba(255, 255, 255, 0.4);
     transform: scale(1.05);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);

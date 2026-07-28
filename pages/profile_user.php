@@ -336,6 +336,21 @@
             padding-top: 16px;
         }
 
+        .btn-edit-profile {
+            background: #002b7f;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .btn-edit-profile:hover {
+            background: #001f5c;
+            color: white;
+        }
+
         /* === RESPONSIVE BREAKPOINTS === */
         @media screen and (max-width: 1200px) {
             .stat-grid {
@@ -462,9 +477,16 @@
                 <i class="fa-solid fa-circle-user"></i> 
                 User Profile
             </h2>
-            <div class="badge-verified">
-                <i class="fa-solid fa-check-circle" style="color:#1e7e34;"></i> 
-                verified ARTA account
+
+            <div class="d-flex gap-2 align-items-center flex-wrap">
+                <button type="button" class="btn btn-edit-profile" onclick="openEditProfileModal()">
+                    <i class="fa-solid fa-pen-to-square me-1"></i> Edit Profile
+                </button>
+
+                <div class="badge-verified">
+                    <i class="fa-solid fa-check-circle" style="color:#1e7e34;"></i> 
+                    verified ARTA account
+                </div>
             </div>
         </div>
 
@@ -633,113 +655,443 @@
         </div>
     </div>
 
+    <div class="modal fade" id="editProfileModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h6 class="modal-title">
+                        <i class="fa-solid fa-user-pen me-2"></i> Edit Profile
+                    </h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="alert alert-info small">
+                        <i class="fa-solid fa-circle-info me-1"></i>
+                        You can now update your name, National ID, and work assignment details here.
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small">First Name</label>
+                            <input type="text" id="editFirstName" class="form-control" placeholder="First name">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small">Last Name</label>
+                            <input type="text" id="editLastName" class="form-control" placeholder="Last name">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small">Middle Name</label>
+                            <input type="text" id="editMiddleName" class="form-control" placeholder="Middle name">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small">National ID</label>
+                            <input type="text" id="editNationalId" class="form-control" placeholder="National ID digits">
+                        </div>
+                    </div>
+
+                    <div class="mb-3 mt-3">
+                        <label class="form-label small">Email</label>
+                        <input type="email" id="editEmail" class="form-control" placeholder="name@arta.gov.ph">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small">Contact Number</label>
+                        <input type="text" id="editContact" class="form-control" placeholder="+63...">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small">Complete Address</label>
+                        <textarea id="editAddress" class="form-control" rows="3" placeholder="Complete address"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small">Office Location</label>
+                        <input type="text" id="editOfficeLocation" class="form-control" placeholder="Office location">
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small">Office</label>
+                            <select id="editOffice" class="form-select">
+                                <option value="">Select office</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small">Division</label>
+                            <select id="editDivision" class="form-select">
+                                <option value="">Select division</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small">Unit</label>
+                            <select id="editUnit" class="form-select">
+                                <option value="">Select unit</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small">Designation</label>
+                            <select id="editDesignation" class="form-select">
+                                <option value="">Select designation</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning small mt-3 mb-0">
+                        <i class="fa-solid fa-lock-open me-1"></i>
+                        Portal ID and Role remain read-only.
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-sm btn-primary" onclick="saveProfile()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js" crossorigin="anonymous"></script>
 
     <script>
-        async function loadUserProfile() {
-            try {
-                const res = await fetch("../api/users/get_profile.php", { credentials: 'same-origin' });
-                const text = await res.text();
-                let data;
-                
-                try { 
-                    data = JSON.parse(text); 
-                } catch (e) { 
-                    console.error('Failed to parse JSON response');
-                    return;
-                }
+        let currentProfileUser = {};
+        let csrfTokenCache = null;
 
-                if (data && data.status === "success" && data.user) {
-                    const user = data.user;
-                    
-                    // Personal Information
-                    if (user.lastname) document.getElementById("lastNameDisplay").textContent = user.lastname;
-                    if (user.firstname) document.getElementById("firstNameDisplay").textContent = user.firstname;
-                    if (user.middlename) document.getElementById("middleNameDisplay").textContent = user.middlename;
-                    if (user.birthdate) document.getElementById("dobDisplay").textContent = user.birthdate;
-                    if (user.address) document.getElementById("addressDisplay").textContent = user.address;
-
-                    // Full Name
-                    const fullName = [user.firstname, user.middlename, user.lastname].filter(Boolean).join(' ');
-                    if (fullName) document.getElementById("fullNameDisplay").textContent = fullName;
-
-                    // National ID handling
-                    if (user.national_id) {
-                        const natId = String(user.national_id);
-                        document.getElementById("national_id_display").textContent = natId;
-                        
-                        // Last 6 digits for stat card
-                        const lastSix = natId.replace(/\s/g, '').slice(-6);
-                        if (lastSix) document.getElementById("stat_national_id").textContent = lastSix;
-                        
-                        // Mini display (first 4 + ... + last 3)
-                        const natIdNoSpaces = natId.replace(/\s/g, '');
-                        if (natIdNoSpaces.length > 7) {
-                            document.getElementById("national_id_mini").textContent = 
-                                natIdNoSpaces.slice(0,4) + '...' + natIdNoSpaces.slice(-3);
-                        }
-                    }
-
-                    // Portal ID handling
-                    if (user.portal_id) {
-                        const portal = String(user.portal_id);
-                        document.getElementById("portal_id_display").textContent = portal;
-                        
-                        // Mini display
-                        if (portal.length > 7) {
-                            document.getElementById("portal_id_mini").textContent = 
-                                portal.substring(0,4) + '...' + portal.slice(-3);
-                        }
-                    }
-
-                    // Work Assignment
-                    if (user.office_name) {
-                        document.getElementById("stat_office").textContent = user.office_name;
-                        document.getElementById("office_display").textContent = user.office_name;
-                    }
-                    
-                    if (user.division_name) document.getElementById("division_display").textContent = user.division_name;
-                    if (user.unit_name) document.getElementById("unit_display").textContent = user.unit_name;
-                    
-                    if (user.designation_name) {
-                        document.getElementById("stat_designation").textContent = user.designation_name;
-                        document.getElementById("designation_display").textContent = user.designation_name;
-                    }
-                    
-                    if (user.role) document.getElementById("role_display").textContent = user.role;
-
-                    // Dates
-                    if (user.date_created) {
-                        document.getElementById("stat_date_joined").textContent = user.date_created.split(' ').pop() || user.date_created;
-                        document.getElementById("date_created_display").textContent = user.date_created;
-                        
-                        // Extract year for employee since
-                        const year = user.date_created.split(' ').pop() || new Date().getFullYear();
-                        document.getElementById("employeeSince").textContent = year;
-                    }
-
-                    // Contact
-                    if (user.email) document.getElementById("emailDisplay").textContent = user.email;
-                    if (user.contact) document.getElementById("contactDisplay").textContent = user.contact;
-                    
-                    // Location
-                    if (user.office_location) document.getElementById("officeLocation").textContent = user.office_location;
-                    
-                    // Last update
-                    if (user.last_update) document.getElementById("lastUpdate").textContent = user.last_update;
-                    
-                    // Footer date
-                    document.getElementById("footerDate").textContent = new Date().getFullYear();
-                }
-            } catch (err) {
-                console.error("Profile Load Error:", err);
+        function setText(id, value, fallback = '-') {
+            const el = document.getElementById(id);
+            if (el) {
+                el.textContent = value || fallback;
             }
         }
 
-        window.addEventListener("DOMContentLoaded", loadUserProfile);
+        function safeString(value, fallback = '') {
+            return String(value ?? fallback);
+        }
+
+        function getYearFromDate(value) {
+            const str = safeString(value, '');
+            if (!str) return '-';
+
+            const match = str.match(/\b(19|20)\d{2}\b/);
+            if (match) return match[0];
+
+            return str.split(' ').pop() || '-';
+        }
+
+        async function getCsrfToken(forceRefresh = false) {
+            if (!forceRefresh && csrfTokenCache) {
+                return csrfTokenCache;
+            }
+
+            const res = await fetch('../api/auth/get_csrf.php', {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin'
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || !data.token) {
+                throw new Error(data.message || 'Unable to get CSRF token.');
+            }
+
+            csrfTokenCache = data.token;
+            return csrfTokenCache;
+        }
+
+        async function fetchLookupData(url, key) {
+            const res = await fetch(url, {
+                credentials: 'same-origin',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || data.status !== 200 || !data.data || !Array.isArray(data.data[key])) {
+                throw new Error(data.message || 'Unable to load profile options.');
+            }
+
+            return data.data[key];
+        }
+
+        function populateSelectOptions(selectId, items, valueKey, labelKey, selectedValue, placeholder) {
+            const select = document.getElementById(selectId);
+
+            if (!select) {
+                return;
+            }
+
+            const normalizedSelectedValue = selectedValue == null || selectedValue === ''
+                ? ''
+                : String(selectedValue);
+
+            select.innerHTML = `<option value="">${placeholder}</option>`;
+
+            items.forEach(item => {
+                const option = document.createElement('option');
+                option.value = String(item[valueKey] ?? '');
+                option.textContent = item[labelKey] ?? '-';
+
+                if (option.value === normalizedSelectedValue) {
+                    option.selected = true;
+                }
+
+                select.appendChild(option);
+            });
+        }
+
+        async function loadOfficeOptions(selectedValue = '') {
+            const offices = await fetchLookupData('../api/offices/get_offices.php?limit=1000&page=1', 'offices');
+            populateSelectOptions('editOffice', offices, 'id', 'office_name', selectedValue, 'Select office');
+        }
+
+        async function loadDivisionOptions(officeId = '', selectedValue = '') {
+            const query = officeId ? `?office_id=${encodeURIComponent(officeId)}&limit=1000&page=1` : '?limit=1000&page=1';
+            const divisions = await fetchLookupData('../api/divisions/get_divisions.php' + query, 'divisions');
+            populateSelectOptions('editDivision', divisions, 'id', 'division_name', selectedValue, 'Select division');
+        }
+
+        async function loadUnitOptions(divisionId = '', selectedValue = '') {
+            const query = divisionId ? `?division_id=${encodeURIComponent(divisionId)}&limit=1000&page=1` : '?limit=1000&page=1';
+            const units = await fetchLookupData('../api/units/get_units.php' + query, 'units');
+            populateSelectOptions('editUnit', units, 'id', 'unit_name', selectedValue, 'Select unit');
+        }
+
+        async function loadDesignationOptions(selectedValue = '') {
+            const designations = await fetchLookupData('../api/designations/get_designations.php?limit=1000&page=1', 'designations');
+            populateSelectOptions('editDesignation', designations, 'id', 'designation_name', selectedValue, 'Select designation');
+        }
+
+        async function prepareProfileFormOptions() {
+            const officeId = currentProfileUser.office_id || '';
+            const divisionId = currentProfileUser.division_id || '';
+            const unitId = currentProfileUser.unit_id || '';
+            const designationId = currentProfileUser.designation_id || '';
+
+            await loadOfficeOptions(officeId);
+            await loadDivisionOptions(officeId, divisionId);
+            await loadUnitOptions(divisionId, unitId);
+            await loadDesignationOptions(designationId);
+        }
+
+        async function openEditProfileModal() {
+            document.getElementById('editFirstName').value = currentProfileUser.firstname || '';
+            document.getElementById('editLastName').value = currentProfileUser.lastname || '';
+            document.getElementById('editMiddleName').value = currentProfileUser.middlename || '';
+            document.getElementById('editNationalId').value = currentProfileUser.national_id || '';
+            document.getElementById('editEmail').value = currentProfileUser.email || '';
+            document.getElementById('editContact').value = currentProfileUser.contact || currentProfileUser.contact_number || currentProfileUser.mobile_number || '';
+            document.getElementById('editAddress').value = currentProfileUser.address || currentProfileUser.complete_address || '';
+            document.getElementById('editOfficeLocation').value = currentProfileUser.office_location || currentProfileUser.location || '';
+
+            try {
+                await prepareProfileFormOptions();
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Profile options unavailable',
+                    text: error.message || 'Unable to load assignment options.',
+                    confirmButtonColor: '#002b7f'
+                });
+                return;
+            }
+
+            const modal = new bootstrap.Modal(document.getElementById('editProfileModal'));
+            modal.show();
+        }
+
+        async function saveProfile() {
+            const payload = {
+                firstname: document.getElementById('editFirstName').value.trim(),
+                lastname: document.getElementById('editLastName').value.trim(),
+                middlename: document.getElementById('editMiddleName').value.trim(),
+                national_id: document.getElementById('editNationalId').value.trim(),
+                email: document.getElementById('editEmail').value.trim(),
+                contact: document.getElementById('editContact').value.trim(),
+                address: document.getElementById('editAddress').value.trim(),
+                office_location: document.getElementById('editOfficeLocation').value.trim(),
+                office_id: document.getElementById('editOffice').value,
+                division_id: document.getElementById('editDivision').value,
+                unit_id: document.getElementById('editUnit').value,
+                designation_id: document.getElementById('editDesignation').value
+            };
+
+            try {
+                const makeRequest = async token => fetch('../api/users/update_profile.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': token,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(payload),
+                    credentials: 'same-origin'
+                });
+
+                let res = await makeRequest(await getCsrfToken());
+
+                if (res.status === 419) {
+                    csrfTokenCache = null;
+                    res = await makeRequest(await getCsrfToken(true));
+                }
+
+                const rawText = await res.text();
+                let result;
+
+                try {
+                    result = JSON.parse(rawText);
+                } catch (e) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Server Response Error',
+                        html: `<pre style="text-align:left;white-space:pre-wrap;">${rawText || 'Empty response from server.'}</pre>`,
+                        width: 700,
+                        confirmButtonColor: '#002b7f'
+                    });
+                    return;
+                }
+
+                if (result.status === 200) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Updated',
+                        text: result.message || 'Profile updated successfully.',
+                        confirmButtonColor: '#002b7f'
+                    });
+
+                    if (document.activeElement) {
+                        document.activeElement.blur();
+                    }
+
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+                    if (modal) {
+                        modal.hide();
+                    }
+
+                    await loadUserProfile();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: result.title || 'Error',
+                        text: result.message || 'Unable to update profile.',
+                        confirmButtonColor: '#002b7f'
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Request Failed',
+                    text: err.message || 'Failed to update profile.',
+                    confirmButtonColor: '#002b7f'
+                });
+            }
+        }
+
+        async function loadUserProfile() {
+            try {
+                const res = await fetch('../api/users/get_profile.php', {
+                    credentials: 'same-origin'
+                });
+
+                const text = await res.text();
+                let data = null;
+
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    console.error('Invalid get_profile.php response:', text);
+                }
+
+                if (!(data && data.status === 'success' && data.user)) {
+                    throw new Error(data && data.message ? data.message : 'Unable to load profile information.');
+                }
+
+                const user = data.user;
+                currentProfileUser = user;
+
+                const lastname = user.lastname || '-';
+                const firstname = user.firstname || '-';
+                const middlename = user.middlename || '';
+
+                setText('lastNameDisplay', lastname);
+                setText('firstNameDisplay', firstname);
+                setText('middleNameDisplay', middlename || '-');
+                setText('dobDisplay', user.birthdate || '-');
+                setText('addressDisplay', user.address || '-');
+
+                const fullName = [user.firstname, user.middlename, user.lastname].filter(Boolean).join(' ');
+                setText('fullNameDisplay', fullName || '-');
+
+                const natId = safeString(user.national_id || '-');
+                const natIdNoSpaces = natId.replace(/\s/g, '');
+                setText('national_id_display', natId);
+                setText('stat_national_id', natIdNoSpaces.length > 6 ? natIdNoSpaces.slice(-6) : natIdNoSpaces);
+                setText('national_id_mini', natIdNoSpaces.length > 7 ? natIdNoSpaces.slice(0, 4) + '...' + natIdNoSpaces.slice(-3) : natIdNoSpaces);
+
+                const portal = safeString(user.portal_id || '-');
+                setText('portal_id_display', portal);
+                setText('portal_id_mini', portal.length > 7 ? portal.substring(0, 4) + '...' + portal.slice(-3) : portal);
+
+                setText('stat_office', user.office_name || '-');
+                setText('office_display', user.office_name || '-');
+                setText('division_display', user.division_name || '-');
+                setText('unit_display', user.unit_name || '-');
+                setText('stat_designation', user.designation_name || '-');
+                setText('designation_display', user.designation_name || '-');
+                setText('role_display', user.role || '-');
+
+                setText('stat_date_joined', getYearFromDate(user.date_created));
+                setText('date_created_display', user.date_created || '-');
+                setText('employeeSince', getYearFromDate(user.date_created));
+
+                setText('emailDisplay', user.email || '-');
+                setText('contactDisplay', user.contact || user.contact_number || user.mobile_number || '-');
+                setText('officeLocation', user.office_location || user.location || '-');
+                setText('lastUpdate', user.last_update || user.updated_at || user.date_updated || '-');
+                setText('footerDate', new Date().getFullYear());
+            } catch (err) {
+                console.error('Profile Load Error:', err);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Profile Error',
+                    text: 'Unable to load profile information.',
+                    confirmButtonColor: '#002b7f'
+                });
+            }
+        }
+
+        document.getElementById('editProfileModal').addEventListener('hide.bs.modal', function() {
+            if (this.contains(document.activeElement)) {
+                document.activeElement.blur();
+            }
+        });
+
+        document.getElementById('editOffice').addEventListener('change', async function() {
+            const officeId = this.value;
+            await loadDivisionOptions(officeId, '');
+            populateSelectOptions('editUnit', [], 'id', 'unit_name', '', 'Select unit');
+        });
+
+        document.getElementById('editDivision').addEventListener('change', async function() {
+            await loadUnitOptions(this.value, '');
+        });
+
+        window.addEventListener('DOMContentLoaded', loadUserProfile);
     </script>
 
     <?php include_once __DIR__ . '/../includes/footer.php'; ?>

@@ -1,123 +1,250 @@
 <?php
-header("Content-Type: application/json");
-
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
-// ✅ Include config
 require_once __DIR__ . "/../../includes/config_system.php";
 require_once __DIR__ . '/../../includes/log_helper.php';
+require_once __DIR__ . '/../../includes/sso_helper.php';
 
-// Alias $pdo_system to $pdo for backward compatibility
-$pdo = $pdo_system;
+$newLogoPath = null;
 
-// Ensure PDO exists
-if (!isset($pdo)) {
-    echo json_encode(["status" => "error", "message" => "Database connection (\$pdo) not initialized."]);
-    exit;
+function system_logo_upload_error_message($errorCode) {
+    switch ((int) $errorCode) {
+        case UPLOAD_ERR_INI_SIZE:
+        case UPLOAD_ERR_FORM_SIZE:
+            return 'Logo upload failed. The file is too large.';
+        case UPLOAD_ERR_PARTIAL:
+            return 'Logo upload failed. The file was only partially uploaded.';
+        case UPLOAD_ERR_NO_TMP_DIR:
+            return 'Logo upload failed. Missing temporary upload folder.';
+        case UPLOAD_ERR_CANT_WRITE:
+            return 'Logo upload failed. Unable to write the uploaded file.';
+        case UPLOAD_ERR_EXTENSION:
+            return 'Logo upload failed. A PHP extension blocked the upload.';
+        default:
+            return 'Logo upload failed.';
+    }
+}
+
+function store_system_logo_upload($fieldName = 'logo') {
+    if (!isset($_FILES[$fieldName]) || $_FILES[$fieldName]['error'] === UPLOAD_ERR_NO_FILE) {
+        return null;
+    }
+
+    if ($_FILES[$fieldName]['error'] !== UPLOAD_ERR_OK) {
+        respond_system(400, system_logo_upload_error_message($_FILES[$fieldName]['error']));
+    }
+
+    $maxSize = 5 * 1024 * 1024;
+    if ((int) $_FILES[$fieldName]['size'] > $maxSize) {
+        respond_system(400, 'Logo file is too large. Maximum size is 5MB.');
+    }
+
+    $tmpName = $_FILES[$fieldName]['tmp_name'];
+    $detectedMime = null;
+
+    if (function_exists('finfo_open')) {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if ($finfo !== false) {
+            $detectedMime = finfo_file($finfo, $tmpName);
+            finfo_close($finfo);
+        }
+    }
+
+    $mimeType = $detectedMime ?: ($_FILES[$fieldName]['type'] ?? '');
+    $allowedTypes = [
+        'image/jpeg' => 'jpg',
+        'image/pjpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/gif' => 'gif',
+        'image/webp' => 'webp',
+    ];
+
+    if (!isset($allowedTypes[$mimeType])) {
+        respond_system(400, 'Invalid logo file type. Please upload JPG, PNG, GIF, or WEBP.');
+    }
+
+    $uploadDir = SYSTEM_UPLOAD_DIR . 'systems/';
+    if (!is_dir($uploadDir) && !mkdir($uploadDir, 0777, true) && !is_dir($uploadDir)) {
+        respond_system(500, 'Failed to prepare logo upload folder.');
+    }
+
+    $originalName = pathinfo($_FILES[$fieldName]['name'], PATHINFO_FILENAME);
+    $safeName = preg_replace('/[^A-Za-z0-9_-]+/', '_', $originalName);
+    $safeName = trim((string) $safeName, '_');
+    if ($safeName === '') {
+        $safeName = 'logo';
+    }
+
+    $filename = uniqid('system_logo_', true) . '_' . substr($safeName, 0, 80) . '.' . $allowedTypes[$mimeType];
+    $targetPath = $uploadDir . $filename;
+
+    if (!move_uploaded_file($tmpName, $targetPath)) {
+        respond_system(500, 'Failed to upload logo.');
+    }
+
+    return 'uploads/systems/' . $filename;
+}
+
+function delete_system_uploaded_logo($logoPath) {
+    $relativePath = ltrim((string) $logoPath, '/');
+    if ($relativePath === '' || strpos($relativePath, 'uploads/') !== 0) {
+        return;
+    }
+
+    $fullPath = realpath(__DIR__ . '/../../' . $relativePath);
+    $uploadsRoot = realpath(SYSTEM_UPLOAD_DIR);
+
+    if ($fullPath && $uploadsRoot && strpos($fullPath, $uploadsRoot . DIRECTORY_SEPARATOR) === 0 && is_file($fullPath)) {
+        unlink($fullPath);
+    }
 }
 
 try {
-    // Determine input type: JSON or form-data
-    if (isset($_SERVER['CONTENT_TYPE']) && stripos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        respond_system(405, "Invalid request method");
+    }
+
+    $isJson = isset($_SERVER['CONTENT_TYPE']) && stripos($_SERVER['CONTENT_TYPE'], 'application/json') !== false;
+
+    if ($isJson) {
         $data = json_decode(file_get_contents("php://input"), true);
-        $id = $data['id'] ?? null;
-        $system_name = trim($data['system_name'] ?? '');
+        if (!is_array($data)) {
+            respond_system(400, "Invalid or missing JSON body");
+        }
+
+        $idRaw = $data['id'] ?? '';
+        $systemName = trim($data['system_name'] ?? '');
+        $domainUrl = trim($data['domain_url'] ?? '');
         $description = trim($data['description'] ?? '');
-        $status = $data['status'] ?? '';
-        $logo_path = $data['current_logo'] ?? null;
-        $file_uploaded = false; // no file in JSON
+        $status = trim($data['status'] ?? '');
     } else {
-        // form-data
-        $id = $_POST['id'] ?? null;
-        $system_name = trim($_POST['system_name'] ?? '');
+        $idRaw = $_POST['id'] ?? '';
+        $systemName = trim($_POST['system_name'] ?? '');
+        $domainUrl = trim($_POST['domain_url'] ?? '');
         $description = trim($_POST['description'] ?? '');
-        $status = $_POST['status'] ?? '';
-        $logo_path = $_POST['current_logo'] ?? null;
-        $file_uploaded = isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK;
+        $status = trim($_POST['status'] ?? '');
     }
 
-    // Validate required fields
-    if (empty($id)) {
-        echo json_encode(["status" => "error", "message" => "System ID is required."]);
-        exit;
-    }
-    if (empty($system_name) || empty($status)) {
-        echo json_encode(["status" => "error", "message" => "System name and status are required."]);
-        exit;
+    $idRaw = trim((string) $idRaw);
+    if ($idRaw === '' || !ctype_digit($idRaw)) {
+        respond_system(400, "System ID is required.");
     }
 
-    // Handle logo upload if any
-    if ($file_uploaded) {
-        $allowedTypes = ['image/jpeg','image/png','image/gif','image/webp'];
-        if (!in_array($_FILES['logo']['type'], $allowedTypes)) {
-            echo json_encode(["status" => "error", "message" => "Invalid file type. Only images allowed."]);
-            exit;
+    if ($systemName === '' || $status === '') {
+        respond_system(400, "System name and status are required.");
+    }
+
+    $statusMap = [
+        'active' => 'Active',
+        'inactive' => 'Inactive',
+    ];
+    $statusKey = strtolower(trim((string) $status));
+    if (!isset($statusMap[$statusKey])) {
+        respond_system(400, "Status must be Active or Inactive");
+    }
+    $status = $statusMap[$statusKey];
+
+    if ($status === 'Active' && $domainUrl === '') {
+        respond_system(400, "Domain URL is required for active systems");
+    }
+
+    if ($domainUrl !== '' && (filter_var($domainUrl, FILTER_VALIDATE_URL) === false || !sso_is_safe_url($domainUrl))) {
+        respond_system(400, "Domain URL must be a valid HTTP or HTTPS URL");
+    }
+
+    $id = (int) $idRaw;
+
+    $existingStmt = $pdo_system->prepare("SELECT id, logo_path FROM systems WHERE id = :id");
+    $existingStmt->execute([':id' => $id]);
+    $existingSystem = $existingStmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$existingSystem) {
+        respond_system(404, "System not found.");
+    }
+
+    $duplicateSql = "SELECT COUNT(*) FROM systems WHERE id <> :id AND (system_name = :system_name";
+    $duplicateParams = [
+        ':id' => $id,
+        ':system_name' => $systemName,
+    ];
+
+    if ($domainUrl !== '') {
+        $duplicateSql .= " OR domain_url = :domain_url";
+        $duplicateParams[':domain_url'] = $domainUrl;
+    }
+
+    $duplicateSql .= ")";
+    $duplicateStmt = $pdo_system->prepare($duplicateSql);
+    $duplicateStmt->execute($duplicateParams);
+
+    if ($duplicateStmt->fetchColumn() > 0) {
+        respond_system(409, "System already exists with the same name or domain");
+    }
+
+    $logoPath = $existingSystem['logo_path'] ?? null;
+    if (!$isJson) {
+        $newLogoPath = store_system_logo_upload('logo');
+        if ($newLogoPath !== null) {
+            $logoPath = $newLogoPath;
         }
-        if ($_FILES['logo']['size'] > 2*1024*1024) {
-            echo json_encode(["status" => "error", "message" => "File too large. Max 2MB allowed."]);
-            exit;
-        }
-
-        $uploadDir = SYSTEM_UPLOAD_DIR . "systems/";
-        if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
-
-        $filename = uniqid() . "_" . basename($_FILES['logo']['name']);
-        $targetFile = $uploadDir . $filename;
-
-        if (move_uploaded_file($_FILES['logo']['tmp_name'], $targetFile)) {
-            $newLogoPath = "uploads/systems/" . $filename;
-
-            // Delete old logo if exists
-            if ($logo_path && file_exists(__DIR__ . "/../../" . $logo_path)) {
-                unlink(__DIR__ . "/../../" . $logo_path);
-            }
-
-            $logo_path = $newLogoPath;
-        } else {
-            echo json_encode(["status" => "error", "message" => "Failed to upload logo."]);
-            exit;
-        }
     }
 
-    // Update database (PostgreSQL)
-    $sql = "UPDATE systems 
+    $sql = "UPDATE systems
             SET system_name = :system_name,
                 description = :description,
                 logo_path = :logo_path,
                 status = :status,
+                domain_url = :domain_url,
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = :id";
 
-    $stmt = $pdo->prepare($sql);
+    $stmt = $pdo_system->prepare($sql);
     $stmt->execute([
-        ":system_name" => $system_name,
+        ":system_name" => $systemName,
         ":description" => $description,
-        ":logo_path" => $logo_path,
+        ":logo_path" => $logoPath,
         ":status" => $status,
+        ":domain_url" => $domainUrl,
         ":id" => $id,
     ]);
 
+    if ($newLogoPath !== null && !empty($existingSystem['logo_path']) && $existingSystem['logo_path'] !== $newLogoPath) {
+        delete_system_uploaded_logo($existingSystem['logo_path']);
+    }
+
     if (!empty($_SESSION['user']['portal_id'])) {
         log_transaction(
-            $pdo,
+            $pdo_system,
             $_SESSION['user']['portal_id'],
             'UPDATE_SYSTEM',
             'systems',
             $id,
             'Updated a system record.',
             [
-                'system_name' => $system_name,
+                'system_name' => $systemName,
                 'status' => $status,
+                'domain_url' => $domainUrl,
             ],
             $_SESSION['user']['role'] ?? null
         );
     }
 
-    echo json_encode(["status" => 200, "message" => "System updated successfully"]);
+    respond_system(200, "System updated successfully", [
+        "id" => $id,
+        "system_name" => $systemName,
+        "description" => $description,
+        "status" => $status,
+        "domain_url" => $domainUrl,
+        "logo_path" => $logoPath,
+    ]);
 
 } catch (Exception $e) {
+    if ($newLogoPath !== null) {
+        delete_system_uploaded_logo($newLogoPath);
+    }
+
     error_log('systems update_system failed: ' . $e->getMessage());
-    echo json_encode(["status" => "error", "message" => "Unable to update system right now."]);
+    respond_system(500, "Unable to update system right now.");
 }

@@ -254,7 +254,7 @@
         renderRoles(this.value);
     });
 
-    document.addEventListener('DOMContentLoaded', loadRoles);
+    loadRoles();
     </script>
 
     <style>

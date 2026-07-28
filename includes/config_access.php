@@ -55,10 +55,10 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
-$db_host = getenv('DB_HOST') ?: 'localhost';
+$db_host = getenv('DB_HOST') ?: '127.0.0.1';
 $db_name = getenv('DB_NAME') ?: 'portal_db';
 $db_user = getenv('DB_USER') ?: 'postgres';
-$db_pass = getenv('DB_PASS') ?: 'secret';
+$db_pass = getenv('DB_PASS') ?: 'strongpasswordsecret';
 $db_port = getenv('DB_PORT') ?: '5432';
 
 $dsn = "pgsql:host={$db_host};port={$db_port};dbname={$db_name}";

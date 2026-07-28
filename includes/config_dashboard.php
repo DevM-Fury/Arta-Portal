@@ -15,11 +15,11 @@ function load_dotenv($path) {
 load_dotenv(__DIR__ . '/../.env');
 
 // ✅ Environment Variables
-$DB_HOST = getenv('DB_HOST') ?: 'localhost';
+$DB_HOST = getenv('DB_HOST') ?: '127.0.0.1';
 $DB_PORT = getenv('DB_PORT') ?: '5432';
 $DB_NAME = getenv('DB_NAME') ?: 'portal_db';
 $DB_USER = getenv('DB_USER') ?: 'postgres';
-$DB_PASS = getenv('DB_PASS') ?: 'secret';
+$DB_PASS = getenv('DB_PASS') ?: 'strongpasswordsecret';
 
 // ✅ Secure session setup
 ini_set('session.cookie_httponly', 1);

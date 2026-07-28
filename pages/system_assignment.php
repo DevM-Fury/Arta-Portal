@@ -1,9 +1,38 @@
 <?php
-// Include necessary components
+if (session_status() !== PHP_SESSION_ACTIVE) {
+	$isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+		|| (isset($_SERVER['SERVER_PORT']) && (int) $_SERVER['SERVER_PORT'] === 443);
+
+	ini_set('session.use_only_cookies', '1');
+	ini_set('session.use_strict_mode', '1');
+	session_set_cookie_params([
+		'lifetime' => 0,
+		'path' => '/',
+		'domain' => '',
+		'secure' => $isHttps,
+		'httponly' => true,
+		'samesite' => 'Lax',
+	]);
+	session_start();
+}
+
+$currentUser = $_SESSION['user'] ?? null;
+$currentRole = strtolower((string) ($currentUser['role'] ?? $_SESSION['role'] ?? ''));
+
+if (!$currentUser || empty($currentUser['portal_id'])) {
+	header('Location: login.php');
+	exit;
+}
+
+if (!in_array($currentRole, ['admin', 'subadmin'], true)) {
+	http_response_code(403);
+	exit('Access denied.');
+}
+
 include_once __DIR__ . '/../includes/head.php';
 ?>
 <body>
-	<?php include_once __DIR__ . '/../includes/sidebar.php'; ?>
+	<?php include_once __DIR__ . '/../includes/' . ($currentRole === 'subadmin' ? 'sidebar_subadmin.php' : 'sidebar.php'); ?>
 
 	<div class="header-bar">
 		<div class="header-title">
@@ -187,11 +216,24 @@ include_once __DIR__ . '/../includes/head.php';
 	<script>
 	// ===== Enhanced fetch with error handling =====
 	async function fetchJSON(url, options = {}) {
-		const response = await fetch(url, options);
+		const response = await fetch(url, {
+			credentials: 'same-origin',
+			...options
+		});
 		const contentType = response.headers.get('content-type');
 		if (!response.ok) {
 			const text = await response.text();
 			console.error(`HTTP ${response.status} from ${url}:`, text);
+			if (response.status === 401) {
+				Swal.fire({
+					icon: 'warning',
+					title: 'Session expired',
+					text: 'Please log in again.',
+					confirmButtonText: 'Login'
+				}).then(() => {
+					window.location.href = 'login.php';
+				});
+			}
 			throw new Error(`HTTP error ${response.status}`);
 		}
 		if (contentType && contentType.includes('application/json')) {
