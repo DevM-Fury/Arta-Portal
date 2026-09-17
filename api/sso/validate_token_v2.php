@@ -274,6 +274,7 @@ try {
             u.lastname,
             u.email,
             u.status,
+            u.contact,
             d.designation_name,
             o.office_name,
             dv.division_name,
@@ -402,6 +403,9 @@ try {
         'office_name' => $user['office_name'] ?? null,
         'division_name' => $user['division_name'] ?? null,
         'unit_name' => $user['unit_name'] ?? null,
+        'mobile_number' => (isset($user['contact']) && trim((string) $user['contact']) !== '')
+            ? trim((string) $user['contact'])
+            : null,
         'portal_system_role' => $role
     ];
 
