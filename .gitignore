@@ -1,0 +1,13 @@
+# Environment — never commit credentials
+.env
+
+# Phase backups — local only
+*.pre-*
+*.pre-phase-c
+
+# Database dumps — may contain sensitive data
+portal_db.sql
+portal_dby.sql
+
+# Composer generated
+/vendor/

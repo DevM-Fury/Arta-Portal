@@ -26,7 +26,6 @@ if (!isset($_SESSION['user']['portal_id'])) {
 }
 
 $portal_id = $_SESSION['user']['portal_id'];
-$sessionRole = strtolower((string) ($_SESSION['user']['role'] ?? ''));
 $system_id = $_GET['system_id'] ?? null;
 $system_id_raw = is_scalar($system_id) ? trim((string) $system_id) : '';
 
@@ -79,10 +78,6 @@ try {
         if (sso_allowed_role($candidateRole, $ssoConfig)) {
             $role = $candidateRole;
         }
-    }
-
-    if ($role === null && $sessionRole === 'admin') {
-        $role = 'admin';
     }
 
     if ($role === null) {
