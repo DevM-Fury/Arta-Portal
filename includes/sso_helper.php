@@ -22,7 +22,7 @@ function sso_get_config() {
 
 	$portalBaseUrl = rtrim((string) (getenv('PORTAL_BASE_URL') ?: ''), '/');
 	$amsBaseUrl = rtrim((string) (getenv('AMS_BASE_URL') ?: ''), '/');
-	$ttlMinutes = (int) (getenv('SSO_TOKEN_TTL_MINUTES') ?: 15);
+	$ttlMinutes = (int) (getenv('SSO_TOKEN_TTL_MINUTES') ?: 5);
 
 	$allowedDomains = sso_parse_csv_env((string) getenv('ALLOWED_SSO_DOMAINS'));
 	if (!$allowedDomains && $amsBaseUrl !== '') {
@@ -43,7 +43,7 @@ function sso_get_config() {
 	$config = [
 		'portal_base_url' => $portalBaseUrl,
 		'ams_base_url' => $amsBaseUrl,
-		'ttl_minutes' => $ttlMinutes > 0 ? $ttlMinutes : 15,
+		'ttl_minutes' => $ttlMinutes > 0 ? $ttlMinutes : 5,
 		'allowed_domains' => array_values(array_unique($allowedDomains)),
 		'allowed_origins' => array_values(array_unique($allowedOrigins)),
 		'allowed_roles' => ['admin', 'user', 'inspector', 'property', 'manager', 'subadmin', 'end_user', 'auditor'],
