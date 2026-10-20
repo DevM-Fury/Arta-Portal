@@ -307,5 +307,184 @@
 			padding: 0.75rem;
 		}
 	}
+
+	:root {
+		--portal-blue: #1877d2;
+		--portal-blue-dark: #0f4ea8;
+		--portal-blue-soft: #eaf4ff;
+		--portal-ink: #0f172a;
+		--portal-surface: rgba(255, 255, 255, 0.82);
+		--portal-surface-strong: rgba(255, 255, 255, 0.92);
+		--portal-border: rgba(15, 23, 42, 0.08);
+		--portal-shadow: 0 24px 50px rgba(15, 23, 42, 0.08);
+	}
+
+	body {
+		background:
+			radial-gradient(circle at top left, rgba(24, 119, 210, 0.16), transparent 28%),
+			radial-gradient(circle at bottom right, rgba(66, 183, 42, 0.12), transparent 24%),
+			linear-gradient(180deg, #f4f8fc 0%, #eef4fb 48%, #f9fbff 100%);
+		color: #132238;
+		position: relative;
+	}
+
+	body::before,
+	body::after {
+		content: "";
+		position: fixed;
+		inset: auto;
+		pointer-events: none;
+		z-index: -1;
+		filter: blur(10px);
+	}
+
+	body::before {
+		top: 88px;
+		right: 6%;
+		width: 220px;
+		height: 220px;
+		border-radius: 32px;
+		background: linear-gradient(145deg, rgba(24, 119, 210, 0.14), rgba(24, 119, 210, 0.02));
+		clip-path: polygon(25% 6%, 75% 6%, 100% 50%, 75% 94%, 25% 94%, 0 50%);
+	}
+
+	body::after {
+		left: 10%;
+		bottom: 7%;
+		width: 180px;
+		height: 180px;
+		border-radius: 50%;
+		background: radial-gradient(circle, rgba(66, 183, 42, 0.12), rgba(66, 183, 42, 0));
+	}
+
+	.header-bar {
+		background: linear-gradient(135deg, rgba(5, 19, 43, 0.96), rgba(10, 46, 96, 0.94));
+		backdrop-filter: blur(16px);
+		box-shadow: 0 18px 40px rgba(5, 19, 43, 0.24);
+		border: 1px solid rgba(255, 255, 255, 0.14);
+	}
+
+	.header-title {
+		font-weight: 700;
+		letter-spacing: 0.01em;
+	}
+
+	.header-user {
+		background: rgba(255, 255, 255, 0.1);
+		border: 1px solid rgba(255, 255, 255, 0.18);
+		backdrop-filter: blur(12px);
+		box-shadow: none;
+	}
+
+	.main-content {
+		position: relative;
+	}
+
+	.main-content > .container,
+	.main-content > .container-fluid,
+	.main-content .content-shell {
+		position: relative;
+		z-index: 1;
+	}
+
+	.card,
+	.table-container,
+	.profile-card,
+	.stats-card,
+	.modal-content {
+		background: var(--portal-surface-strong);
+		border: 1px solid var(--portal-border);
+		box-shadow: var(--portal-shadow);
+		backdrop-filter: blur(16px);
+	}
+
+	.card,
+	.table-container,
+	.profile-card,
+	.stats-card {
+		border-radius: 24px;
+	}
+
+	.card-header,
+	.modal-header {
+		background: transparent;
+		border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+	}
+
+	.table {
+		--bs-table-bg: transparent;
+		--bs-table-striped-bg: rgba(24, 119, 210, 0.03);
+		--bs-table-hover-bg: rgba(24, 119, 210, 0.05);
+		color: #16304a;
+	}
+
+	.table thead th {
+		background: linear-gradient(135deg, #10345f, #1877d2);
+		color: #fff;
+		border-bottom: none;
+		font-weight: 700;
+		letter-spacing: 0.01em;
+	}
+
+	.table tbody td {
+		border-color: rgba(15, 23, 42, 0.06);
+		vertical-align: middle;
+	}
+
+	.form-control,
+	.form-select,
+	textarea.form-control {
+		border-radius: 14px;
+		border: 1px solid rgba(15, 23, 42, 0.12);
+		background: rgba(255, 255, 255, 0.94);
+		box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.02);
+	}
+
+	.form-control:focus,
+	.form-select:focus,
+	textarea.form-control:focus {
+		border-color: rgba(24, 119, 210, 0.5);
+		box-shadow: 0 0 0 4px rgba(24, 119, 210, 0.12);
+	}
+
+	.btn {
+		border-radius: 14px;
+		font-weight: 700;
+	}
+
+	.btn-primary,
+	.btn-dark {
+		background: linear-gradient(135deg, #1877d2, #0f4ea8);
+		border-color: transparent;
+		box-shadow: 0 14px 28px rgba(24, 119, 210, 0.18);
+	}
+
+	.btn-primary:hover,
+	.btn-dark:hover {
+		background: linear-gradient(135deg, #1466b4, #0d438f);
+		border-color: transparent;
+	}
+
+	.btn-success {
+		background: linear-gradient(135deg, #42b72a, #2f971d);
+		border-color: transparent;
+	}
+
+	.btn-outline-secondary,
+	.btn-secondary {
+		border-color: rgba(15, 23, 42, 0.12);
+	}
+
+	.badge {
+		border-radius: 999px;
+		padding: 0.5em 0.8em;
+	}
+
+	.footer {
+		background: rgba(255, 255, 255, 0.84);
+		backdrop-filter: blur(16px);
+		border-top: 1px solid rgba(15, 23, 42, 0.08);
+		box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.06);
+	}
 	</style>
 </head>

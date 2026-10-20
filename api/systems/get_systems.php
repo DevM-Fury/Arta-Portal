@@ -20,6 +20,7 @@ try {
 
     respond_system(200, 'Systems fetched successfully', [
         'systems' => $systems,
+        'total' => (int) $totalRows,
         'totalPages' => $totalPages,
         'currentPage' => $page
     ]);

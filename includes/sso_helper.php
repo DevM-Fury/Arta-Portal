@@ -22,13 +22,16 @@ function sso_get_config() {
 
 	$portalBaseUrl = rtrim((string) (getenv('PORTAL_BASE_URL') ?: ''), '/');
 	$amsBaseUrl = rtrim((string) (getenv('AMS_BASE_URL') ?: ''), '/');
+	$helpdeskBaseUrl = rtrim((string) (getenv('HELPDESK_BASE_URL') ?: ''), '/');
 	$ttlMinutes = (int) (getenv('SSO_TOKEN_TTL_MINUTES') ?: 5);
 
 	$allowedDomains = sso_parse_csv_env((string) getenv('ALLOWED_SSO_DOMAINS'));
-	if (!$allowedDomains && $amsBaseUrl !== '') {
-		$amsHost = sso_extract_host($amsBaseUrl);
-		if ($amsHost) {
-			$allowedDomains[] = $amsHost;
+	foreach ([$amsBaseUrl, $helpdeskBaseUrl] as $baseUrl) {
+		if ($baseUrl !== '') {
+			$baseHost = sso_extract_host($baseUrl);
+			if ($baseHost) {
+				$allowedDomains[] = $baseHost;
+			}
 		}
 	}
 
@@ -43,10 +46,11 @@ function sso_get_config() {
 	$config = [
 		'portal_base_url' => $portalBaseUrl,
 		'ams_base_url' => $amsBaseUrl,
+		'helpdesk_base_url' => $helpdeskBaseUrl,
 		'ttl_minutes' => $ttlMinutes > 0 ? $ttlMinutes : 5,
 		'allowed_domains' => array_values(array_unique($allowedDomains)),
 		'allowed_origins' => array_values(array_unique($allowedOrigins)),
-		'allowed_roles' => ['admin', 'user', 'inspector', 'property', 'manager', 'subadmin', 'end_user', 'auditor'],
+		'allowed_roles' => ['admin', 'user', 'inspector', 'property', 'manager', 'subadmin', 'end_user', 'auditor', 'ict'],
 		'production' => in_array(strtolower((string) getenv('APP_ENV')), ['prod', 'production'], true),
 	];
 
@@ -124,6 +128,134 @@ function sso_is_allowed_domain($url, array $config) {
 	}
 
 	return false;
+}
+
+function sso_get_registered_system_hosts($pdo) {
+	static $hosts = null;
+
+	if ($hosts !== null) {
+		return $hosts;
+	}
+
+	$hosts = [];
+
+	try {
+		$stmt = $pdo->query(
+			"SELECT domain_url FROM systems WHERE NULLIF(TRIM(domain_url), '') IS NOT NULL AND LOWER(COALESCE(status, '')) = 'active'"
+		);
+		$urls = $stmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
+
+		foreach ($urls as $url) {
+			if (!sso_is_safe_url($url)) {
+				continue;
+			}
+
+			$host = sso_extract_host($url);
+			if ($host) {
+				$hosts[] = $host;
+			}
+		}
+	} catch (Throwable $exception) {
+		error_log('SSO registered system host lookup failed: ' . $exception->getMessage());
+	}
+
+	$hosts = array_values(array_unique($hosts));
+	return $hosts;
+}
+
+function sso_is_registered_system_domain($url, $pdo) {
+	if (!sso_is_safe_url($url)) {
+		return false;
+	}
+
+	$host = sso_extract_host($url);
+	if (!$host) {
+		return false;
+	}
+
+	return in_array($host, sso_get_registered_system_hosts($pdo), true);
+}
+
+function sso_is_allowed_redirect_url($url, array $config, $pdo = null) {
+	if (sso_is_allowed_domain($url, $config)) {
+		return true;
+	}
+
+	if ($pdo instanceof PDO) {
+		return sso_is_registered_system_domain($url, $pdo);
+	}
+
+	return false;
+}
+
+function sso_is_ams_system(array $system, array $config) {
+	$systemName = strtolower(trim((string) ($system['system_name'] ?? '')));
+	$domainUrl = trim((string) ($system['domain_url'] ?? ''));
+	$amsBaseUrl = trim((string) ($config['ams_base_url'] ?? ''));
+
+	if (
+		$systemName !== '' && (
+			(bool) preg_match('/(^|[^a-z0-9])ams([^a-z0-9]|$)/', $systemName)
+			|| strpos($systemName, 'asset management') !== false
+		)
+	) {
+		return true;
+	}
+
+	if (
+		$domainUrl !== '' &&
+		$amsBaseUrl !== ''
+	) {
+		$systemHost = sso_extract_host($domainUrl);
+		$amsHost = sso_extract_host($amsBaseUrl);
+
+		if (
+			$systemHost !== null &&
+			$amsHost !== null &&
+			sso_host_matches($systemHost, $amsHost)
+		) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function sso_resolve_system_base_url(array $system, array $config) {
+	$systemName = strtolower(trim((string) ($system['system_name'] ?? '')));
+	$domainUrl = trim((string) ($system['domain_url'] ?? ''));
+
+	if (sso_is_ams_system($system, $config) && !empty($config['ams_base_url'])) {
+		return $config['ams_base_url'];
+	}
+
+	if ($systemName !== '' && strpos($systemName, 'helpdesk') !== false && !empty($config['helpdesk_base_url'])) {
+		return $config['helpdesk_base_url'];
+	}
+
+	return $domainUrl;
+}
+
+function sso_build_login_url($baseUrl, $token, $loginPath = '/sso-login') {
+	$baseUrl = trim((string) $baseUrl);
+	$token = (string) $token;
+
+	if ($baseUrl === '' || $token === '') {
+		return null;
+	}
+
+	$parts = parse_url($baseUrl);
+	if (!$parts || empty($parts['scheme']) || empty($parts['host'])) {
+		return null;
+	}
+
+	$path = rtrim((string) ($parts['path'] ?? ''), '/');
+	if ($path === '/sso-login' || substr($path, -strlen('/sso-login')) === '/sso-login') {
+		$separator = empty($parts['query']) ? '?' : '&';
+		return $baseUrl . $separator . 'token=' . urlencode($token);
+	}
+
+	return rtrim($baseUrl, '/') . $loginPath . '?token=' . urlencode($token);
 }
 
 function sso_apply_cors(array $config, $allowCredentials = false) {
@@ -240,12 +372,52 @@ function sso_has_tokens_column($pdo, $columnName) {
 	return in_array($columnName, sso_get_tokens_tbl_columns($pdo), true);
 }
 
+function sso_normalize_role($role) {
+	$role = strtolower(trim((string) $role));
+	$role = preg_replace('/[\s\-]+/', '_', $role);
+
+	switch ($role) {
+		case 'administrator':
+		case 'superadmin':
+		case 'super_admin':
+			return 'admin';
+
+		case 'sub_admin':
+		case 'subadministrator':
+		case 'sub_administrator':
+			return 'subadmin';
+
+		case 'ict':
+		case 'ictd':
+		case 'ict_division':
+		case 'information_technology':
+		case 'information_technology_division':
+		case 'information_and_communication_technology':
+		case 'information_and_communications_technology':
+		case 'information_and_communication_technology_division':
+		case 'information_and_communications_technology_division':
+			return 'ict';
+
+		case 'property_custodian':
+		case 'property_officer':
+		case 'property_management':
+			return 'property';
+
+		case 'employee':
+		case 'enduser':
+		case 'end_user':
+			return 'user';
+	}
+
+	return $role;
+}
+
 function sso_allowed_role($role, array $config) {
 	if (!is_string($role)) {
 		return false;
 	}
 
-	return in_array(strtolower(trim($role)), $config['allowed_roles'], true);
+	return in_array(sso_normalize_role($role), $config['allowed_roles'], true);
 }
 
 function sso_mark_token_used($pdo, $token) {

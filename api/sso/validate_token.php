@@ -61,6 +61,7 @@ try {
             o.office_name,
             dv.division_name,
             un.unit_name,
+            u.role AS portal_role,
             u.status
         FROM user_tbl u
         LEFT JOIN designations d ON u.designation_id = d.id
@@ -85,9 +86,22 @@ try {
     $role_stmt = $pdo->prepare("SELECT role FROM user_system_access WHERE portal_id = ? AND system_id = ?");
     $role_stmt->execute([$portal_id, $system_id]);
     $role_data = $role_stmt->fetch(PDO::FETCH_ASSOC);
-    $role = strtolower(trim((string) ($role_data['role'] ?? '')));
+    $role = null;
+    $candidateRole = sso_normalize_role(
+        $role_data['role'] ?? ''
+    );
+    if (sso_allowed_role($candidateRole, $ssoConfig)) {
+        $role = $candidateRole;
+    }
 
-    if (!sso_allowed_role($role, $ssoConfig)) {
+    $portalRole = sso_normalize_role(
+        $user_data['portal_role'] ?? ''
+    );
+    if ($role === null && $portalRole === 'admin') {
+        $role = 'admin';
+    }
+
+    if ($role === null) {
         sso_log_event($pdo, $portal_id, 'sso_validate_unauthorized_role', 'Unauthorized or unmapped role rejected for system_id ' . $system_id);
         sso_json_response(403, ["status" => "error", "message" => "User does not have access to this system"]);
     }
@@ -95,6 +109,7 @@ try {
     $user_data['full_name'] = trim($user_data['firstname'] . ' ' . $user_data['lastname']);
     $user_data['role'] = $role;
     unset($user_data['status']);
+    unset($user_data['portal_role']);
 
     sso_mark_token_used($pdo, $token);
     sso_log_event($pdo, $portal_id, 'sso_validate_success', 'SSO token validated successfully for system_id ' . $system_id . ' and role ' . $role);

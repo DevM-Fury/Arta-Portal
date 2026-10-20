@@ -15,24 +15,47 @@ session_start();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* === CLEAN, PROFESSIONAL, TWO-COLUMN DESIGN === */
+        :root {
+            --portal-blue: #1877d2;
+            --portal-blue-dark: #0f4ea8;
+            --portal-success: #42b72a;
+            --portal-border: rgba(15, 23, 42, 0.08);
+            --portal-shadow: 0 24px 56px rgba(15, 23, 42, 0.14);
+        }
         body {
-            background: #f8fafc;
-            font-family: 'Inter', -apple-system, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(24, 119, 210, 0.16), transparent 28%),
+                radial-gradient(circle at bottom right, rgba(66, 183, 42, 0.12), transparent 24%),
+                linear-gradient(180deg, #f4f8fc 0%, #eef4fb 52%, #f9fbff 100%);
+            font-family: 'Poppins', sans-serif;
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 28px 20px;
             margin: 0;
+            position: relative;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 90px;
+            right: 8%;
+            width: 220px;
+            height: 220px;
+            clip-path: polygon(25% 6%, 75% 6%, 100% 50%, 75% 94%, 25% 94%, 0 50%);
+            background: linear-gradient(145deg, rgba(24, 119, 210, 0.14), rgba(24, 119, 210, 0.02));
+            filter: blur(6px);
+            pointer-events: none;
         }
         .card {
             max-width: 950px;
             width: 100%;
-            background: white;
-            border: none;
-            border-radius: 24px;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.03);
+            background: rgba(255,255,255,0.9);
+            border: 1px solid var(--portal-border);
+            border-radius: 28px;
+            box-shadow: var(--portal-shadow);
+            backdrop-filter: blur(18px);
             padding: 35px 35px 30px;
         }
         .logo {
@@ -42,7 +65,7 @@ session_start();
         .logo i {
             width: 70px;
             height: 70px;
-            background: linear-gradient(145deg, #1a56db, #2563eb);
+            background: linear-gradient(145deg, var(--portal-blue), #57a7ff);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -50,7 +73,7 @@ session_start();
             margin: 0 auto 12px;
             color: white;
             font-size: 28px;
-            box-shadow: 0 6px 14px rgba(26,86,219,0.15);
+            box-shadow: 0 14px 28px rgba(24,119,210,0.2);
         }
         .logo h3 {
             font-weight: 600;
@@ -83,7 +106,7 @@ session_start();
             gap: 8px;
         }
         .form-label i {
-            color: #1a56db;
+            color: var(--portal-blue);
             width: 18px;
         }
         .input-wrapper {
@@ -92,17 +115,18 @@ session_start();
         .form-control, .form-select {
             width: 100%;
             padding: 12px 16px 12px 44px;
-            border: 1.5px solid #e5e7eb;
-            border-radius: 12px;
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            border-radius: 14px;
             font-size: 15px;
             transition: 0.2s;
-            background: white;
+            background: rgba(255,255,255,0.94);
             color: #111827;
             height: 48px;
+            box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.02);
         }
         .form-control:focus, .form-select:focus {
-            border-color: #1a56db;
-            box-shadow: 0 0 0 4px rgba(26,86,219,0.08);
+            border-color: rgba(24,119,210,0.5);
+            box-shadow: 0 0 0 4px rgba(24,119,210,0.12);
             outline: none;
         }
         .input-icon {
@@ -144,10 +168,10 @@ session_start();
         .validation-message.invalid { color: #ef4444; }
         .validation-message.info { color: #6b7280; }
         .btn-submit {
-            background: linear-gradient(to right, #1a56db, #2563eb);
+            background: linear-gradient(135deg, var(--portal-blue), var(--portal-blue-dark));
             color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 14px;
             font-weight: 600;
             font-size: 16px;
@@ -161,9 +185,9 @@ session_start();
             height: 52px;
         }
         .btn-submit:hover {
-            background: linear-gradient(to right, #1e40af, #1a56db);
+            background: linear-gradient(135deg, #1466b4, #0d438f);
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(26,86,219,0.2);
+            box-shadow: 0 16px 32px rgba(24,119,210,0.22);
         }
         .btn-submit:disabled {
             opacity: 0.6;
@@ -180,7 +204,7 @@ session_start();
             font-size: 14px;
         }
         .login-link a {
-            color: #1a56db;
+            color: var(--portal-blue);
             font-weight: 600;
             text-decoration: none;
         }
@@ -193,12 +217,12 @@ session_start();
         .loading-overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(255,255,255,0.8);
-            backdrop-filter: blur(2px);
+            background: rgba(255,255,255,0.74);
+            backdrop-filter: blur(8px);
             display: none;
             align-items: center;
             justify-content: center;
-            border-radius: 24px;
+            border-radius: 28px;
             z-index: 1000;
         }
     </style>

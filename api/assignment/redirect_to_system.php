@@ -8,6 +8,9 @@ header('Content-Type: application/json');
 session_start();
 require_once __DIR__ . '/../../includes/config_access.php'; // PostgreSQL PDO connection
 require_once __DIR__ . '/../../includes/log_helper.php';
+require_once __DIR__ . '/../../includes/sso_helper.php';
+
+$ssoConfig = sso_get_config();
 
 // ✅ Check if user is logged in
 if (!isset($_SESSION['user']['portal_id'])) {
@@ -43,8 +46,23 @@ try {
 		]
 	);
 
+	$systemContext = $system ?: ['system_name' => '', 'domain_url' => $domain_url];
+	$system_url = sso_resolve_system_base_url($systemContext, $ssoConfig);
+	if (!sso_is_allowed_redirect_url($system_url, $ssoConfig, $pdo)) {
+		http_response_code(400);
+		echo json_encode(['status' => 400, 'message' => 'Resolved system URL is not allowed']);
+		exit;
+	}
+	
 	// ✅ Generate a secure token (SSO)
 	$token = bin2hex(random_bytes(32)); // 64-character secure token
+	$redirect_url = sso_build_login_url($system_url, $token);
+	if ($redirect_url === null) {
+		http_response_code(400);
+		echo json_encode(['status' => 400, 'message' => 'Resolved system URL is invalid']);
+		exit;
+	}
+
 	$expires_at = date('Y-m-d H:i:s', strtotime('+5 minutes'));
 
 	// ✅ Insert token into sso_tokens table
@@ -57,9 +75,6 @@ try {
 		':token' => $token,
 		':expires_at' => $expires_at
 	]);
-
-	// ✅ Redirect to AMS (Laravel system) with token
-	$redirect_url = rtrim($domain_url, '/') . "/sso-login?token=" . urlencode($token);
 
 	log_system_event(
 		$pdo,

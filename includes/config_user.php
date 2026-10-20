@@ -13,10 +13,10 @@ function load_dotenv_system($path) {
 load_dotenv_system(__DIR__ . '/../.env');
 
 // ✅ PostgreSQL Database Credentials
-$DB_HOST_SYS = getenv('DB_HOST') ?: 'localhost';
+$DB_HOST_SYS = getenv('DB_HOST') ?: '127.0.0.1';
 $DB_NAME_SYS = getenv('DB_NAME') ?: 'portal_db';
 $DB_USER_SYS = getenv('DB_USER') ?: 'postgres';
-$DB_PASS_SYS = getenv('DB_PASS') ?: 'secret'; // lagyan mo kung may password ka
+$DB_PASS_SYS = getenv('DB_PASS') ?: 'strongpasswordsecret'; // lagyan mo kung may password ka
 
 // ✅ Set JSON + CORS headers
 header('Content-Type: application/json; charset=utf-8');

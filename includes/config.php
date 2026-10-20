@@ -10,11 +10,11 @@ function load_dotenv($path) {
 }
 load_dotenv(__DIR__ . '/../.env');
 
-$DB_HOST = getenv('DB_HOST') ?: 'localhost';
+$DB_HOST = getenv('DB_HOST') ?: '127.0.0.1';
 $DB_NAME = getenv('DB_NAME') ?: 'portal_db';
 $DB_USER = getenv('DB_USER') ?: 'postgres';
-$DB_PASS = getenv('DB_PASS') ?: 'secret';
-$ALLOWED_ORIGIN = getenv('ALLOWED_ORIGIN') ?: 'http://localhost';
+$DB_PASS = getenv('DB_PASS') ?: 'strongpasswordsecret';
+$ALLOWED_ORIGIN = getenv('ALLOWED_ORIGIN') ?: 'http://127.0.0.1';
 
 function respond($statusCode, $data) {
     http_response_code($statusCode);

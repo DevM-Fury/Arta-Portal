@@ -14,10 +14,10 @@ function load_dotenv_system($path) {
 load_dotenv_system(__DIR__ . '/../.env');
 
 // ✅ Database credentials (same as your existing system)
-$DB_HOST_REG = getenv('DB_HOST') ?: 'localhost';
+$DB_HOST_REG = getenv('DB_HOST') ?: '127.0.0.1';
 $DB_NAME_REG = getenv('DB_NAME') ?: 'portal_db';
 $DB_USER_REG = getenv('DB_USER') ?: 'postgres';
-$DB_PASS_REG = getenv('DB_PASS') ?: 'secret';
+$DB_PASS_REG = getenv('DB_PASS') ?: 'strongpasswordsecret';
 
 // ✅ CORS + JSON headers
 header('Content-Type: application/json; charset=utf-8');
