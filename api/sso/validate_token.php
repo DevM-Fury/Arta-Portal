@@ -94,13 +94,6 @@ try {
         $role = $candidateRole;
     }
 
-    $portalRole = sso_normalize_role(
-        $user_data['portal_role'] ?? ''
-    );
-    if ($role === null && $portalRole === 'admin') {
-        $role = 'admin';
-    }
-
     if ($role === null) {
         sso_log_event($pdo, $portal_id, 'sso_validate_unauthorized_role', 'Unauthorized or unmapped role rejected for system_id ' . $system_id);
         sso_json_response(403, ["status" => "error", "message" => "User does not have access to this system"]);
